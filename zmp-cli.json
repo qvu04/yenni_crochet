@@ -1,0 +1,19 @@
+{
+  "cwd": "/Users/ngoquangvu/Documents/My-Project/yenni_crochet",
+  "name": "yenni_crochet",
+  "framework": "react-typescript",
+  "cssPreProcessor": "scss",
+  "includeTailwind": true,
+  "package": "zmp-ui",
+  "stateManagement": "zustand",
+  "newProject": true,
+  "template": "single-view",
+  "theming": {
+    "customColor": false,
+    "color": "#ec4899",
+    "darkTheme": false,
+    "iconFonts": true,
+    "fillBars": false,
+    "useUiKits": true
+  }
+}

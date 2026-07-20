@@ -1,0 +1,35 @@
+{
+  "name": "yenni_crochet",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Yenni Crochet - Zalo Mini App ban do handmade",
+  "scripts": {
+    "login": "zmp login",
+    "start": "zmp start",
+    "deploy": "zmp deploy",
+    "build": "zmp build",
+    "dev": "vite",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.0",
+    "zmp-sdk": "2.47.2",
+    "zmp-ui": "1.11.11",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "4.6.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "sass": "^1.76.0",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.18",
+    "zmp-vite-plugin": "^1.1.6"
+  }
+}

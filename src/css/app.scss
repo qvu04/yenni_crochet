@@ -1,0 +1,13 @@
+// Màu theme đặt ở CSS variables — tailwind.config.js đọc từ đây,
+// sau này đổi theme chỉ cần đổi giá trị variable
+:root {
+  --color-primary: #ec4899;
+  --color-background-main: #fdf2f8;
+  --color-text-main: #500724;
+  --color-text-muted: #9d174d;
+}
+
+body {
+  background: var(--color-background-main);
+  color: var(--color-text-main);
+}
