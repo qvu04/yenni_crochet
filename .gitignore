@@ -14,6 +14,10 @@ www
 *.local
 .env
 
+# Schema/RLS chứa cấu trúc database — không public
+supabase/schema.sql
+supabase/rls.sql
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
