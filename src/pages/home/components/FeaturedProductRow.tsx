@@ -5,19 +5,16 @@ import { useGetFeaturedProductsByType } from "queries/products";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProductType } from "types";
-
 interface FeaturedProductRowProps {
     title: string;
     productType?: ProductType;
     preOrder?: boolean;
-    showTypeBadge?: boolean; // mặc định true — "Tất cả sản phẩm" vẫn hiện badge dù không lọc theo type
+    showTypeBadge?: boolean;
     icon?: ReactNode;
 }
-
 export const FeaturedProductRow = ({ title, productType, preOrder, showTypeBadge = true, icon }: FeaturedProductRowProps) => {
     const { data: products, isLoading, isError } = useGetFeaturedProductsByType({ productType, preOrder });
     const navigate = useNavigate();
-
     const seeAllPath = preOrder
         ? "/products?type=pre_order"
         : productType
