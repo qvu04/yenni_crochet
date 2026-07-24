@@ -3,9 +3,44 @@ import { formatPrice } from 'utils';
 import { useProductSheetStore } from 'stores/productSheet';
 import { motion } from 'motion/react';
 
-const productTypeLabel: Record<NonNullable<Products["product_type"]>, string> = {
-    best_seller: "Bán chạy",
-    new: "Mới",
+interface ProductBadge {
+    key: string;
+    label: string;
+    className: string;
+}
+
+const productTypeBadges: Record<NonNullable<Products["product_type"]>, ProductBadge> = {
+    best_seller: {
+        key: "best_seller",
+        label: "Bán chạy",
+        className: "bg-[#8B1A1A] text-[#FFFFE0]",
+    },
+    new: {
+        key: "new",
+        label: "Mới",
+        className: "bg-[#1F7A5C] text-white",
+    },
+    pre_order: {
+        key: "pre_order",
+        label: "Đặt trước",
+        className: "bg-[#4A6C8C] text-white",
+    },
+};
+
+const preOrderBadge = productTypeBadges.pre_order;
+
+const getProductBadges = (product: Products): ProductBadge[] => {
+    const badges: ProductBadge[] = [];
+
+    if (product.product_type) {
+        badges.push(productTypeBadges[product.product_type]);
+    }
+
+    if (product.is_pre_order && product.product_type !== "pre_order") {
+        badges.push(preOrderBadge);
+    }
+
+    return badges;
 };
 
 interface ProductCardProps {
@@ -13,9 +48,10 @@ interface ProductCardProps {
     showProductTypeBadge?: boolean;
 }
 
-export const ProductCard = ({ product, showProductTypeBadge = false }: ProductCardProps) => {
+export const ProductCard = ({ product, showProductTypeBadge = true }: ProductCardProps) => {
     const inStock = product.stock_quantity > 0;
     const openProduct = useProductSheetStore((s) => s.openProduct);
+    const badges = showProductTypeBadge ? getProductBadges(product) : [];
 
     return (
         <motion.button
@@ -39,14 +75,16 @@ export const ProductCard = ({ product, showProductTypeBadge = false }: ProductCa
                 )}
 
                 <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-text-main/25 to-transparent" />
-                {showProductTypeBadge && product.product_type && (
-                    <div className={`absolute left-2 top-2 rounded-full ${product.product_type === "best_seller" ? "bg-[#8B1A1A] text-[#FFFFE0]" : "bg-[#8B6969] text-[#FFC0CB]"} px-2 py-1 text-[10px] font-bold leading-none shadow-sm`}>
-                        {productTypeLabel[product.product_type]}
-                    </div>
-                )}
-                {product.is_pre_order && (
-                    <div className="absolute left-2 top-2 rounded-full bg-[#4A6C8C] text-white px-2 py-1 text-[10px] font-bold leading-none shadow-sm">
-                        Đặt trước
+                {badges.length > 0 && (
+                    <div className="absolute left-2 top-2 flex max-w-[calc(100%-16px)] flex-wrap gap-1">
+                        {badges.map((badge) => (
+                            <div
+                                key={badge.key}
+                                className={`rounded-full px-2 py-1 text-[10px] font-bold leading-none shadow-sm ${badge.className}`}
+                            >
+                                {badge.label}
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>

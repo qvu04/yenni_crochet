@@ -12,4 +12,4 @@ export interface Products {
     stock_quantity: number;
     product_type: ProductType | null;
 };
-export type ProductType = "best_seller" | "new";
+export type ProductType = "best_seller" | "new" | "pre_order";

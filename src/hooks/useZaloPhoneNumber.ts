@@ -1,15 +1,37 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { getAccessToken, getPhoneNumber } from "zmp-sdk/apis";
 import { supabase } from "services/supabase";
 
 interface ZaloPhoneResponse {
   phoneNumber: string;
 }
+
+interface FunctionErrorWithContext {
+  message?: string;
+  context?: Response;
+}
+
+const getFunctionErrorMessage = async (error: unknown) => {
+  const functionError = error as FunctionErrorWithContext;
+
+  if (functionError.context instanceof Response) {
+    try {
+      const detail = await functionError.context.clone().json();
+      if (typeof detail?.error === "string") {
+        return detail.detail ? `${detail.error}: ${detail.detail}` : detail.error;
+      }
+    } catch {
+    }
+  }
+
+  return functionError.message || "Không lấy được số điện thoại";
+};
+
 export const useZaloPhoneNumber = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const getPhone = async (): Promise<string | null> => {
+  const getPhone = useCallback(async (): Promise<string | null> => {
     setIsLoading(true);
     setError(null);
 
@@ -22,7 +44,9 @@ export const useZaloPhoneNumber = () => {
         { body: { accessToken, phoneToken } },
       );
 
-      if (fnError) throw fnError;
+      if (fnError) {
+        throw new Error(await getFunctionErrorMessage(fnError));
+      }
       if (!data?.phoneNumber) throw new Error("Không lấy được số điện thoại");
 
       return data.phoneNumber;
@@ -32,7 +56,7 @@ export const useZaloPhoneNumber = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   return { getPhone, isLoading, error };
 };

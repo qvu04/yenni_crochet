@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getUserInfo } from "zmp-sdk/apis";
 import { Products } from "types";
 import { useCreateOrder } from "queries/orders";
+import { useZaloPhoneNumber } from "hooks/useZaloPhoneNumber";
 import { formatPrice } from "utils";
 
 interface OrderFormProps {
@@ -17,7 +18,8 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
   const [note, setNote] = useState("");
   const [quantity, setQuantity] = useState(1);
 
-  const { mutate: createOrder, isPending, error } = useCreateOrder();
+  const { mutate: createOrder, isPending, error: orderError } = useCreateOrder();
+  const { getPhone, isLoading: isGettingPhone, error: phoneError } = useZaloPhoneNumber();
 
   useEffect(() => {
     getUserInfo({ autoRequestPermission: true })
@@ -26,6 +28,14 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
       })
       .catch(() => { });
   }, []);
+
+  const handleGetPhone = () => {
+    getPhone().then((phoneNumber) => {
+      if (phoneNumber) {
+        setPhone(phoneNumber);
+      }
+    });
+  };
 
   const canSubmit = Boolean(customerName.trim() && phone.trim() && address.trim());
 
@@ -91,14 +101,29 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold text-text-main">Số điện thoại</label>
+          <div className="mb-1 flex items-center justify-between gap-3">
+            <label className="block text-sm font-semibold text-text-main">Số điện thoại</label>
+            <button
+              type="button"
+              onClick={handleGetPhone}
+              disabled={isGettingPhone}
+              className="text-xs font-semibold text-title-text disabled:text-text-muted"
+            >
+              {isGettingPhone ? "Đang lấy..." : "Lấy từ Zalo"}
+            </button>
+          </div>
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="09xxxxxxxx"
+            placeholder={isGettingPhone ? "Đang lấy từ Zalo..." : "09xxxxxxxx"}
             inputMode="tel"
             className="w-full rounded-2xl border border-background-main bg-white p-3 text-sm text-text-main outline-none focus:border-primary"
           />
+          {phoneError && (
+            <p className="mt-1 text-xs text-[#B91C1C]">
+              Chưa thể tự lấy SĐT từ Zalo, bạn vui lòng nhập tay nhé.
+            </p>
+          )}
         </div>
 
         <div>
@@ -127,9 +152,9 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
           </div>
         )}
 
-        {error && (
+        {orderError && (
           <p className="rounded-2xl bg-[#FEE2E2] p-3 text-sm text-[#B91C1C]">
-            Đặt hàng thất bại, thử lại nhé: {error.message}
+            Đặt hàng thất bại, thử lại nhé: {orderError.message}
           </p>
         )}
       </div>
