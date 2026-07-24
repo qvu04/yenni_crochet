@@ -1,18 +1,34 @@
-// Màu theme đặt ở CSS variables — tailwind.config.js đọc từ đây,
-// sau này đổi theme chỉ cần đổi giá trị variable
 :root {
-  --color-primary: #6fcf97;
-  --color-primary-dark: #3faE7c;
-  --color-background-main: #f0fbf7;
-  --color-text-main: #1f2933;
-  --color-text-muted: #6b7280;
-
-  // Header phải né status bar/tai thỏ — Zalo cấp sẵn --zaui-safe-area-inset-top,
-  // công thức mirror của Phúc Long
+  --color-primary: #ffc6c7;
+  --color-primary-dark: #f4a3a6;
+  --color-background-main: #faeee7;
+  --color-text-main: #33272a;
+  --color-text-muted: #594a4e;
+  --color-text-title: #5C4033;
+  --color-header-bg: #ffb6c1;
   --header-padding-top: max(calc(var(--zaui-safe-area-inset-top, 24px) + 6px), 30px);
+  --font-heading: "Quicksand", "Be Vietnam Pro", sans-serif;
+  --font-body: "Be Vietnam Pro", sans-serif;
 }
 
 body {
   background: var(--color-background-main);
   color: var(--color-text-main);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

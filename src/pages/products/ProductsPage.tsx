@@ -1,20 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import { useGetActiveProducts } from "queries/products";
 import { ProductCard } from "components/common";
 
 export const ProductsPage = () => {
   const { data: products, isLoading, isError } = useGetActiveProducts({});
-  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background-main">
-      <div className="sticky top-0 z-10 flex items-center gap-3 bg-white px-5 py-4 shadow-sm">
-        <button onClick={() => navigate(-1)} className="text-xl text-text-main">
-          ←
-        </button>
-        <p className="text-lg font-bold text-text-main">Tất cả sản phẩm</p>
-      </div>
-
+    <div className="min-h-screen bg-background-main pt-10">
       <div className="px-5 pt-4">
         {isLoading && (
           <div className="grid grid-cols-2 gap-3">

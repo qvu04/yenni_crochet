@@ -12,38 +12,11 @@
 //
 // Docs: https://supabase.com/docs/reference/javascript/select
 
-import { Products } from "types";
+import { Products, ProductType } from "types";
 import { supabase } from "./supabase";
 
 export const productServices = {
-  // TODO
-  getBestSellerProducts: async (): Promise<Products[]> => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("is_featured", true)
-      .eq("is_active", true) // sản phẩm nổi bật nhưng đã ngừng bán thì cũng không nên hiện
-      .limit(4);
 
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return data;
-  },
-  getActiveProducts: async (): Promise<Products[]> => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true)
-    if (error) {
-      throw new Error(error.message);
-    }
-    return data;
-  },
-
-  // Trang chi tiết sản phẩm — .single() bắt Supabase trả về 1 object thay vì mảng,
-  // và tự báo lỗi nếu không tìm thấy đúng 1 dòng khớp id
   getProductById: async (id: string): Promise<Products> => {
     const { data, error } = await supabase
       .from("products")
@@ -57,4 +30,41 @@ export const productServices = {
 
     return data;
   },
+  getActiveProducts: async (): Promise<Products[]> => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .limit(8)
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data;
+  },
+
+  getProductsByType: async (productType: ProductType): Promise<Products[]> => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .eq("product_type", productType)
+      .limit(8)
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data;
+  },
+
+  getPreOrderProducts: async (): Promise<Products[]> => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .eq("is_pre_order", true)
+      .limit(8)
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data;
+  }
 };

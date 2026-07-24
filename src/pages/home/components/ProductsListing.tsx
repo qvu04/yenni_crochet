@@ -1,49 +1,24 @@
-import { useNavigate } from "react-router-dom";
-import { useGetBestSellerProducts } from "queries/products";
-import { ProductCard } from "components/common";
+import { AllProductsIcon, BestSellerIcon, NewIcon } from "components/icons";
+import { FeaturedProductRow } from "./FeaturedProductRow";
 export const ProductsListing = () => {
-    const { data: products, isLoading, isError } = useGetBestSellerProducts({});
-    const navigate = useNavigate();
-
     return (
         <section className="px-5 pt-6">
-            <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-text-main">🔥 Sản phẩm nổi bật</h2>
-                <button
-                    onClick={() => navigate("/products")}
-                    className="text-sm font-semibold text-primary"
-                >
-                    Xem tất cả
-                </button>
+            <div className="space-y-5">
+                <FeaturedProductRow
+                    title="Sản phẩm bán chạy"
+                    productType="best_seller"
+                    icon={<BestSellerIcon className="h-8 w-8 text-title-text" />}
+                />
+                <FeaturedProductRow
+                    title="Sản phẩm mới"
+                    productType="new"
+                    icon={<NewIcon className="h-8 w-8 text-title-text" />}
+                />
+                <FeaturedProductRow
+                    title="Tất cả sản phẩm"
+                    icon={<AllProductsIcon className="h-8 w-8 text-title-text" />}
+                />
             </div>
-
-            {isLoading && (
-                <div className="grid grid-cols-2 gap-3">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="h-48 animate-pulse rounded-2xl bg-background-main" />
-                    ))}
-                </div>
-            )}
-
-            {isError && (
-                <p className="rounded-2xl bg-background-main p-4 text-sm text-text-muted">
-                    Không tải được sản phẩm, thử lại sau nhé.
-                </p>
-            )}
-
-            {!isLoading && !isError && products?.length === 0 && (
-                <p className="rounded-2xl bg-background-main p-4 text-sm text-text-muted">
-                    Chưa có sản phẩm nổi bật nào.
-                </p>
-            )}
-
-            {!isLoading && !isError && products && products.length > 0 && (
-                <div className="grid grid-cols-2 gap-3">
-                    {products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                    ))}
-                </div>
-            )}
         </section>
     );
 };

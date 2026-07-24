@@ -1,10 +1,11 @@
 import { Swiper } from "antd-mobile";
 import styled from "styled-components";
 import { useGetUpcomingCampaigns } from "queries/campaigns";
+import { GiftIcon } from "components/icons";
 
 const StyledSwiper = styled(Swiper)`
-  --dot-color: rgba(31, 41, 51, 0.15);
-  --active-dot-color: #6fcf97;
+  --dot-color: rgba(51, 39, 42, 0.15);
+  --active-dot-color: var(--color-primary);
   --dot-spacing: 6px;
   --track-padding: 0 0 20px;
 `;
@@ -14,7 +15,7 @@ const BannerSlide = styled.div<{ $bg: string }>`
   height: 140px;
   border-radius: 16px;
   overflow: hidden;
-  background: #6fcf97 url(${(p) => p.$bg}) center/cover no-repeat;
+  background: var(--color-primary) url(${(p) => p.$bg}) center/cover no-repeat;
 
   &::after {
     content: "";
@@ -50,7 +51,10 @@ export const CamPaigns = () => {
 
     return (
         <div className="mx-5 mt-4 flex flex-col gap-2">
-            <h2 className="text-lg font-bold text-text-main">Sản phẩm theo sự kiện</h2>
+            <h2 className="flex items-center gap-1.5 text-lg font-bold text-title-text">
+                <GiftIcon className="h-8 w-8 text-title-text" />
+                Sản phẩm theo sự kiện
+            </h2>
             <StyledSwiper autoplay loop>
                 {campaigns.map((campaign) => (
                     <Swiper.Item key={campaign.id}>

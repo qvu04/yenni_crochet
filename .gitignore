@@ -17,7 +17,8 @@ www
 # Schema/RLS chứa cấu trúc database — không public
 supabase/schema.sql
 supabase/rls.sql
-
+supabase/migrate-product-type.sql
+supabase/functions
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

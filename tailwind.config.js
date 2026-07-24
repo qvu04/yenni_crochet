@@ -8,6 +8,12 @@ module.exports = {
         "background-main": "var(--color-background-main)",
         "text-main": "var(--color-text-main)",
         "text-muted": "var(--color-text-muted)",
+        "header-bg": "var(--color-header-bg)",
+        "title-text": "var(--color-text-title)",
+      },
+      fontFamily: {
+        heading: ["var(--font-heading)"],
+        body: ["var(--font-body)"],
       },
     },
   },
