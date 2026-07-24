@@ -1,10 +1,3 @@
-// Edge Function: đổi phone token (nhận từ client, lấy qua getPhoneNumber() của Zalo)
-// thành số điện thoại thật — bắt buộc làm ở server vì cần app secret của Zalo.
-//
-// TODO trước khi deploy:
-// 1. `supabase secrets set ZALO_APP_SECRET=xxx`
-// 2. `supabase functions deploy zalo-phone`
-
 const ZALO_APP_SECRET = Deno.env.get("ZALO_APP_SECRET") ?? "";
 
 const corsHeaders = {
