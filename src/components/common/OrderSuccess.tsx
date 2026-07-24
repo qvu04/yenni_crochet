@@ -15,7 +15,7 @@ export const OrderSuccess = ({ onClose, onOrderMore }: OrderSuccessProps) => {
       <div>
         <p className="font-heading text-xl font-bold text-text-main">Đặt hàng thành công!</p>
         <p className="mt-1 text-sm text-text-muted">
-          Cảm ơn bạn đã đặt hàng — Yenni Crochet sẽ liên hệ để xác nhận sớm nhất nhé 🧶
+          Cảm ơn bạn đã đặt hàng — Yenni Crochet sẽ liên hệ đến bạn để xác nhận đơn sớm nhất nhé 🧶
         </p>
       </div>
 
