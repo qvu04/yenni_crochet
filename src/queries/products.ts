@@ -52,3 +52,20 @@ export const useGetFeaturedProductsByType = ({ productType, preOrder, options }:
         ...options
     })
 }
+
+interface UseGetProductsList {
+    productType?: ProductType;
+    preOrder?: boolean;
+    options?: UseQueryOptions<Products[], Error>
+}
+
+export const useGetProductsList = ({ productType, preOrder, options }: UseGetProductsList) => {
+    return useQuery({
+        queryKey: [QUERY_KEY.GET_PRODUCTS_LIST, preOrder ? "pre_order" : (productType ?? "all")],
+        queryFn: async () => {
+            const res = await productServices.getProductsList({ productType, preOrder });
+            return res;
+        },
+        ...options
+    })
+}

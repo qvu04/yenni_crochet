@@ -41,7 +41,7 @@ export const CamPaigns = () => {
 
     if (isLoading) {
         return (
-            <div className="mx-5 mt-4 h-[140px] animate-pulse rounded-2xl bg-background-main" />
+            <div className="h-[140px] animate-pulse rounded-2xl bg-white/65" />
         );
     }
 
@@ -50,7 +50,7 @@ export const CamPaigns = () => {
     }
 
     return (
-        <div className="mx-5 mt-4 flex flex-col gap-2">
+        <section className="flex flex-col gap-2">
             <h2 className="flex items-center gap-1.5 text-lg font-bold text-title-text">
                 <GiftIcon className="h-8 w-8 text-title-text" />
                 Sản phẩm theo sự kiện
@@ -64,6 +64,6 @@ export const CamPaigns = () => {
                     </Swiper.Item>
                 ))}
             </StyledSwiper>
-        </div>
+        </section>
     );
 };

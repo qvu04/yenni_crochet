@@ -18,7 +18,13 @@ www
 supabase/schema.sql
 supabase/rls.sql
 supabase/migrate-product-type.sql
-supabase/functions
+supabase/notify-order-trigger.sql
+supabase/notify-custom-request-trigger.sql
+supabase/feature-tables.sql
+supabase/custom-requests-fields.sql
+supabase/custom-request-storage-policy.sql
+CLAUDE.md
+PRD.md
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -2,7 +2,7 @@ import { AllProductsIcon, BestSellerIcon, NewIcon } from "components/icons";
 import { FeaturedProductRow } from "./FeaturedProductRow";
 export const ProductsListing = () => {
     return (
-        <section className="px-5 pt-6">
+        <section>
             <div className="space-y-5">
                 <FeaturedProductRow
                     title="Sản phẩm bán chạy"

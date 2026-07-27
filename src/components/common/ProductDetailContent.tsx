@@ -1,22 +1,20 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Icon } from 'zmp-ui';
-import { useGetProductById } from 'queries/products';
 import { formatPrice } from 'utils';
 import { OrderForm } from './OrderForm';
-import { OrderSuccess } from './OrderSuccess';
+import { useGetProductById } from 'queries';
 
 interface ProductDetailContentProps {
     productId: string;
     onClose: () => void;
+    onOrderSuccess: () => void;
 }
 
-type Step = "detail" | "form" | "success";
+type Step = "detail" | "form";
 
-export const ProductDetailContent = ({ productId, onClose }: ProductDetailContentProps) => {
+export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: ProductDetailContentProps) => {
     const { data: product, isLoading, isError } = useGetProductById({ id: productId });
     const [step, setStep] = useState<Step>("detail");
-    const navigate = useNavigate();
 
     const closeButton = (
         <button
@@ -54,22 +52,7 @@ export const ProductDetailContent = ({ productId, onClose }: ProductDetailConten
                 <OrderForm
                     product={product}
                     onCancel={() => setStep("detail")}
-                    onSuccess={() => setStep("success")}
-                />
-            </div>
-        );
-    }
-
-    if (step === "success") {
-        return (
-            <div className="relative h-full">
-                {closeButton}
-                <OrderSuccess
-                    onClose={onClose}
-                    onOrderMore={() => {
-                        onClose();
-                        navigate("/products");
-                    }}
+                    onSuccess={onOrderSuccess}
                 />
             </div>
         );

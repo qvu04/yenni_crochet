@@ -9,3 +9,5 @@ export * from "./NewProductIcon";
 export * from "./AllProductsIcon";
 export * from "./PreOrderIcon";
 export * from "./NewIcon";
+export * from "./SuccessIcon";
+export * from "./EmptyIconDefault";

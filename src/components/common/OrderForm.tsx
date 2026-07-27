@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { getUserInfo } from "zmp-sdk/apis";
 import { Products } from "types";
-import { useCreateOrder } from "queries/orders";
 import { useZaloPhoneNumber } from "hooks/useZaloPhoneNumber";
 import { formatPrice } from "utils";
+import { useCreateOrder } from "queries";
 
 interface OrderFormProps {
   product: Products;

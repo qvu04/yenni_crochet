@@ -8,5 +8,9 @@ export interface RouteConfig {
 
 export const ROUTES: RouteConfig[] = [
   { path: "/", showHeader: false },
-  { path: "/products", title: "Tất cả sản phẩm", showHeader: true, showBackButton: true },
+  { path: "/products", title: "Sản phẩm", showHeader: true, showBackButton: true },
+  { path: "/order", showHeader: false },
+  { path: "/vouchers", title: "Ưu đãi", showHeader: true },
+  { path: "/contact", title: "Liên hệ", showHeader: true },
+  { path: "/account", title: "Tài khoản", showHeader: true },
 ];

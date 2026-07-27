@@ -1,19 +1,10 @@
-// ============ BÀI: Products service ============
-// Pattern *.service.ts giống weather.service.ts: 1 file thuần gọi data, không dính React.
-// Khác biệt: weather gọi fetchInstance (REST thủ công), ở đây gọi supabase.from() (Supabase tự sinh API).
-//
-// TODO: viết hàm getActiveProducts() trong productServices:
-// 1. Gọi supabase.from("products").select("*")
-// 2. Lọc chỉ lấy sản phẩm đang bán — cột nào trong schema xử lý việc này? (gợi ý: is_active)
-// 3. supabase trả về { data, error } — không throw như fetch. Câu hỏi tự trả lời:
-//    nếu error khác null, hàm nên làm gì? (gợi ý: xem cách weather.service.ts để "as any"
-//    hay throw Error, chọn cách phù hợp và giải thích được tại sao)
-// 4. Return kiểu Product[] (đã định nghĩa ở types/index.ts)
-//
-// Docs: https://supabase.com/docs/reference/javascript/select
-
 import { Products, ProductType } from "types";
 import { supabase } from "./supabase";
+
+interface GetProductsListInput {
+  productType?: ProductType;
+  preOrder?: boolean;
+}
 
 export const productServices = {
 
@@ -65,6 +56,28 @@ export const productServices = {
     if (error) {
       throw new Error(error.message);
     }
+    return data;
+  },
+
+  getProductsList: async ({ productType, preOrder }: GetProductsListInput): Promise<Products[]> => {
+    let query = supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
+
+    if (preOrder) {
+      query = query.eq("is_pre_order", true);
+    } else if (productType) {
+      query = query.eq("product_type", productType);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
     return data;
   }
 };

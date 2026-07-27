@@ -1,7 +1,7 @@
 // components/FeaturedProductRow.tsx
-import { ProductCard } from "components/common";
+import { ConditionalRender, ProductCard } from "components/common";
 import { motion } from "motion/react";
-import { useGetFeaturedProductsByType } from "queries/products";
+import { useGetFeaturedProductsByType } from "queries";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProductType } from "types";
@@ -35,32 +35,33 @@ export const FeaturedProductRow = ({ title, productType, preOrder, showTypeBadge
                 </button>
             </div>
 
-            {isLoading && (
-                <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                        <div
-                            key={index}
-                            className="h-44 w-[118px] shrink-0 animate-pulse rounded-2xl bg-white/65 sm:w-[145px]"
-                        />
-                    ))}
-                </div>
-            )}
-
-            {isError && (
-                <p className="rounded-2xl bg-white/70 p-4 text-sm text-text-muted">
-                    Không tải được sản phẩm, thử lại sau nhé.
-                </p>
-            )}
-
-            {!isLoading && !isError && products?.length === 0 && (
-                <p className="rounded-2xl bg-white/70 p-4 text-sm text-text-muted">
-                    Chưa có sản phẩm nào.
-                </p>
-            )}
-
-            {!isLoading && !isError && products && products.length > 0 && (
+            <ConditionalRender
+                isLoading={isLoading}
+                isError={isError}
+                isEmpty={products?.length === 0}
+                loadingRender={
+                    <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1">
+                        {Array.from({ length: 4 }).map((_, index) => (
+                            <div
+                                key={index}
+                                className="h-44 w-[118px] shrink-0 animate-pulse rounded-2xl bg-white/65 sm:w-[145px]"
+                            />
+                        ))}
+                    </div>
+                }
+                errorRender={
+                    <p className="rounded-2xl bg-white/70 p-4 text-sm text-text-muted">
+                        Không tải được sản phẩm, thử lại sau nhé.
+                    </p>
+                }
+                emptyRender={
+                    <p className="rounded-2xl bg-white/70 p-4 text-sm text-text-muted">
+                        Chưa có sản phẩm phù hợp.
+                    </p>
+                }
+            >
                 <div className="scrollbar-none flex snap-x gap-3 overflow-x-auto pb-1">
-                    {products.map((product) => (
+                    {products?.map((product) => (
                         <motion.div
                             key={product.id}
                             className="w-[31%] min-w-[132px] max-w-[156px] shrink-0 snap-start"
@@ -73,7 +74,7 @@ export const FeaturedProductRow = ({ title, productType, preOrder, showTypeBadge
                         </motion.div>
                     ))}
                 </div>
-            )}
+            </ConditionalRender>
         </div>
     );
 };

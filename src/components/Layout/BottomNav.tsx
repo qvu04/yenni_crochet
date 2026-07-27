@@ -1,13 +1,13 @@
 import { matchPath, useLocation, useNavigate } from "react-router-dom";
-import { Icon } from "zmp-ui";
 import { motion } from "motion/react";
-import { AiOutlineHome, AiOutlineMenu, AiOutlineUser, AiOutlineGift } from "react-icons/ai";
+import { AiOutlineHome, AiOutlineEdit, AiOutlineUser, AiOutlineGift, AiOutlineMessage } from "react-icons/ai";
 import { ROUTES } from "constant";
 const TABS = [
   { key: "home", path: "/", label: "Trang chủ", icon: <AiOutlineHome /> },
-  { key: "menu", path: "/products", label: "Danh mục", icon: <AiOutlineMenu /> },
-  { key: "products-list", path: "/products-list", label: "Ưu đãi", icon: <AiOutlineGift /> },
-  { key: "products-cart", path: "/products-cart", label: "Tài khoản", icon: <AiOutlineUser /> },
+  { key: "order", path: "/order", label: "Đặt riêng", icon: <AiOutlineEdit /> },
+  { key: "voucher", path: "/vouchers", label: "Ưu đãi", icon: <AiOutlineGift /> },
+  { key: "contact", path: "/contact", label: "Liên hệ", icon: <AiOutlineMessage /> },
+  { key: "account", path: "/account", label: "Tài khoản", icon: <AiOutlineUser /> },
 ] as const;
 
 export const BottomNav = () => {

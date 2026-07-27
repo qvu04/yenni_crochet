@@ -20,7 +20,8 @@ export default () => {
         services: "/src/services",
         queries: "/src/queries",
         types: "/src/types",
-        stores: "/src/stores"
+        stores: "/src/stores",
+        schemas: "/src/schemas"
       },
     },
   });
