@@ -23,6 +23,7 @@ supabase/notify-custom-request-trigger.sql
 supabase/feature-tables.sql
 supabase/custom-requests-fields.sql
 supabase/custom-request-storage-policy.sql
+supabase/campaign-detail-fields.sql
 CLAUDE.md
 PRD.md
 # Editor directories and files

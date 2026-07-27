@@ -7,6 +7,7 @@ import { CustomRequestPage } from "pages/custom-request";
 import { VouchersPage } from "pages/vouchers";
 import { ContactPage } from "pages/contact";
 import { AccountPage } from "pages/account";
+import { CampaignSheet } from "pages/home/components";
 import { SplashScreen, ProductDetailSheet, ScrollToTop } from "components/common";
 import { AppHeader, BottomNav } from "components/Layout";
 
@@ -33,6 +34,7 @@ export default function App() {
           </Routes>
         </div>
         <BottomNav />
+        <CampaignSheet />
         <ProductDetailSheet />
       </MemoryRouter>
     </AppProviders>
