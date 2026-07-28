@@ -13,3 +13,8 @@ export interface Products {
     product_type: ProductType | null;
 };
 export type ProductType = "best_seller" | "new" | "pre_order";
+export interface ProductBadge {
+    key: string;
+    label: string;
+    className: string;
+}

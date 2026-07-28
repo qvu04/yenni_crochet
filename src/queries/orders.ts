@@ -14,6 +14,10 @@ export const useCreateOrder = ({ options }: UseCreateOrderProps = {}) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_PRODUCT_BY_ID] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_ACTIVE_PRODUCTS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_BEST_SELLER_PRODUCTS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_PRODUCTS_LIST] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_FEATURED_PRODUCTS_BY_TYPE] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_USER_PROMOTIONS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_ACTIVE_PROMOTIONS] });
     },
     ...options,
   });

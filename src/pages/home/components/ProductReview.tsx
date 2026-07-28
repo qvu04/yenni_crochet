@@ -1,5 +1,5 @@
 import { Products } from 'types';
-import { formatPrice } from 'utils';
+import { formatPrice, getStockLabel } from 'utils';
 
 interface ProductReviewProps {
     product: Products;
@@ -25,6 +25,9 @@ export const ProductPreview = ({ product, onSelect }: ProductReviewProps) => (
                 {product.name}
             </p>
             <p className="mt-1.5 text-sm font-extrabold text-title-text">{formatPrice(product.price)}</p>
+            <p className={`mt-1 text-[11px] font-semibold ${product.stock_quantity > 0 ? "text-text-muted" : "text-[#B91C1C]"}`}>
+                {getStockLabel(product.stock_quantity)}
+            </p>
         </div>
     </button>
 );

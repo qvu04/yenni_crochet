@@ -5,4 +5,6 @@ export interface CreateOrderInput {
   phone: string;
   address: string;
   note?: string;
+  zalo_user_id?: string;
+  promotion_id?: string;
 }

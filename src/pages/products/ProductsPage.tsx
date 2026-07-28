@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { ConditionalRender, ProductCard } from "components/common";
-import { ProductType } from "types";
+import { ProductType, ProductBadge, Products } from 'types';
 import { useGetProductsList } from "queries";
 import { useEffect, useMemo, useState } from "react";
 
@@ -23,6 +23,24 @@ const isProductType = (value: string | null): value is ProductType => {
   return value === "best_seller" || value === "new" || value === "pre_order";
 };
 
+export const productTypeBadges: Record<NonNullable<Products["product_type"]>, ProductBadge> = {
+  best_seller: {
+    key: "best_seller",
+    label: "Bán chạy",
+    className: "bg-[#8B1A1A] text-[#FFFFE0]",
+  },
+  new: {
+    key: "new",
+    label: "Mới",
+    className: "bg-[#1F7A5C] text-white",
+  },
+  pre_order: {
+    key: "pre_order",
+    label: "Đặt trước",
+    className: "bg-[#4A6C8C] text-white",
+  },
+};
+export const preOrderBadge = productTypeBadges.pre_order;
 export const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const typeParam = searchParams.get("type");

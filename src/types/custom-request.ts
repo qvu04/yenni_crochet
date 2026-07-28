@@ -14,13 +14,14 @@ export type StatusCustomRequest = "pending" | "contacted" | "completed" | "cance
 export interface CreateCustomRequestInput {
     customer_name: string;
     phone: string;
-    description: string;
+    description?: string;
     status?: StatusCustomRequest;
     occasion?: string;
     preferred_colors?: string;
     expected_date?: string;
     budget_range?: CustomRequestBudgetRange;
     note?: string;
+    quantity: number;
     reference_images?: string[];
     zalo_user_id?: string;
 }

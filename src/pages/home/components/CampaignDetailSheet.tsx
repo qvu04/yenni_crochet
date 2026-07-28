@@ -11,7 +11,7 @@ import { useProductSheetStore } from "stores/productSheet";
 import { ProductPreview } from "./ProductReview";
 import { formatCampaignDate, getCampaignStatus, getDefaultCtaLabel } from "utils";
 import { CloseButtonSheet } from "components/ui";
-
+import { FaRegSmileWink } from "react-icons/fa";
 interface CampaignDetailSheetProps {
   campaign: Campaign | null;
   visible: boolean;
@@ -182,7 +182,7 @@ export const CampaignDetailSheet = ({
               </div>
             )}
 
-            {campaign.products && campaign.products.length > 0 && (
+            {campaign.products && campaign.products.length > 0 ? (
               <section className="space-y-3">
                 <h3 className="flex items-center gap-2 text-base font-extrabold text-title-text">
                   <AiOutlineShopping className="text-xl" />
@@ -198,11 +198,30 @@ export const CampaignDetailSheet = ({
                   ))}
                 </div>
               </section>
+            ) : (
+              <section className="space-y-3">
+                <h3 className="flex items-center gap-2 text-base font-extrabold text-title-text">
+                  <AiOutlineShopping className="text-xl" />
+                  Sản phẩm trong dịp này
+                </h3>
+                <div className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-[0_10px_24px_rgba(51,39,42,0.06)] ring-1 ring-text-main/5">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl text-title-text">
+                    <FaRegSmileWink />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold leading-5 text-text-main">
+                      Chưa có sản phẩm trong dịp này
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-text-muted">
+                      Yenni Crochet sẽ cập nhật sản phẩm sớm nhất có thể, bạn quay lại xem sau nhé.
+                    </p>
+                  </div>
+                </div>
+              </section>
             )}
           </div>
         </div>
-
-        <div className="bg-background-main px-4 pb-[calc(16px+var(--zaui-safe-area-inset-bottom,0px))] pt-3">
+        {/* <div className="bg-background-main px-4 pb-[calc(16px+var(--zaui-safe-area-inset-bottom,0px))] pt-3">
           <button
             type="button"
             onClick={handleCtaClick}
@@ -210,7 +229,7 @@ export const CampaignDetailSheet = ({
           >
             {getDefaultCtaLabel(campaign)}
           </button>
-        </div>
+        </div> */}
       </div>
     </Sheet>
   );

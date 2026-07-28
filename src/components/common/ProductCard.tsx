@@ -1,53 +1,12 @@
 import { Products } from 'types';
-import { formatPrice } from 'utils';
+import { formatPrice, getStockLabel } from 'utils';
 import { useProductSheetStore } from 'stores/productSheet';
 import { motion } from 'motion/react';
-
-interface ProductBadge {
-    key: string;
-    label: string;
-    className: string;
-}
-
-const productTypeBadges: Record<NonNullable<Products["product_type"]>, ProductBadge> = {
-    best_seller: {
-        key: "best_seller",
-        label: "Bán chạy",
-        className: "bg-[#8B1A1A] text-[#FFFFE0]",
-    },
-    new: {
-        key: "new",
-        label: "Mới",
-        className: "bg-[#1F7A5C] text-white",
-    },
-    pre_order: {
-        key: "pre_order",
-        label: "Đặt trước",
-        className: "bg-[#4A6C8C] text-white",
-    },
-};
-
-const preOrderBadge = productTypeBadges.pre_order;
-
-const getProductBadges = (product: Products): ProductBadge[] => {
-    const badges: ProductBadge[] = [];
-
-    if (product.product_type) {
-        badges.push(productTypeBadges[product.product_type]);
-    }
-
-    if (product.is_pre_order && product.product_type !== "pre_order") {
-        badges.push(preOrderBadge);
-    }
-
-    return badges;
-};
-
+import { getProductBadges } from 'utils/product';
 interface ProductCardProps {
     product: Products;
     showProductTypeBadge?: boolean;
 }
-
 export const ProductCard = ({ product, showProductTypeBadge = true }: ProductCardProps) => {
     const inStock = product.stock_quantity > 0;
     const openProduct = useProductSheetStore((s) => s.openProduct);
@@ -87,14 +46,25 @@ export const ProductCard = ({ product, showProductTypeBadge = true }: ProductCar
                         ))}
                     </div>
                 )}
+                <div
+                    className={`absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[10px] font-bold leading-none shadow-sm ${inStock
+                        ? "bg-white/90 text-text-main"
+                        : "bg-[#EF4444] text-white"
+                        }`}
+                >
+                    {getStockLabel(product.stock_quantity)}
+                </div>
             </div>
 
-            <div className="min-h-[84px] p-3">
+            <div className="min-h-[96px] p-3">
                 <p className="line-clamp-2 min-h-10 font-heading text-sm font-semibold leading-5 text-text-main">
                     {product.name}
                 </p>
                 <p className="mt-1.5 text-[15px] font-extrabold leading-none text-text-main">
                     {formatPrice(product.price)}
+                </p>
+                <p className={`mt-2 text-xs font-semibold ${inStock ? "text-text-muted" : "text-[#B91C1C]"}`}>
+                    {getStockLabel(product.stock_quantity)}
                 </p>
             </div>
         </motion.button>

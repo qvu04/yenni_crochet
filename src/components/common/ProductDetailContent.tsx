@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Icon } from 'zmp-ui';
-import { formatPrice } from 'utils';
+import { formatPrice, getStockLabel } from 'utils';
 import { OrderForm } from './OrderForm';
 import { useGetProductById } from 'queries';
 
@@ -80,7 +80,7 @@ export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: Pro
                             className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-white ${inStock ? "bg-[#22C55E]" : "bg-[#EF4444]"
                                 }`}
                         >
-                            {inStock ? "Còn hàng" : "Hết hàng"}
+                            {getStockLabel(product.stock_quantity)}
                         </span>
                     </div>
 
@@ -89,6 +89,13 @@ export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: Pro
                             Đặt trước {product.estimated_days}
                         </span>
                     )}
+
+                    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
+                        <p className="text-xs font-bold uppercase text-text-muted">Tồn kho hiện tại</p>
+                        <p className={`mt-1 text-sm font-bold ${inStock ? "text-text-main" : "text-[#B91C1C]"}`}>
+                            {getStockLabel(product.stock_quantity)}
+                        </p>
+                    </div>
 
                     <p className="text-sm leading-relaxed text-text-muted">{product.description}</p>
                 </div>
@@ -101,7 +108,7 @@ export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: Pro
                     className={`w-full rounded-2xl py-3 text-center text-base font-bold ${inStock ? "bg-primary text-text-main" : "bg-text-muted text-white"
                         }`}
                 >
-                    {inStock ? "Đặt hàng" : "Hết hàng"}
+                    {inStock ? `Đặt hàng (${product.stock_quantity} còn lại)` : "Hết hàng"}
                 </button>
             </div>
         </div>
