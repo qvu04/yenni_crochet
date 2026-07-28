@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from 'zmp-ui';
-import { formatPrice, getStockLabel } from 'utils';
+import { formatPrice, formatProductDescription, getStockLabel } from 'utils';
 import { OrderForm } from './OrderForm';
 import { useGetProductById } from 'queries';
+import { CloseButtonSheet } from 'components/ui';
 
 interface ProductDetailContentProps {
     productId: string;
@@ -15,20 +16,32 @@ type Step = "detail" | "form";
 export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: ProductDetailContentProps) => {
     const { data: product, isLoading, isError } = useGetProductById({ id: productId });
     const [step, setStep] = useState<Step>("detail");
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+    const [canToggleDescription, setCanToggleDescription] = useState(false);
+    const descriptionRef = useRef<HTMLDivElement>(null);
 
-    const closeButton = (
-        <button
-            onClick={onClose}
-            className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-text-main shadow-sm backdrop-blur"
-        >
-            <Icon icon="zi-close" />
-        </button>
-    );
+    useEffect(() => {
+        setIsDescriptionExpanded(false);
+    }, [productId]);
+
+    useEffect(() => {
+        const descriptionElement = descriptionRef.current;
+        if (!descriptionElement || !product?.description) {
+            setCanToggleDescription(false);
+            return;
+        }
+
+        const frameId = window.requestAnimationFrame(() => {
+            setCanToggleDescription(descriptionElement.scrollHeight > 168);
+        });
+
+        return () => window.cancelAnimationFrame(frameId);
+    }, [product?.description]);
 
     if (isLoading) {
         return (
             <div className="relative p-5">
-                {closeButton}
+                <CloseButtonSheet onClick={onClose} />
                 <div className="h-72 w-full animate-pulse rounded-2xl bg-background-main" />
             </div>
         );
@@ -37,7 +50,7 @@ export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: Pro
     if (isError || !product) {
         return (
             <div className="relative p-5">
-                {closeButton}
+                <CloseButtonSheet onClick={onClose} />
                 <p className="rounded-2xl bg-background-main p-4 text-sm text-text-muted">
                     Không tìm thấy sản phẩm này.
                 </p>
@@ -48,7 +61,7 @@ export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: Pro
     if (step === "form") {
         return (
             <div className="relative h-full">
-                {closeButton}
+                <CloseButtonSheet onClick={onClose} />
                 <OrderForm
                     product={product}
                     onCancel={() => setStep("detail")}
@@ -59,10 +72,11 @@ export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: Pro
     }
 
     const inStock = product.stock_quantity > 0;
+    const descriptionHtml = formatProductDescription(product.description);
 
     return (
         <div className="relative flex h-full flex-col">
-            {closeButton}
+            <CloseButtonSheet onClick={onClose} />
             <div className="flex-1 overflow-y-auto bg-background-main">
                 <img
                     src={product.images?.[0]}
@@ -89,15 +103,32 @@ export const ProductDetailContent = ({ productId, onClose, onOrderSuccess }: Pro
                             Đặt trước {product.estimated_days}
                         </span>
                     )}
+                    {descriptionHtml && (
+                        <div className="rounded-2xl bg-white p-2 shadow-sm ring-1 ring-text-main/5">
+                            <div className="relative overflow-hidden">
+                                <div
+                                    ref={descriptionRef}
+                                    className={`space-y-2 text-sm leading-6 text-text-muted transition-[max-height] duration-300 ease-out [&_p]:m-0 [&_p]:leading-6 [&_ul]:m-0 [&_ul]:space-y-2 [&_ul]:pl-5 [&_li]:list-disc [&_li]:pl-1 [&_li::marker]:text-primary ${canToggleDescription && !isDescriptionExpanded ? "max-h-40" : "max-h-[1200px]"
+                                        }`}
+                                    dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                                />
 
-                    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
-                        <p className="text-xs font-bold uppercase text-text-muted">Tồn kho hiện tại</p>
-                        <p className={`mt-1 text-sm font-bold ${inStock ? "text-text-main" : "text-[#B91C1C]"}`}>
-                            {getStockLabel(product.stock_quantity)}
-                        </p>
-                    </div>
+                                {canToggleDescription && !isDescriptionExpanded && (
+                                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white to-white/0" />
+                                )}
+                            </div>
 
-                    <p className="text-sm leading-relaxed text-text-muted">{product.description}</p>
+                            {canToggleDescription && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsDescriptionExpanded((value) => !value)}
+                                    className="mt-2 w-full rounded-xl bg-primary/60 px-3 py-2 text-sm font-bold text-text-main transition active:scale-[0.99]"
+                                >
+                                    {isDescriptionExpanded ? "Ẩn bớt" : "Xem thêm"}
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

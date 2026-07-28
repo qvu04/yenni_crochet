@@ -86,7 +86,7 @@ export const VouchersPage = () => {
         : usedPromotions;
 
   return (
-    <main className="min-h-screen mt-5 bg-background-main px-5 py-10">
+    <main className="h-full mt-5 bg-background-main px-5 py-10">
       <header className="mb-5">
         <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
           Ví ưu đãi

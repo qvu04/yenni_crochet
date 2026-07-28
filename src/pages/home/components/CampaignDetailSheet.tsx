@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { Sheet } from "zmp-ui";
 import {
   AiOutlineCalendar,
@@ -9,7 +8,7 @@ import {
 import { Campaign } from "types";
 import { useProductSheetStore } from "stores/productSheet";
 import { ProductPreview } from "./ProductReview";
-import { formatCampaignDate, getCampaignStatus, getDefaultCtaLabel } from "utils";
+import { formatCampaignDate, getCampaignStatus } from "utils";
 import { CloseButtonSheet } from "components/ui";
 import { FaRegSmileWink } from "react-icons/fa";
 interface CampaignDetailSheetProps {
@@ -26,15 +25,12 @@ export const CampaignDetailSheet = ({
   isLoading,
   isError,
 }: CampaignDetailSheetProps) => {
-  const navigate = useNavigate();
   const openProduct = useProductSheetStore((s) => s.openProduct);
 
   const status = useMemo(() => {
     if (!campaign) return null;
     return getCampaignStatus(campaign);
   }, [campaign]);
-
-  const closeButton = <CloseButtonSheet onClick={onClose} />;
 
   if (isLoading) {
     return (
@@ -47,7 +43,7 @@ export const CampaignDetailSheet = ({
         handler={false}
       >
         <div className="relative h-full bg-background-main p-5">
-          {closeButton}
+          <CloseButtonSheet onClick={onClose} />
           <div className="h-72 w-full animate-pulse rounded-2xl bg-white" />
           <div className="mt-5 space-y-3">
             <div className="h-5 w-3/4 animate-pulse rounded-full bg-white" />
@@ -70,7 +66,7 @@ export const CampaignDetailSheet = ({
         handler={false}
       >
         <div className="relative h-full bg-background-main p-5">
-          {closeButton}
+          <CloseButtonSheet onClick={onClose} />
           <p className="rounded-2xl bg-white p-4 text-sm text-text-muted">
             Không tìm thấy sự kiện này.
           </p>
@@ -90,23 +86,6 @@ export const CampaignDetailSheet = ({
     ?.split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
-
-  const handleCtaClick = () => {
-    if (campaign.cta_action === "contact") {
-      onClose();
-      navigate("/contact");
-      return;
-    }
-
-    if (campaign.cta_action === "custom_request") {
-      onClose();
-      navigate("/order");
-      return;
-    }
-    onClose();
-    navigate("/products");
-  };
-
   const handleProductSelect = (productId: string) => {
     onClose();
     openProduct(productId);
@@ -122,7 +101,7 @@ export const CampaignDetailSheet = ({
       handler={false}
     >
       <div className="relative flex h-full flex-col bg-background-main">
-        {closeButton}
+        <CloseButtonSheet onClick={onClose} />
         <div className="relative flex-1 overflow-y-auto pb-5">
           <div className="relative h-72 overflow-hidden bg-text-main">
             <img src={heroImage} alt={campaign.name} className="h-full w-full object-cover" />
