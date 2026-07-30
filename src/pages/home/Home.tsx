@@ -27,44 +27,46 @@ export default function Home() {
     };
 
     return (
-        <PullToRefresh
-            pullingText="Kéo xuống để làm mới"
-            canReleaseText="Thả tay để làm mới"
-            refreshingText="Đang làm mới..."
-            completeText="Đã cập nhật"
-            onRefresh={handleRefresh}
-        >
-            <header>
-                <HomeHeader />
-            </header>
-
-            <motion.main
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="relative z-10 flex flex-col gap-5 px-4 py-5"
+        <div className="h-[calc(100dvh-64px-var(--zaui-safe-area-inset-bottom,0px))] overflow-y-auto overscroll-contain bg-background-main">
+            <PullToRefresh
+                pullingText="Kéo xuống để làm mới"
+                canReleaseText="Thả tay để làm mới"
+                refreshingText="Đang làm mới..."
+                completeText="Đã cập nhật"
+                onRefresh={handleRefresh}
             >
-                <section className="grid grid-cols-4 gap-2">
-                    {quickActions.map((action) => (
-                        <button
-                            key={action.path}
-                            type="button"
-                            onClick={() => navigate(action.path)}
-                            className="flex min-h-[82px] flex-col items-center justify-center gap-2 rounded-2xl bg-white/80 px-2 py-3 text-center shadow-[0_10px_24px_rgba(51,39,42,0.07)] ring-1 ring-text-main/5 transition active:scale-[0.98]"
-                        >
-                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xl text-title-text">
-                                {action.icon}
-                            </span>
-                            <span className="text-[11px] font-bold leading-4 text-text-main">
-                                {action.label}
-                            </span>
-                        </button>
-                    ))}
-                </section>
+                <header>
+                    <HomeHeader />
+                </header>
 
-                <CamPaigns />
-                <ProductsListing />
-            </motion.main>
-        </PullToRefresh>
+                <motion.main
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="relative z-10 flex flex-col gap-5 px-4 py-5"
+                >
+                    <section className="grid grid-cols-4 gap-2">
+                        {quickActions.map((action) => (
+                            <button
+                                key={action.path}
+                                type="button"
+                                onClick={() => navigate(action.path)}
+                                className="flex min-h-[82px] flex-col items-center justify-center gap-2 rounded-2xl bg-white/80 px-2 py-3 text-center shadow-[0_10px_24px_rgba(51,39,42,0.07)] ring-1 ring-text-main/5 transition active:scale-[0.98]"
+                            >
+                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xl text-title-text">
+                                    {action.icon}
+                                </span>
+                                <span className="text-[11px] font-bold leading-4 text-text-main">
+                                    {action.label}
+                                </span>
+                            </button>
+                        ))}
+                    </section>
+
+                    <CamPaigns />
+                    <ProductsListing />
+                </motion.main>
+            </PullToRefresh>
+        </div>
     );
 }

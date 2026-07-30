@@ -87,15 +87,15 @@ const contactNotes = [
 const faqs = [
   {
     question: "Shop có nhận đặt riêng không?",
-    answer: "Có. Bạn có thể gửi hình tham khảo, tone màu và số lượng ở mục Đặt riêng.",
+    answer: "Shop có bạn nhé. Bạn có thể gửi hình tham khảo, tone màu và số lượng ở mục Đặt riêng giúp shop nhé.",
   },
   {
     question: "Bao lâu thì hoàn thành sản phẩm?",
-    answer: "Tùy mẫu và số lượng. Yenni sẽ liên hệ lại để xác nhận thời gian trước khi làm.",
+    answer: "Tùy mẫu và số lượng. Yenni sẽ liên hệ đến bạn để xác nhận thời gian trước khi làm.",
   },
   {
     question: "Có giao hàng không?",
-    answer: "Có hỗ trợ giao hàng nội thành TP.HCM và toàn quốc tùy đơn.",
+    answer: "Shop có hỗ trợ giao hàng nội thành TP.HCM và ship toàn quốc bạn nhé.",
   },
 ] as const;
 export const ContactPage = () => {
@@ -111,7 +111,7 @@ export const ContactPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background-main px-5 pb-5 mt-5 pt-10">
+    <main className="bg-background-main px-5 pb-5 mt-10 pt-10">
       <header className="mb-6">
         <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
           Yenni luôn ở đây

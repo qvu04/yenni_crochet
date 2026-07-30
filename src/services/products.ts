@@ -11,8 +11,10 @@ export const productServices = {
   getProductById: async (id: string): Promise<Products> => {
     const { data, error } = await supabase
       .from("products")
-      .select("*")
+      .select("*, product_variants(*)")
       .eq("id", id)
+      .eq("product_variants.is_active", true)
+      .order("sort_order", { referencedTable: "product_variants", ascending: true })
       .single();
 
     if (error) {

@@ -1,5 +1,7 @@
 // components/FeaturedProductRow.tsx
 import { ConditionalRender, ProductCard } from "components/common";
+import { EmptyProductIcon } from "components/icons";
+import { Emptier, ProductRowSkeleton } from "components/ui";
 import { motion } from "motion/react";
 import { useGetFeaturedProductsByType } from "queries";
 import { ReactNode } from "react";
@@ -40,14 +42,7 @@ export const FeaturedProductRow = ({ title, productType, preOrder, showTypeBadge
                 isError={isError}
                 isEmpty={products?.length === 0}
                 loadingRender={
-                    <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1">
-                        {Array.from({ length: 4 }).map((_, index) => (
-                            <div
-                                key={index}
-                                className="h-44 w-[118px] shrink-0 animate-pulse rounded-2xl bg-white/65 sm:w-[145px]"
-                            />
-                        ))}
-                    </div>
+                    <ProductRowSkeleton />
                 }
                 errorRender={
                     <p className="rounded-2xl bg-white/70 p-4 text-sm text-text-muted">
@@ -55,9 +50,13 @@ export const FeaturedProductRow = ({ title, productType, preOrder, showTypeBadge
                     </p>
                 }
                 emptyRender={
-                    <p className="rounded-2xl bg-white/70 p-4 text-sm text-text-muted">
-                        Chưa có sản phẩm phù hợp.
-                    </p>
+                    <Emptier
+                        icon={<EmptyProductIcon />}
+                        title="Chưa có sản phẩm phù hợp"
+                        description="Yenni sẽ cập nhật thêm mẫu mới sớm nhé."
+                        compact
+                        className="min-h-36 rounded-2xl bg-white/70 py-5"
+                    />
                 }
             >
                 <div className="scrollbar-none flex snap-x gap-3 overflow-x-auto pb-1">

@@ -11,3 +11,8 @@ export * from "./PreOrderIcon";
 export * from "./NewIcon";
 export * from "./SuccessIcon";
 export * from "./EmptyIconDefault";
+export * from "./EmptyProductIcon";
+export * from "./EmptyVoucherIcon";
+export * from "./EmptyCartIcon";
+export * from "./EmptyAccountIcon";
+export * from "./EmptyCampaignIcon";

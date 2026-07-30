@@ -12,7 +12,7 @@ export const AppHeader = () => {
     <Header
       title={route.title}
       showBackIcon={route.showBackButton}
-      backgroundColor="var(--color-header-bg)"
+      backgroundColor="#ffb6c1"
       textColor="#ffffff"
     />
   );

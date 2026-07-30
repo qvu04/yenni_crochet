@@ -3,11 +3,20 @@ import { ConditionalRender, ProductCard } from "components/common";
 import { ProductType, ProductBadge, Products } from 'types';
 import { useGetProductsList } from "queries";
 import { useEffect, useMemo, useState } from "react";
+import { Emptier, ProductGridSkeleton } from "components/ui";
+import { EmptyProductIcon } from "components/icons";
+import { motion } from "motion/react";
 
 const productTypeLabels: Record<ProductType, string> = {
   best_seller: "Sản phẩm bán chạy",
   new: "Sản phẩm mới",
   pre_order: "Sản phẩm đặt trước",
+};
+
+const productTypeDescriptions: Record<ProductType, string> = {
+  best_seller: "Những mẫu được yêu thích nhất tại Yenni Crochet.",
+  new: "Các mẫu len mới vừa được shop cập nhật.",
+  pre_order: "Những món cần thời gian chuẩn bị riêng cho bạn.",
 };
 
 type ProductFilter = "all" | ProductType;
@@ -48,7 +57,7 @@ export const ProductsPage = () => {
   const isPreOrder = productType === "pre_order";
   const isAllProductsPage = !productType;
   const [selectedFilter, setSelectedFilter] = useState<ProductFilter>("all");
-  const { data: products, isLoading, isError, refetch } = useGetProductsList({
+  const { data: products, isLoading, isError } = useGetProductsList({
     productType: isPreOrder ? undefined : productType,
     preOrder: isPreOrder,
   });
@@ -61,61 +70,107 @@ export const ProductsPage = () => {
     return products.filter((product) => product.product_type === selectedFilter);
   }, [isAllProductsPage, products, selectedFilter]);
   const pageTitle = productType ? productTypeLabels[productType] : "Tất cả sản phẩm";
+  const pageDescription = productType
+    ? productTypeDescriptions[productType]
+    : "Tìm món len nhỏ xinh hợp với quà tặng, trang trí hoặc dùng hằng ngày.";
+  const productCounts = useMemo(() => {
+    const list = products ?? [];
+
+    return {
+      all: list.length,
+      best_seller: list.filter((product) => product.product_type === "best_seller").length,
+      new: list.filter((product) => product.product_type === "new").length,
+      pre_order: list.filter((product) => product.product_type === "pre_order" || product.is_pre_order).length,
+    } satisfies Record<ProductFilter, number>;
+  }, [products]);
 
   useEffect(() => {
     setSelectedFilter("all");
   }, [typeParam]);
 
   return (
-    <div className="min-h-screen bg-background-main pt-10">
-      <div className="px-5 pt-4">
-        <div className="mb-4">
-          <h1 className="font-heading text-2xl font-bold text-title-text">
-            {pageTitle} ({visibleProducts.length})
-          </h1>
-        </div>
-
-        {isAllProductsPage && (
-          <div className="scrollbar-none mb-4 flex gap-2 overflow-x-auto py-1 px-1">
-            {productFilterOptions.map((option) => {
-              const isSelected = selectedFilter === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setSelectedFilter(option.value)}
-                  className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition ${isSelected
-                    ? "bg-primary text-text-main shadow-sm"
-                    : "bg-white/80 text-text-muted ring-1 ring-text-main/5"
-                    }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
+    <main className="mt-14 flex min-h-[calc(100dvh-64px-var(--zaui-safe-area-inset-bottom,0px))] flex-col bg-background-main px-5 pt-12">
+      <section className="mb-4 shrink-0 overflow-hidden rounded-[28px] bg-white p-4 shadow-[0_12px_30px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-text-muted">
+          Bộ sưu tập
+        </p>
+        <div className="mt-2 flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="font-heading text-[26px] font-extrabold leading-8 text-title-text">
+              {pageTitle}
+            </h1>
+            <p className="mt-1 text-sm leading-5 text-text-muted">
+              {pageDescription}
+            </p>
           </div>
-        )}
+          <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-3xl bg-background-main text-center">
+            <span className="font-heading text-xl font-extrabold leading-none text-title-text">
+              {visibleProducts.length}
+            </span>
+            <span className="mt-1 text-[10px] font-bold uppercase text-text-muted">
+              mẫu
+            </span>
+          </div>
+        </div>
+      </section>
 
+      {isAllProductsPage && (
+        <div className="scrollbar-none mb-4 flex shrink-0 gap-2 overflow-x-auto px-1 py-1">
+          {productFilterOptions.map((option) => {
+            const isSelected = selectedFilter === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setSelectedFilter(option.value)}
+                className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition ${isSelected
+                  ? "bg-title-text text-white shadow-[0_8px_18px_rgba(92,64,51,0.18)]"
+                  : "bg-white/85 text-text-muted ring-1 ring-text-main/5"
+                  }`}
+              >
+                <span>{option.label}</span>
+                <span className={`rounded-full px-2 py-0.5 text-[11px] leading-none ${isSelected ? "bg-white/20 text-white" : "bg-background-main text-text-muted"
+                  }`}>
+                  {productCounts[option.value]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="min-h-0 flex-1">
         <ConditionalRender
           isLoading={isLoading}
           isError={isError}
           isEmpty={!isLoading && !isError && visibleProducts.length === 0}
-          onRefresh={refetch}
+          emptyRender={
+            <Emptier
+              icon={<EmptyProductIcon />}
+              compact
+              className="min-h-[calc(100dvh-260px-var(--zaui-safe-area-inset-bottom,0px))]"
+              title="Chưa có sản phẩm"
+              description="Yenni Crochet sẽ cập nhật thêm sản phẩm phù hợp trong thời gian tới."
+            />
+          }
           loadingRender={
-            <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-48 animate-pulse rounded-2xl bg-white" />
-              ))}
-            </div>
+            <ProductGridSkeleton />
           }
         >
           <div className="grid grid-cols-2 gap-3 pb-6">
-            {visibleProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {visibleProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.24, delay: Math.min(index * 0.025, 0.16), ease: "easeOut" }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
             ))}
           </div>
         </ConditionalRender>
       </div>
-    </div>
+    </main>
   );
 };

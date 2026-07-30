@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useGetUpcomingCampaigns } from "queries/campaigns";
 import { GiftIcon } from "components/icons";
 import { useCampaignSheetStore } from "stores/campaignSheet";
+import { CampaignCarouselSkeleton } from "components/ui";
 
 const StyledSwiper = styled(Swiper)`
   --dot-color: rgba(51, 39, 42, 0.15);
@@ -63,9 +64,7 @@ export const CamPaigns = () => {
     const openCampaign = useCampaignSheetStore((s) => s.openCampaign);
 
     if (isLoading) {
-        return (
-            <div className="h-[140px] animate-pulse rounded-2xl bg-white/65" />
-        );
+        return <CampaignCarouselSkeleton />;
     }
 
     if (isError || !campaigns || campaigns.length === 0) {

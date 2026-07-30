@@ -46,14 +46,14 @@ export const ProductCard = ({ product, showProductTypeBadge = true }: ProductCar
                         ))}
                     </div>
                 )}
-                <div
+                {/* <div
                     className={`absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[10px] font-bold leading-none shadow-sm ${inStock
                         ? "bg-white/90 text-text-main"
                         : "bg-[#EF4444] text-white"
                         }`}
                 >
                     {getStockLabel(product.stock_quantity)}
-                </div>
+                </div> */}
             </div>
 
             <div className="min-h-[96px] p-3">

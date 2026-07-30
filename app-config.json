@@ -1,13 +1,13 @@
 {
   "app": {
     "title": "Yenni Crochet",
-    "headerTitle": "Yenni Crochet",
+    "headerTitle": "",
     "headerColor": "#ffb6c1",
     "textColor": "white",
-    "statusBar": "normal",
+    "statusBar": "transparent",
     "actionBarHidden": true,
     "hideAndroidBottomNavigationBar": false,
-    "hideIOSSafeAreaBottom": false
+    "hideIOSSafeAreaBottom": true
   },
   "debug": false
 }

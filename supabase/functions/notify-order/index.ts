@@ -30,13 +30,28 @@ const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
 interface OrderRecord {
   id: string;
-  product_id: string;
+  product_id: string | null;
   quantity: number;
   customer_name: string;
   phone: string;
   address: string;
   note: string | null;
   created_at: string;
+  subtotal_price?: number | null;
+  discount_amount?: number | null;
+  final_price?: number | null;
+}
+
+interface OrderItemRecord {
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  variant_name: string | null;
+  variant_color_name: string | null;
+  note: string | null;
+  products?: {
+    name?: string | null;
+  } | null;
 }
 
 const formatPrice = (value: number) =>
@@ -50,6 +65,8 @@ const escapeHtml = (value: string) =>
 
 const formatDateTime = (value: string) =>
   new Date(value).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const renderRows = (rows: [string, string][]) =>
   rows
@@ -107,13 +124,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    const order = payload.record as OrderRecord;
+    let order = payload.record as OrderRecord;
 
-    // Lấy tên + giá sản phẩm để email đọc được ngay, không phải tra product_id
-    let productName = order.product_id;
-    let totalText = "";
-    const productRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?id=eq.${order.product_id}&select=name,price`,
+    const orderRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}&select=id,product_id,quantity,customer_name,phone,address,note,created_at,subtotal_price,discount_amount,final_price`,
       {
         headers: {
           apikey: SERVICE_ROLE_KEY,
@@ -121,17 +135,79 @@ Deno.serve(async (req) => {
         },
       },
     );
-    if (productRes.ok) {
-      const [product] = await productRes.json();
-      if (product) {
-        productName = product.name;
-        totalText = formatPrice(Number(product.price) * order.quantity);
+
+    if (orderRes.ok) {
+      const [latestOrder] = await orderRes.json();
+      if (latestOrder) {
+        order = latestOrder as OrderRecord;
+      }
+    }
+
+    let productName = order.product_id ?? "Nhiều sản phẩm";
+    let productSummary = "";
+    let totalText = order.subtotal_price != null ? formatPrice(Number(order.subtotal_price)) : "";
+
+    // The orders trigger can fire before the cart item query sees committed rows.
+    // A tiny delay makes cart emails much more reliable without affecting checkout.
+    await wait(250);
+
+    const itemsRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/order_items?order_id=eq.${order.id}&select=quantity,unit_price,total_price,variant_name,variant_color_name,note,products(name)`,
+      {
+        headers: {
+          apikey: SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+        },
+      },
+    );
+
+    if (itemsRes.ok) {
+      const orderItems = (await itemsRes.json()) as OrderItemRecord[];
+      if (orderItems.length > 0) {
+        productName = orderItems.length === 1
+          ? orderItems[0].products?.name ?? "Sản phẩm"
+          : `${orderItems.length} sản phẩm`;
+        productSummary = `
+          <ul style="margin: 0; padding-left: 18px;">
+            ${orderItems
+            .map((item) => {
+              const name = escapeHtml(item.products?.name ?? "Sản phẩm");
+              const variantLabel = item.variant_color_name || item.variant_name;
+              const variant = variantLabel ? ` - ${escapeHtml(variantLabel)}` : "";
+              const note = item.note ? ` — ${escapeHtml(item.note)}` : "";
+              return `<li>${name}${variant} × ${item.quantity} (${formatPrice(Number(item.total_price))})${note}</li>`;
+            })
+            .join("")}
+          </ul>`;
+        totalText = formatPrice(orderItems.reduce((total, item) => total + Number(item.total_price), 0));
+      }
+    }
+
+    if (!productSummary && order.product_id) {
+      const productRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/products?id=eq.${order.product_id}&select=name,price`,
+        {
+          headers: {
+            apikey: SERVICE_ROLE_KEY,
+            Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+          },
+        },
+      );
+      if (productRes.ok) {
+        const [product] = await productRes.json();
+        if (product) {
+          productName = product.name;
+          totalText = formatPrice(Number(product.price) * order.quantity);
+          productSummary = `${escapeHtml(productName)} × ${order.quantity}`;
+        }
       }
     }
 
     const rows: [string, string][] = [
-      ["Sản phẩm", `${escapeHtml(productName)} × ${order.quantity}`],
+      ["Sản phẩm", productSummary || escapeHtml(productName)],
       ["Tạm tính", totalText || "—"],
+      ["Giảm giá", order.discount_amount != null ? `-${formatPrice(Number(order.discount_amount))}` : "—"],
+      ["Tổng thanh toán", order.final_price != null ? formatPrice(Number(order.final_price)) : totalText || "—"],
       ["Khách hàng", escapeHtml(order.customer_name)],
       ["SĐT", escapeHtml(order.phone)],
       ["Địa chỉ", escapeHtml(order.address)],
@@ -152,7 +228,7 @@ Deno.serve(async (req) => {
       </div>`;
 
     return sendEmail({
-      subject: `🧶 Đơn mới: ${productName} × ${order.quantity} — ${order.customer_name}`,
+      subject: `🧶 Đơn mới: ${productName} — ${order.customer_name}`,
       html,
     });
   } catch (err) {

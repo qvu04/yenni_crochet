@@ -1,4 +1,5 @@
 import { EmptyIconDefault } from "components/icons";
+import { ReactNode } from "react";
 
 interface EmptierAction {
   label: string;
@@ -10,6 +11,8 @@ interface EmptierProps {
   description?: string;
   action?: EmptierAction;
   className?: string;
+  icon?: ReactNode;
+  compact?: boolean;
 }
 
 export const Emptier = ({
@@ -17,10 +20,16 @@ export const Emptier = ({
   description = "Bạn quay lại sau một chút nhé.",
   action,
   className = "",
+  icon,
+  compact,
 }: EmptierProps) => {
+  const minHeightClassName = compact
+    ? "min-h-40"
+    : "min-h-[calc(100dvh-260px-var(--zaui-safe-area-inset-bottom,0px))]";
+
   return (
-    <div className={`flex min-h-40 flex-col items-center justify-center px-6 py-8 text-center ${className}`}>
-      <EmptyIconDefault />
+    <div className={`flex ${minHeightClassName} flex-col items-center justify-center px-6 py-8 text-center ${className}`}>
+      {icon ?? <EmptyIconDefault />}
       <h3 className="mt-3 font-heading text-lg font-bold text-title-text">{title}</h3>
       {description && (
         <p className="mt-1 max-w-[280px] text-sm leading-6 text-text-muted">{description}</p>

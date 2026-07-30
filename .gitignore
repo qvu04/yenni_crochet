@@ -24,6 +24,10 @@ supabase/feature-tables.sql
 supabase/custom-requests-fields.sql
 supabase/custom-request-storage-policy.sql
 supabase/campaign-detail-fields.sql
+supabase/cart-order-items.sql
+supabase/cleanup-unused-tables-and-sync-core.sql
+supabase/product-variants.sql
+supabase/drop-product-variant-image-url.sql
 CLAUDE.md
 PRD.md
 # Editor directories and files

@@ -1,12 +1,12 @@
-import { AiOutlineClose, AiOutlinePicture } from 'react-icons/ai';
+import { AiOutlineClose, AiOutlineQuestionCircle, AiOutlinePicture } from 'react-icons/ai';
 import { CustomRequestInput, CustomRequestInputSchema } from 'schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { getUserInfo } from 'zmp-sdk/apis';
 import { useZaloPhoneNumber } from 'hooks/useZaloPhoneNumber';
 import { useCreateCustomRequest, useUploadCustomRequestImages } from 'queries';
-import { ModalSuccess, Spinner } from 'components/ui';
+import { ModalSuccess, Spinner, ConfirmDialog } from 'components/ui';
 import { useNavigate } from 'react-router-dom';
 import { getDefaultFormValues } from 'utils';
 
@@ -25,6 +25,7 @@ export const CustomRequestForm = () => {
 
     const { getPhone, isLoading: isGettingPhone, error: phoneError } = useZaloPhoneNumber();
     const navigate = useNavigate();
+    const [submitConfirmValues, setSubmitConfirmValues] = useState<CustomRequestInput | null>(null);
     const {
         mutate: createCustomRequest,
         isPending,
@@ -102,16 +103,22 @@ export const CustomRequestForm = () => {
         );
     };
 
-    const onSubmit = (values: CustomRequestInput) => {
+    const submitCustomRequest = (values: CustomRequestInput) => {
         createCustomRequest(values, {
             onSuccess: () => {
                 resetForm(getDefaultFormValues());
             },
         });
     };
+
+    const handleConfirmSubmit = (values: CustomRequestInput) => {
+        if (isPending || isUploadingImages) return;
+        setSubmitConfirmValues(values);
+    };
+
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={handleSubmit(handleConfirmSubmit)} className="space-y-5">
                 <div>
                     <label className="mb-1 block text-sm font-semibold text-text-main">
                         Tên của bạn <RequiredMark />
@@ -333,6 +340,22 @@ export const CustomRequestForm = () => {
                         resetMutation();
                         resetForm();
                     },
+                }}
+            />
+            <ConfirmDialog
+                visible={Boolean(submitConfirmValues)}
+                icon={<AiOutlineQuestionCircle />}
+                title="Xác nhận yêu cầu?"
+                description={`Bạn chắc chắn với các thông tin bạn đã điền và xác nhận gửi cho shop chứ?`}
+                confirmText="Gửi yêu cầu"
+                cancelText="Kiểm tra lại"
+                isLoading={isPending}
+                onCancel={() => setSubmitConfirmValues(null)}
+                onConfirm={() => {
+                    if (submitConfirmValues) {
+                        submitCustomRequest(submitConfirmValues);
+                        setSubmitConfirmValues(null);
+                    }
                 }}
             />
         </>

@@ -9,8 +9,8 @@ import { Campaign } from "types";
 import { useProductSheetStore } from "stores/productSheet";
 import { ProductPreview } from "./ProductReview";
 import { formatCampaignDate, getCampaignStatus } from "utils";
-import { CloseButtonSheet } from "components/ui";
-import { FaRegSmileWink } from "react-icons/fa";
+import { CampaignDetailSkeleton, CloseButtonSheet } from "components/ui";
+import { EmptyCampaignIcon } from "components/icons";
 interface CampaignDetailSheetProps {
   campaign: Campaign | null;
   visible: boolean;
@@ -42,15 +42,7 @@ export const CampaignDetailSheet = ({
         unmountOnClose
         handler={false}
       >
-        <div className="relative h-full bg-background-main p-5">
-          <CloseButtonSheet onClick={onClose} />
-          <div className="h-72 w-full animate-pulse rounded-2xl bg-white" />
-          <div className="mt-5 space-y-3">
-            <div className="h-5 w-3/4 animate-pulse rounded-full bg-white" />
-            <div className="h-4 w-1/2 animate-pulse rounded-full bg-white" />
-            <div className="h-24 w-full animate-pulse rounded-2xl bg-white" />
-          </div>
-        </div>
+        <CampaignDetailSkeleton onClose={onClose} />
       </Sheet>
     );
   }
@@ -184,9 +176,7 @@ export const CampaignDetailSheet = ({
                   Sản phẩm trong dịp này
                 </h3>
                 <div className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-[0_10px_24px_rgba(51,39,42,0.06)] ring-1 ring-text-main/5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl text-title-text">
-                    <FaRegSmileWink />
-                  </span>
+                  <EmptyCampaignIcon className="h-16 w-16 shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-bold leading-5 text-text-main">
                       Chưa có sản phẩm trong dịp này

@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getUserInfo } from "zmp-sdk/apis";
 import { motion } from "motion/react";
+import { AiOutlineGift } from "react-icons/ai";
 import { ConditionalRender } from "components/common";
-import { Emptier, ModalSuccess } from "components/ui";
+import { ConfirmDialog, Emptier, ModalSuccess } from "components/ui";
 import { QUERY_KEY } from "constant";
 import { useClaimPromotion, useGetActivePromotions, useGetUserPromotions } from "queries";
 import { PromotionCard, UserPromotionCard } from "./components";
+import { EmptyVoucherIcon } from "components/icons";
+import { Promotions } from "types";
 
 type VoucherTab = "available" | "claimed" | "used";
 const voucherTabs: { label: string; value: VoucherTab }[] = [
@@ -21,6 +24,7 @@ export const VouchersPage = () => {
   const [isSuccessVisible, setIsSuccessVisible] = useState(false);
   const [zaloUserId, setZaloUserId] = useState<string>();
   const [userInfoError, setUserInfoError] = useState(false);
+  const [claimConfirmPromotion, setClaimConfirmPromotion] = useState<Promotions | null>(null);
   const { data: promotions, isLoading: isLoadingPromotions, isError: isPromotionsError, refetch: refetchPromotions } =
     useGetActivePromotions();
   const { data: userPromotions, isLoading: isLoadingUserPromotions, isError: isUserPromotionsError } =
@@ -56,16 +60,23 @@ export const VouchersPage = () => {
     return (userPromotions ?? []).filter((promotion) => promotion.status === "used");
   }, [userPromotions]);
 
-  const handleClaimPromotion = (promotionId: string) => {
+  const handleRequestClaimPromotion = (promotion: Promotions) => {
     if (!zaloUserId) {
       setUserInfoError(true);
       return;
     }
 
+    setClaimConfirmPromotion(promotion);
+  };
+
+  const handleClaimPromotion = () => {
+    if (!zaloUserId || !claimConfirmPromotion) return;
+
     claimPromotion(
-      { promotionId, zaloUserId },
+      { promotionId: claimConfirmPromotion.id, zaloUserId },
       {
         onSuccess: async () => {
+          setClaimConfirmPromotion(null);
           setIsSuccessVisible(true);
           await queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_USER_PROMOTIONS] });
           await queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_ACTIVE_PROMOTIONS] });
@@ -86,7 +97,7 @@ export const VouchersPage = () => {
         : usedPromotions;
 
   return (
-    <main className="h-full mt-5 bg-background-main px-5 py-10">
+    <main className="h-full mt-16 bg-background-main px-5 py-10">
       <header className="mb-5">
         <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
           Ví ưu đãi
@@ -152,6 +163,8 @@ export const VouchersPage = () => {
         onRefresh={refetchPromotions}
         emptyRender={
           <Emptier
+            icon={<EmptyVoucherIcon />}
+            compact
             title={
               activeTab === "available"
                 ? "Chưa có ưu đãi mới"
@@ -177,7 +190,7 @@ export const VouchersPage = () => {
                 promotion={promotion}
                 actionLabel="Đổi voucher"
                 isActionLoading={isClaiming}
-                onAction={() => handleClaimPromotion(promotion.id)}
+                onAction={() => handleRequestClaimPromotion(promotion)}
               />
             ))}
 
@@ -197,6 +210,22 @@ export const VouchersPage = () => {
         heading="Đổi ưu đãi thành công"
         title="Chúc mừng bạn đã đổi ưu đãi! Yenni chúc bạn mua sắm vui vẻ"
         onClose={() => setIsSuccessVisible(false)}
+      />
+
+      <ConfirmDialog
+        visible={Boolean(claimConfirmPromotion)}
+        icon={<AiOutlineGift />}
+        title="Đổi voucher?"
+        description={
+          claimConfirmPromotion
+            ? `Bạn muốn đổi mã ${claimConfirmPromotion.code} để dùng cho đơn hàng sắp tới chứ?`
+            : ""
+        }
+        confirmText="Đổi voucher"
+        cancelText="Để sau"
+        isLoading={isClaiming}
+        onCancel={() => setClaimConfirmPromotion(null)}
+        onConfirm={handleClaimPromotion}
       />
     </main>
   );

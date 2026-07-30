@@ -10,7 +10,7 @@ import {
   getStockLabel,
 } from "utils";
 import { useCreateOrder, useGetUserPromotions } from "queries";
-import { Spinner } from "components/ui";
+import { PromotionPickerSkeleton, Spinner } from "components/ui";
 import { AiOutlineGift } from "react-icons/ai";
 
 interface OrderFormProps {
@@ -194,7 +194,7 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
               <div>
                 <p className="text-sm font-bold text-text-main">Ưu đãi của bạn</p>
                 <p className="text-xs font-semibold text-text-muted">
-                  {isLoadingPromotions ? <Spinner label="Đang tải voucher" variant="inline" /> : "Chọn 1 voucher đã đổi"}
+                  {isLoadingPromotions ? "Đang tải voucher" : "Chọn 1 voucher đã đổi"}
                 </p>
               </div>
             </div>
@@ -213,6 +213,10 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
             <p className="rounded-2xl bg-white p-3 text-xs font-semibold leading-5 text-text-muted">
               Chưa lấy được thông tin Zalo nên chưa thể tải voucher của bạn.
             </p>
+          )}
+
+          {zaloUserId && isLoadingPromotions && (
+            <PromotionPickerSkeleton itemClassName="bg-white" />
           )}
 
           {zaloUserId && !isLoadingPromotions && (!claimedUserPromotions || claimedUserPromotions.length === 0) && (
