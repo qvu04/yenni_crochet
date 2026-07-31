@@ -13,16 +13,17 @@ import {
   AiOutlineRight,
 } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import { openWebview } from "zmp-sdk/apis";
 import { copyToClipboard } from 'utils';
 
 const shopContact = {
   phone: "0704604023",
-  email: "yenni.crochet@example.com",
+  email: "yennhixd633@gmail.com",
   area: "Nhận đơn online tại TP.HCM và ship toàn quốc",
   responseTime: "Phản hồi 24/7",
-  facebookUrl: "https://facebook.com/yenni.crochet",
-  instagramUrl: "https://instagram.com/yenni.crochet",
-  tiktokUrl: "https://www.tiktok.com/@yenni.crochet",
+  facebookUrl: "https://www.facebook.com/people/Yennicrochet/100071147977503/",
+  instagramUrl: "https://www.instagram.com/yenni.crochet",
+  tiktokUrl: "https://www.tiktok.com/@ngyennhiii?is_from_webapp=1&sender_device=pc",
 };
 
 const contactActions = [
@@ -45,21 +46,21 @@ const contactActions = [
 const socialLinks = [
   {
     label: "Facebook",
-    description: "Album sản phẩm, feedback và thông báo mẫu mới.",
+    description: "Giới thiệu tất cả sản phẩm hiện bán.",
     icon: <AiFillFacebook />,
     href: shopContact.facebookUrl,
     className: "bg-[#1877F2] text-white",
   },
   {
     label: "Instagram",
-    description: "Tone màu, ảnh mẫu và ý tưởng quà tặng handmade.",
+    description: "Album sản phẩm cực kỳ độc đáo.",
     icon: <AiFillInstagram />,
     href: shopContact.instagramUrl,
     className: "bg-[#E4405F] text-white",
   },
   {
     label: "TikTok",
-    description: "Video quá trình móc len và sản phẩm hoàn thiện.",
+    description: "Các sản phẩm mới được cập nhật liên tục.",
     icon: <AiFillTikTok />,
     href: shopContact.tiktokUrl,
     className: "bg-text-main text-white",
@@ -98,6 +99,13 @@ const faqs = [
     answer: "Shop có hỗ trợ giao hàng nội thành TP.HCM và ship toàn quốc bạn nhé.",
   },
 ] as const;
+
+// const isBrowserDev = () => ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+const openExternalUrlFallback = (url: string) => {
+  window.open(url, "_blank", "noopener,noreferrer");
+};
+
 export const ContactPage = () => {
   const [copiedType, setCopiedType] = useState<"phone" | "email" | null>(null);
 
@@ -107,6 +115,25 @@ export const ContactPage = () => {
       setCopiedType(type);
     } catch {
       setCopiedType(null);
+    }
+  };
+
+  const handleOpenSocialLink = async (url: string) => {
+    // if (isBrowserDev()) {
+    //   openExternalUrlFallback(url);
+    //   return;
+    // }
+
+    try {
+      await openWebview({
+        url,
+        config: {
+          style: "normal",
+          leftButton: "back",
+        },
+      });
+    } catch {
+      openExternalUrlFallback(url);
     }
   };
 
@@ -203,24 +230,23 @@ export const ContactPage = () => {
 
         <div className="grid gap-3">
           {socialLinks.map((social) => (
-            <a
+            <button
               key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
+              type="button"
+              onClick={() => handleOpenSocialLink(social.href)}
               className="flex items-center gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-text-main/5 transition active:scale-[0.99]"
             >
               <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl ${social.className}`}>
                 {social.icon}
               </span>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 text-left">
                 <p className="text-base font-bold text-text-main">{social.label}</p>
                 <p className="mt-0.5 line-clamp-2 text-sm leading-5 text-text-muted">
                   {social.description}
                 </p>
               </div>
               <AiOutlineRight className="shrink-0 text-lg text-text-muted" />
-            </a>
+            </button>
           ))}
         </div>
       </section>

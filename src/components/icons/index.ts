@@ -16,3 +16,4 @@ export * from "./EmptyVoucherIcon";
 export * from "./EmptyCartIcon";
 export * from "./EmptyAccountIcon";
 export * from "./EmptyCampaignIcon";
+export * from "./DescriptionToggleIcon";

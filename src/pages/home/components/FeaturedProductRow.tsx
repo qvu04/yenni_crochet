@@ -63,7 +63,7 @@ export const FeaturedProductRow = ({ title, productType, preOrder, showTypeBadge
                     {products?.map((product) => (
                         <motion.div
                             key={product.id}
-                            className="w-[31%] min-w-[132px] max-w-[156px] shrink-0 snap-start"
+                            className="w-[38%] min-w-[150px] max-w-[176px] shrink-0 snap-start"
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, amount: 0.35 }}

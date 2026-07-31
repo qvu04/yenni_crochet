@@ -6,8 +6,10 @@ import {
   calculatePromotionDiscount,
   formatDiscount,
   formatPrice,
+  getMatchedPriceTier,
   getPromotionUnavailableReason,
   getStockLabel,
+  resolveUnitPrice,
 } from "utils";
 import { useCreateOrder, useGetUserPromotions } from "queries";
 import { PromotionPickerSkeleton, Spinner } from "components/ui";
@@ -55,7 +57,18 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
   };
 
   const canSubmit = Boolean(customerName.trim() && phone.trim() && address.trim());
-  const subtotal = product.price * quantity;
+  const matchedPriceTier = getMatchedPriceTier({
+    priceTiers: product.product_price_tiers,
+    quantity,
+    variantId: null,
+  });
+  const unitPrice = resolveUnitPrice({
+    basePrice: product.price,
+    priceTiers: product.product_price_tiers,
+    quantity,
+    variantId: null,
+  });
+  const subtotal = unitPrice * quantity;
   const selectedUserPromotion = useMemo(() => {
     return claimedUserPromotions?.find((item) => item.promotion_id === selectedPromotionId);
   }, [claimedUserPromotions, selectedPromotionId]);
@@ -97,7 +110,14 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
             <p className="line-clamp-1 font-heading text-sm font-semibold text-text-main">
               {product.name}
             </p>
-            <p className="text-sm font-bold text-text-main">{formatPrice(product.price)}</p>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
+              <p className="text-sm font-bold text-text-main">{formatPrice(unitPrice)}/cái</p>
+              {matchedPriceTier && (
+                <span className="rounded-full bg-primary/60 px-2 py-0.5 text-[10px] font-extrabold text-title-text">
+                  Giá sỉ
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -121,6 +141,13 @@ export const OrderForm = ({ product, onCancel, onSuccess }: OrderFormProps) => {
           <p className="mt-2 text-xs font-semibold text-text-muted">
             {getStockLabel(product.stock_quantity)}
           </p>
+          {matchedPriceTier && (
+            <p className="mt-2 rounded-2xl bg-primary/50 px-3 py-2 text-xs font-bold leading-5 text-title-text">
+              Đã áp dụng giá sỉ từ {matchedPriceTier.min_quantity}
+              {matchedPriceTier.max_quantity ? `-${matchedPriceTier.max_quantity}` : "+"} sản phẩm:
+              {" "}{formatPrice(matchedPriceTier.unit_price)}/cái
+            </p>
+          )}
         </div>
 
         <div>

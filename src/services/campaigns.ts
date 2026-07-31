@@ -30,7 +30,7 @@ export const campaignServices = {
 
     const { data, error } = await supabase
       .from("campaigns")
-      .select("*, campaign_products(products(*))")
+      .select("*, campaign_products(products(*, product_price_tiers(*)))")
       .eq("is_active", true)
       .gte("end_date", today)
       .order("start_date", { ascending: true })
@@ -46,7 +46,7 @@ export const campaignServices = {
   getCampaignById: async (id: string): Promise<Campaign> => {
     const { data, error } = await supabase
       .from("campaigns")
-      .select("*, campaign_products(products(*))")
+      .select("*, campaign_products(products(*, product_price_tiers(*)))")
       .eq("id", id)
       .eq("is_active", true)
       .single();

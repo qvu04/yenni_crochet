@@ -1,5 +1,5 @@
 import { AiOutlineDelete, AiOutlineMinus, AiOutlinePlus } from 'react-icons/ai';
-import { formatPrice, getStockLabel } from 'utils';
+import { formatPrice, getMatchedPriceTier, getStockLabel } from 'utils';
 import { CartItem, useCartStore } from 'stores/cart';
 interface CartSectionProps {
     items: CartItem[]
@@ -12,6 +12,11 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
         <section className="mb-5 space-y-3">
             {items.map((item) => {
                 const itemId = item.id ?? (item.variant_id ? `${item.product_id}:${item.variant_id}` : item.product_id);
+                const matchedPriceTier = getMatchedPriceTier({
+                    priceTiers: item.price_tiers,
+                    quantity: item.quantity,
+                    variantId: item.variant_id,
+                });
 
                 return (
                     <article key={itemId} className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
@@ -27,7 +32,14 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                                         <h2 className="line-clamp-2 font-heading text-base font-bold leading-5 text-text-main">
                                             {item.name}
                                         </h2>
-                                        <p className="mt-1 text-sm font-extrabold text-title-text">{formatPrice(item.price)}</p>
+                                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                                            <p className="text-sm font-extrabold text-title-text">{formatPrice(item.price)}/cái</p>
+                                            {/* {matchedPriceTier && (
+                                                <span className="rounded-full bg-primary/60 px-2 py-0.5 text-[10px] font-extrabold text-title-text">
+                                                    Giá sỉ
+                                                </span>
+                                            )} */}
+                                        </div>
                                         {item.variant_name && (
                                             <div className="mt-2 inline-flex max-w-full items-center gap-1.5 rounded-full bg-background-main px-2.5 py-1 text-[11px] font-bold text-text-muted">
                                                 {item.variant_color_hex && (
@@ -73,6 +85,13 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                                     {getStockLabel(item.stock_quantity)}
                                 </p> */}
                                 </div>
+                                {matchedPriceTier && (
+                                    <p className="mt-2 text-[11px] font-bold leading-5 text-text-muted">
+                                        Giá sỉ {matchedPriceTier.min_quantity}
+                                        {matchedPriceTier.max_quantity ? `-${matchedPriceTier.max_quantity}` : "+"} cái:
+                                        {" "}{formatPrice(matchedPriceTier.unit_price)}/cái
+                                    </p>
+                                )}
                             </div>
                         </div>
 
