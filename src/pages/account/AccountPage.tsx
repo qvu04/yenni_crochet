@@ -3,7 +3,7 @@ import { EmptyAccountIcon } from "components/icons";
 
 export const AccountPage = () => {
   return (
-    <main className="min-h-screen bg-background-main px-5 pt-10">
+    <main className="min-h-screen bg-background-main px-5 pt-8">
       <Emptier
         icon={<EmptyAccountIcon />}
         title="Tài khoản"

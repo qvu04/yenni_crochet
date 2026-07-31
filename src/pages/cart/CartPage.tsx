@@ -137,7 +137,7 @@ export const CartPage = () => {
 
   if (items.length === 0 && !isSuccessVisible) {
     return (
-      <main className="bg-background-main mt-20 flex items-center justify-center flex-col w-full p-4">
+      <main className="bg-background-main flex items-center justify-center flex-col w-full p-4 pt-8">
         <Emptier
           icon={<EmptyCartIcon />}
           title="Giỏ hàng đang trống"
@@ -155,7 +155,7 @@ export const CartPage = () => {
   }
 
   return (
-    <main className="bg-background-main px-5 pb-5 pt-10 mt-10">
+    <main className="bg-background-main px-5 pb-5 pt-4">
       <header className="mb-5">
         <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">Giỏ hàng</p>
         <h1 className="mt-1 font-heading text-3xl font-bold text-title-text">Đơn hàng của bạn</h1>

@@ -89,7 +89,7 @@ export const ProductsPage = () => {
   }, [typeParam]);
 
   return (
-    <main className="mt-14 flex min-h-[calc(100dvh-64px-var(--zaui-safe-area-inset-bottom,0px))] flex-col bg-background-main px-5 pt-12">
+    <main className="flex min-h-[calc(100dvh-64px-var(--zaui-safe-area-inset-bottom,0px))] flex-col bg-background-main px-5 pt-4">
       <section className="mb-4 shrink-0 overflow-hidden rounded-[28px] bg-white p-4 shadow-[0_12px_30px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-text-muted">
           Bộ sưu tập

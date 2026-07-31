@@ -138,7 +138,7 @@ export const ContactPage = () => {
   };
 
   return (
-    <main className="bg-background-main px-5 pb-5 mt-10 pt-10">
+    <main className="bg-background-main px-5 pb-5 pt-4">
       <header className="mb-6">
         <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
           Yenni luôn ở đây

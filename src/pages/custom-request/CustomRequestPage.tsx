@@ -2,7 +2,7 @@ import { CustomRequestForm } from "./components";
 
 export const CustomRequestPage = () => {
     return (
-        <div className="min-h-screen bg-background-main px-5 pb-6 pt-10">
+        <div className="min-h-screen bg-background-main px-5 pb-6 pt-4 mt-12">
             <header className="mb-6">
                 <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
                     Mẫu handmade theo ý bạn
