@@ -7,7 +7,7 @@ const TABS = [
   { key: "order", path: "/order", label: "Đặt riêng", icon: <AiOutlineEdit /> },
   { key: "voucher", path: "/vouchers", label: "Ưu đãi", icon: <AiOutlineGift /> },
   { key: "contact", path: "/contact", label: "Liên hệ", icon: <AiOutlineMessage /> },
-  { key: "account", path: "/account", label: "Tài khoản", icon: <AiOutlineUser /> },
+  // { key: "account", path: "/account", label: "Tài khoản", icon: <AiOutlineUser /> },
 ] as const;
 
 export const BottomNav = () => {

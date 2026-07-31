@@ -155,7 +155,7 @@ export const CustomRequestForm = () => {
                     />
                     {phoneError && (
                         <p className="mt-1 text-xs text-[#B91C1C]">
-                            Chưa thể tự lấy SĐT từ Zalo, bạn vui lòng nhập tay nhé.
+                            Hiện tại chưa phát triển tính năng tự lấy SĐT từ Zalo, bạn giúp shop nhập tay nhé.
                         </p>
                     )}
                     {errors.phone && (

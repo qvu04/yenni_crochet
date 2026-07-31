@@ -60,7 +60,8 @@ export const InformCartForm = ({
         />
         {phoneError && (
           <p className={errorClassName}>
-            Chưa thể tự lấy SĐT từ Zalo, bạn vui lòng nhập tay nhé.
+            Hiện tại chưa phát triển tính năng tự lấy SĐT từ Zalo, bạn giúp shop nhập tay nhé.
+
           </p>
         )}
         {errors.phone && (
