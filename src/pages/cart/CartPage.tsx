@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getUserInfo } from "zmp-sdk/apis";
 import { AiOutlineDelete, AiOutlineShoppingCart } from "react-icons/ai";
@@ -18,6 +18,8 @@ import {
   InformCartForm,
 } from "./components";
 
+const REMOVE_ITEM_LOADING_DELAY = 500;
+
 export const CartPage = () => {
   const navigate = useNavigate();
   const items = useCartStore((state) => state.items);
@@ -27,7 +29,9 @@ export const CartPage = () => {
   const [selectedPromotionId, setSelectedPromotionId] = useState<string>();
   const [isSuccessVisible, setIsSuccessVisible] = useState(false);
   const [removeConfirmItem, setRemoveConfirmItem] = useState<{ itemId: string; productName: string } | null>(null);
+  const [isRemovingItem, setIsRemovingItem] = useState(false);
   const [submitConfirmValues, setSubmitConfirmValues] = useState<CartCheckoutInput | null>(null);
+  const removeItemTimeoutRef = useRef<number>();
   const {
     register,
     handleSubmit: handleFormSubmit,
@@ -80,6 +84,14 @@ export const CartPage = () => {
   const finalPrice = canUseSelectedPromotion ? selectedPromotionPreview.finalPrice : subtotal;
   const hasInvalidStock = items.some((item) => item.stock_quantity <= 0 || item.quantity > item.stock_quantity);
   const canSubmit = Boolean(items.length && !hasInvalidStock);
+
+  useEffect(() => {
+    return () => {
+      if (removeItemTimeoutRef.current) {
+        window.clearTimeout(removeItemTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (selectedPromotionPreview.unavailableReason) {
@@ -233,12 +245,17 @@ export const CartPage = () => {
         }
         confirmText="Xóa"
         cancelText="Giữ lại"
+        isLoading={isRemovingItem}
         onCancel={() => setRemoveConfirmItem(null)}
         onConfirm={() => {
-          if (removeConfirmItem) {
+          if (!removeConfirmItem || isRemovingItem) return;
+
+          setIsRemovingItem(true);
+          removeItemTimeoutRef.current = window.setTimeout(() => {
             removeItem(removeConfirmItem.itemId);
-          }
-          setRemoveConfirmItem(null);
+            setRemoveConfirmItem(null);
+            setIsRemovingItem(false);
+          }, REMOVE_ITEM_LOADING_DELAY);
         }}
       />
 

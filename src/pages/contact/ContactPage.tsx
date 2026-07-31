@@ -16,6 +16,8 @@ import { Link } from "react-router-dom";
 import { openWebview } from "zmp-sdk/apis";
 import { copyToClipboard } from 'utils';
 
+type ContactCopyType = "phone" | "email";
+
 const shopContact = {
   phone: "0704604023",
   email: "yennhixd633@gmail.com",
@@ -107,14 +109,27 @@ const openExternalUrlFallback = (url: string) => {
 };
 
 export const ContactPage = () => {
-  const [copiedType, setCopiedType] = useState<"phone" | "email" | null>(null);
+  const [copySuccessType, setCopySuccessType] = useState<ContactCopyType>("phone");
+  const [isCopySuccessVisible, setIsCopySuccessVisible] = useState(false);
 
-  const handleCopyContact = async (type: "phone" | "email", value: string) => {
+  const copySuccessContent = {
+    phone: {
+      heading: "Copy số điện thoại thành công",
+      title: "Bạn có thể nhắn tin qua Zalo hoặc liên hệ với shop qua số điện thoại này bạn nhé!",
+    },
+    email: {
+      heading: "Copy email thành công",
+      title: "Bạn có thể dán email này để gửi lời nhắn cho shop nhé!",
+    },
+  } satisfies Record<ContactCopyType, { heading: string; title: string }>;
+
+  const handleCopyContact = async (type: ContactCopyType, value: string) => {
     try {
       await copyToClipboard(value);
-      setCopiedType(type);
+      setCopySuccessType(type);
+      setIsCopySuccessVisible(true);
     } catch {
-      setCopiedType(null);
+      setIsCopySuccessVisible(false);
     }
   };
 
@@ -283,14 +298,10 @@ export const ContactPage = () => {
         </div>
       </section>
       <ModalSuccess
-        visible={Boolean(copiedType)}
-        heading={copiedType === "email" ? "Copy email thành công" : "Copy số điện thoại thành công"}
-        title={
-          copiedType === "email"
-            ? "Bạn có thể dán email này để gửi lời nhắn cho shop nhé!"
-            : "Bạn có thể nhắn tin qua zalo hoặc liên hệ với shop qua số điện thoại này bạn nhé!"
-        }
-        onClose={() => setCopiedType(null)}
+        visible={isCopySuccessVisible}
+        heading={copySuccessContent[copySuccessType].heading}
+        title={copySuccessContent[copySuccessType].title}
+        onClose={() => setIsCopySuccessVisible(false)}
       />
     </main>
   );

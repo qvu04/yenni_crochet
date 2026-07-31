@@ -181,7 +181,7 @@ export const CustomRequestForm = () => {
 
                 <div>
                     <label className="mb-1 block text-sm font-semibold text-text-main">
-                        Bạn muốn làm món gì? <span className="font-medium text-text-muted">(nếu có)</span>
+                        Bạn muốn làm món gì? <RequiredMark />
                     </label>
                     <textarea
                         {...register("description")}
