@@ -27,7 +27,7 @@ export default function Home() {
     };
 
     return (
-        <div className="h-[calc(100dvh-64px-var(--zaui-safe-area-inset-bottom,0px))] overflow-y-auto overscroll-contain bg-background-main">
+        <div className="h-dvh touch-pan-y overflow-y-auto overscroll-contain bg-background-main [-webkit-overflow-scrolling:touch]">
             <PullToRefresh
                 pullingText="Kéo xuống để làm mới"
                 canReleaseText="Thả tay để làm mới"
@@ -43,7 +43,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="relative z-10 flex flex-col gap-5 px-4 py-5"
+                    className="relative z-10 flex flex-col gap-5 px-4 mb-24 pt-5"
                 >
                     <section className="grid grid-cols-4 gap-2">
                         {quickActions.map((action) => (

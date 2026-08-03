@@ -38,7 +38,7 @@ export const CampaignDetailSheet = ({
         visible={visible}
         onClose={onClose}
         height="85vh"
-        swipeToClose
+        swipeToClose={false}
         unmountOnClose
         handler={false}
       >
@@ -53,11 +53,11 @@ export const CampaignDetailSheet = ({
         visible={visible}
         onClose={onClose}
         height="85vh"
-        swipeToClose
+        swipeToClose={false}
         unmountOnClose
         handler={false}
       >
-        <div className="relative h-full bg-background-main p-5">
+        <div className="relative flex h-full min-h-0 flex-col bg-background-main p-5">
           <CloseButtonSheet onClick={onClose} />
           <p className="rounded-2xl bg-white p-4 text-sm text-text-muted">
             Không tìm thấy sự kiện này.
@@ -88,13 +88,17 @@ export const CampaignDetailSheet = ({
       visible={visible}
       onClose={onClose}
       height="85vh"
-      swipeToClose
+      swipeToClose={false}
       unmountOnClose
       handler={false}
     >
-      <div className="relative flex h-full flex-col bg-background-main">
+      <div className="relative flex h-full min-h-0 flex-col bg-background-main">
         <CloseButtonSheet onClick={onClose} />
-        <div className="relative flex-1 overflow-y-auto pb-5">
+        <div
+          className="relative min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-background-main pb-5 [-webkit-overflow-scrolling:touch]"
+          onTouchStart={(event) => event.stopPropagation()}
+          onTouchMove={(event) => event.stopPropagation()}
+        >
           <div className="relative h-72 overflow-hidden bg-text-main">
             <img src={heroImage} alt={campaign.name} className="h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-b from-text-main/5 via-text-main/10 to-text-main/60" />

@@ -28,6 +28,7 @@ supabase/cart-order-items.sql
 supabase/cleanup-unused-tables-and-sync-core.sql
 supabase/product-variants.sql
 supabase/drop-product-variant-image-url.sql
+supabase/admin-auth.sql
 CLAUDE.md
 PRD.md
 # Editor directories and files

@@ -14,6 +14,7 @@ export const voucherServices = {
             .from("promotions")
             .select("*")
             .eq("is_active", true)
+            .eq("visibility", "public")
             .lte("start_date", today)
             .gte("end_date", today)
             .order("created_at", { ascending: false });
