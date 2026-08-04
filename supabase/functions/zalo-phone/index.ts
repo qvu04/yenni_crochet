@@ -1,5 +1,6 @@
 const ZALO_APP_SECRET = Deno.env.get("ZALO_APP_SECRET") ?? "";
-
+const ZALO_FORWARDER_URL = Deno.env.get("ZALO_FORWARDER_URL") ?? "";
+const FORWARD_SECRET = Deno.env.get("FORWARD_SECRET") ?? "";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -46,9 +47,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    const zaloRes = await fetch("https://graph.zalo.me/v2.0/me/info", {
-      method: "GET",
+    const zaloRes = await fetch(ZALO_FORWARDER_URL, {
+      method: "POST",
       headers: {
+        "x-forward-secret": FORWARD_SECRET,
+        "x-target-url": "https://graph.zalo.me/v2.0/me/info",
+        "x-target-method": "GET",
         access_token: accessToken,
         code: phoneToken,
         secret_key: ZALO_APP_SECRET,

@@ -21,6 +21,18 @@ export const orderServices = {
           quantity: item.quantity,
           note: item.note ?? null,
         })),
+        p_payment_type: input.payment_type ?? "deposit",
+        p_payment_status: input.payment_status ?? "paid",
+        p_deposit_rate: input.deposit_rate ?? null,
+        p_deposit_amount: input.deposit_amount ?? 0,
+        p_remaining_amount: input.remaining_amount ?? 0,
+        p_checkout_order_id: input.checkout_order_id ?? null,
+        p_checkout_transaction_id: input.checkout_transaction_id ?? null,
+        p_checkout_message_token: input.checkout_message_token ?? null,
+        p_delivery_latitude: input.delivery_latitude ?? null,
+        p_delivery_longitude: input.delivery_longitude ?? null,
+        p_delivery_location_accuracy: input.delivery_location_accuracy ?? null,
+        p_delivery_location_token: input.delivery_location_token ?? null,
       })
       : await supabase.rpc("create_order_with_promotion", {
         ...rpcPayload,

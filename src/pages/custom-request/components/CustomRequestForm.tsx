@@ -1,14 +1,14 @@
 import { AiOutlineClose, AiOutlineQuestionCircle, AiOutlinePicture } from 'react-icons/ai';
 import { CustomRequestInput, CustomRequestInputSchema } from 'schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { getUserInfo } from 'zmp-sdk/apis';
 import { useZaloPhoneNumber } from 'hooks/useZaloPhoneNumber';
 import { useCreateCustomRequest, useUploadCustomRequestImages } from 'queries';
 import { ModalSuccess, Spinner, ConfirmDialog } from 'components/ui';
 import { useNavigate } from 'react-router-dom';
-import { getDefaultFormValues } from 'utils';
+import { getDefaultFormValues, getFriendlyErrorMessage, showErrorToast } from 'utils';
 
 const occasionOptions = [
     { label: "Sinh nhật", value: "birthday" },
@@ -23,20 +23,18 @@ export const CustomRequestForm = () => {
     const fieldClassName =
         "block w-full min-w-0 max-w-full rounded-2xl border border-white bg-white px-4 py-3 text-sm text-text-main shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/35";
 
-    const { getPhone, isLoading: isGettingPhone, error: phoneError } = useZaloPhoneNumber();
+    const { getPhone, getPhoneOnce, isLoading: isGettingPhone, error: phoneError } = useZaloPhoneNumber();
     const navigate = useNavigate();
     const [submitConfirmValues, setSubmitConfirmValues] = useState<CustomRequestInput | null>(null);
     const {
         mutate: createCustomRequest,
         isPending,
         isSuccess,
-        error,
         reset: resetMutation,
     } = useCreateCustomRequest();
     const {
         mutate: uploadReferenceImages,
         isPending: isUploadingImages,
-        error: uploadError,
     } = useUploadCustomRequestImages();
     const {
         register,
@@ -66,13 +64,26 @@ export const CustomRequestForm = () => {
             .catch(() => { });
     }, [setValue]);
 
-    const handleGetPhone = () => {
+    const handleGetPhone = useCallback(() => {
         getPhone().then((phoneNumber) => {
+            if (phoneNumber) {
+                setValue("phone", phoneNumber, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
+            } else {
+                showErrorToast("Chưa lấy được số từ Zalo, bạn nhập thủ công hoặc thử lại giúp shop nhé.");
+            }
+        });
+    }, [getPhone, setValue]);
+
+    useEffect(() => {
+        getPhoneOnce().then((phoneNumber) => {
             if (phoneNumber) {
                 setValue("phone", phoneNumber, { shouldDirty: true, shouldValidate: true });
             }
         });
-    };
+    }, [getPhoneOnce, setValue]);
 
     const handleReferenceImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = Array.from(event.target.files ?? []);
@@ -92,6 +103,9 @@ export const CustomRequestForm = () => {
                     shouldValidate: true,
                 });
             },
+            onError: (err) => {
+                showErrorToast(`Tải ảnh thất bại: ${getFriendlyErrorMessage(err)}`);
+            },
         });
     };
 
@@ -108,6 +122,9 @@ export const CustomRequestForm = () => {
             onSuccess: () => {
                 resetForm(getDefaultFormValues());
             },
+            onError: (err) => {
+                showErrorToast(`Gửi yêu cầu thất bại: ${getFriendlyErrorMessage(err)}`);
+            },
         });
     };
 
@@ -115,7 +132,6 @@ export const CustomRequestForm = () => {
         if (isPending || isUploadingImages) return;
         setSubmitConfirmValues(values);
     };
-
     return (
         <>
             <form onSubmit={handleSubmit(handleConfirmSubmit)} className="space-y-5">
@@ -155,7 +171,7 @@ export const CustomRequestForm = () => {
                     />
                     {phoneError && (
                         <p className="mt-1 text-xs text-[#B91C1C]">
-                            Hiện tại chưa phát triển tính năng tự lấy SĐT từ Zalo, bạn giúp shop nhập tay nhé.
+                            Lấy số điện thoại từ Zalo thất bại, bạn có thể nhập số điện thoại thủ công hoặc thử lại.
                         </p>
                     )}
                     {errors.phone && (
@@ -246,11 +262,6 @@ export const CustomRequestForm = () => {
                         </div>
                     )}
 
-                    {uploadError && (
-                        <p className="mt-1 text-xs text-[#B91C1C]">
-                            Tải ảnh thất bại: {uploadError.message}
-                        </p>
-                    )}
                     {errors.reference_images && (
                         <p className="mt-1 text-xs text-[#B91C1C]">
                             {errors.reference_images.message}
@@ -311,13 +322,6 @@ export const CustomRequestForm = () => {
                         <p className="mt-1 text-xs text-[#B91C1C]">{errors.note.message}</p>
                     )}
                 </div>
-
-                {error && (
-                    <p className="rounded-2xl bg-[#FEE2E2] p-3 text-sm text-[#B91C1C]">
-                        Gửi yêu cầu thất bại, thử lại nhé: {error.message}
-                    </p>
-                )}
-
                 <button
                     type="submit"
                     disabled={isPending || isUploadingImages}

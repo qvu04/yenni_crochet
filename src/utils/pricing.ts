@@ -71,3 +71,11 @@ export const resolveUnitPrice = ({
   const matchedTier = getMatchedPriceTier({ priceTiers, quantity, variantId });
   return matchedTier?.unit_price ?? basePrice;
 };
+
+export const calculateDepositAmount = (totalAmount: number, depositRate = 0.3) => {
+  if (totalAmount <= 0) return 0;
+
+  const roundedDeposit = Math.ceil((totalAmount * depositRate) / 1000) * 1000;
+
+  return Math.min(totalAmount, roundedDeposit);
+};

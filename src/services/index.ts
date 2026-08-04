@@ -4,3 +4,4 @@ export * from "./supabase";
 export * from "./orders";
 export * from "./custom-request";
 export * from "./vouchers";
+export * from "./zalo-location";

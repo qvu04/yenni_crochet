@@ -40,6 +40,15 @@ interface OrderRecord {
   subtotal_price?: number | null;
   discount_amount?: number | null;
   final_price?: number | null;
+  payment_type?: string | null;
+  payment_status?: string | null;
+  deposit_amount?: number | null;
+  remaining_amount?: number | null;
+  checkout_order_id?: string | null;
+  delivery_latitude?: number | null;
+  delivery_longitude?: number | null;
+  delivery_location_accuracy?: number | null;
+  delivery_location_token?: string | null;
 }
 
 interface OrderItemRecord {
@@ -158,7 +167,7 @@ Deno.serve(async (req) => {
     let order = payload.record as OrderRecord;
 
     const orderRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}&select=id,product_id,quantity,customer_name,phone,address,note,created_at,subtotal_price,discount_amount,final_price`,
+      `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}&select=id,product_id,quantity,customer_name,phone,address,note,created_at,subtotal_price,discount_amount,final_price,payment_type,payment_status,deposit_amount,remaining_amount,checkout_order_id,delivery_latitude,delivery_longitude,delivery_location_accuracy,delivery_location_token`,
       {
         headers: serviceRoleHeaders,
       },
@@ -292,10 +301,20 @@ Deno.serve(async (req) => {
       ["Sản phẩm", productSummary || escapeHtml(productName)],
       ["Tạm tính", totalText || "—"],
       ["Giảm giá", order.discount_amount != null ? `-${formatPrice(Number(order.discount_amount))}` : "—"],
-      ["Tổng thanh toán", finalText || totalText || "—"],
+      ["Tổng đơn", finalText || totalText || "—"],
+      ["Trạng thái thanh toán", order.payment_status === "paid" ? "Đã cọc" : escapeHtml(order.payment_status || "pending")],
+      ["Tiền cọc", order.deposit_amount != null ? formatPrice(Number(order.deposit_amount)) : "—"],
+      ["Còn lại", order.remaining_amount != null ? formatPrice(Number(order.remaining_amount)) : "—"],
+      ["Mã Checkout Zalo", order.checkout_order_id ? escapeHtml(order.checkout_order_id) : "—"],
       ["Khách hàng", escapeHtml(order.customer_name)],
       ["SĐT", escapeHtml(order.phone)],
       ["Địa chỉ", escapeHtml(order.address)],
+      ["Vị trí hỗ trợ", order.delivery_latitude != null && order.delivery_longitude != null
+        ? `<a href="https://www.openstreetmap.org/?mlat=${Number(order.delivery_latitude)}&mlon=${Number(order.delivery_longitude)}#map=17/${Number(order.delivery_latitude)}/${Number(order.delivery_longitude)}" target="_blank">Mở vị trí (${Number(order.delivery_latitude).toFixed(6)}, ${Number(order.delivery_longitude).toFixed(6)})</a>`
+        : order.delivery_location_token
+          ? "Đã nhận token vị trí từ Zalo"
+          : "—"],
+      ["Độ chính xác", order.delivery_location_accuracy != null ? `${Number(order.delivery_location_accuracy)}m` : "—"],
       ["Ghi chú", order.note ? escapeHtml(order.note) : "—"],
       ["Thời gian", formatDateTime(order.created_at)],
       ["Mã đơn", order.id],

@@ -10,6 +10,7 @@ import { useClaimPromotion, useGetActivePromotions, useGetUserPromotions } from 
 import { PromotionCard, UserPromotionCard } from "./components";
 import { EmptyVoucherIcon } from "components/icons";
 import { Promotions } from "types";
+import { getFriendlyErrorMessage, showErrorToast } from "utils";
 
 type VoucherTab = "available" | "claimed" | "used";
 const voucherTabs: { label: string; value: VoucherTab }[] = [
@@ -29,7 +30,7 @@ export const VouchersPage = () => {
     useGetActivePromotions();
   const { data: userPromotions, isLoading: isLoadingUserPromotions, isError: isUserPromotionsError } =
     useGetUserPromotions({ zaloUserId });
-  const { mutate: claimPromotion, isPending: isClaiming, error: claimError } = useClaimPromotion();
+  const { mutate: claimPromotion, isPending: isClaiming } = useClaimPromotion();
 
   useEffect(() => {
     getUserInfo({ autoRequestPermission: true })
@@ -38,7 +39,10 @@ export const VouchersPage = () => {
           setZaloUserId(userInfo.id);
         }
       })
-      .catch(() => setUserInfoError(true));
+      .catch(() => {
+        setUserInfoError(true);
+        showErrorToast("Chưa lấy được thông tin Zalo, bạn thử cấp quyền lại nhé.");
+      });
   }, []);
 
   const claimedPromotionIds = useMemo(() => {
@@ -63,6 +67,7 @@ export const VouchersPage = () => {
   const handleRequestClaimPromotion = (promotion: Promotions) => {
     if (!zaloUserId) {
       setUserInfoError(true);
+      showErrorToast("Bạn cần cấp quyền thông tin Zalo trước khi đổi voucher.");
       return;
     }
 
@@ -82,6 +87,9 @@ export const VouchersPage = () => {
           await queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_ACTIVE_PROMOTIONS] });
           await queryClient.refetchQueries({ queryKey: [QUERY_KEY.GET_USER_PROMOTIONS] });
           setActiveTab("claimed");
+        },
+        onError: (err) => {
+          showErrorToast(`Đổi voucher thất bại: ${getFriendlyErrorMessage(err)}`);
         },
       },
     );
@@ -150,12 +158,6 @@ export const VouchersPage = () => {
           Chưa tải được ví voucher của bạn, danh sách bên dưới có thể vẫn bao gồm voucher đã đổi.
         </div>
       )}
-      {claimError && (
-        <div className="mb-4 rounded-2xl bg-[#FEE2E2] p-4 text-sm leading-6 text-[#B91C1C]">
-          Đổi voucher thất bại: {claimError.message}
-        </div>
-      )}
-
       <ConditionalRender
         isLoading={isLoading}
         isError={isError}

@@ -22,6 +22,18 @@ body {
   touch-action: pan-y;
 }
 
+.adm-toast-main {
+  max-width: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.adm-toast-wrap.adm-toast-wrap-top {
+  top: max(calc(var(--zaui-safe-area-inset-top, 0px) + 16px), 28px) !important;
+}
+
 h1,
 h2,
 h3,

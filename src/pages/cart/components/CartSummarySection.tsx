@@ -5,6 +5,8 @@ interface CartSummarySectionProps {
   subtotal: number;
   discountAmount: number;
   finalPrice: number;
+  depositAmount: number;
+  remainingAmount: number;
   selectedPromotion?: Promotions;
   promotionUnavailableReason?: string | null;
   hasInvalidStock: boolean;
@@ -15,6 +17,8 @@ export const CartSummarySection = ({
   subtotal,
   discountAmount,
   finalPrice,
+  depositAmount,
+  remainingAmount,
   selectedPromotion,
   promotionUnavailableReason,
   hasInvalidStock,
@@ -32,8 +36,18 @@ export const CartSummarySection = ({
       </div>
       <div className="border-t border-text-main/10 pt-2">
         <div className="flex items-center justify-between gap-3">
-          <span className="font-bold text-text-main">Tổng thanh toán</span>
+          <span className="font-bold text-text-main">Tổng đơn</span>
           <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(finalPrice)}</span>
+        </div>
+        <div className="mt-2 rounded-2xl bg-background-main p-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-bold text-text-main">Cọc hôm nay</span>
+            <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(depositAmount)}</span>
+          </div>
+          <div className="mt-1 flex items-start justify-between gap-3 text-xs font-semibold text-text-muted">
+            <span className="min-w-0 leading-5">Còn lại thanh toán khi shop xác nhận/giao hàng</span>
+            <span className="shrink-0 text-right leading-5">{formatPrice(remainingAmount)}</span>
+          </div>
         </div>
       </div>
 

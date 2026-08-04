@@ -15,4 +15,16 @@ export interface CreateOrderInput {
   note?: string;
   zalo_user_id?: string;
   promotion_id?: string;
+  payment_type?: "deposit" | "full" | "none";
+  payment_status?: "pending" | "paid" | "failed" | "refunded";
+  deposit_rate?: number;
+  deposit_amount?: number;
+  remaining_amount?: number;
+  checkout_order_id?: string;
+  checkout_transaction_id?: string;
+  checkout_message_token?: string;
+  delivery_latitude?: number;
+  delivery_longitude?: number;
+  delivery_location_accuracy?: number;
+  delivery_location_token?: string;
 }

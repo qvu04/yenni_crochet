@@ -11,6 +11,9 @@ interface FunctionErrorWithContext {
   context?: Response;
 }
 
+let phoneNumberRequestPromise: Promise<string | null> | null = null;
+let cachedPhoneNumber: string | null = null;
+
 const getFunctionErrorMessage = async (error: unknown) => {
   const functionError = error as FunctionErrorWithContext;
 
@@ -49,6 +52,7 @@ export const useZaloPhoneNumber = () => {
       }
       if (!data?.phoneNumber) throw new Error("Không lấy được số điện thoại");
 
+      cachedPhoneNumber = data.phoneNumber;
       return data.phoneNumber;
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Không lấy được số điện thoại"));
@@ -58,5 +62,18 @@ export const useZaloPhoneNumber = () => {
     }
   }, []);
 
-  return { getPhone, isLoading, error };
+  const getPhoneOnce = useCallback(async (): Promise<string | null> => {
+    if (cachedPhoneNumber) return cachedPhoneNumber;
+
+    if (!phoneNumberRequestPromise) {
+      phoneNumberRequestPromise = getPhone().then((phoneNumber) => {
+        cachedPhoneNumber = phoneNumber;
+        return phoneNumber;
+      });
+    }
+
+    return phoneNumberRequestPromise;
+  }, [getPhone]);
+
+  return { getPhone, getPhoneOnce, isLoading, error };
 };
