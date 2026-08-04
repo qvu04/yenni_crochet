@@ -11,13 +11,13 @@ export const CartFloatingButton = () => {
   const flyToCart = useFlyToCartStore((state) => state.flyToCart);
   const clearFlyToCart = useFlyToCartStore((state) => state.clearFlyToCart);
   const totalQuantity = getCartTotalQuantity(items);
-  const isHome = pathname === "/";
+  const shouldHide = pathname === "/cart";
   const target = typeof document !== "undefined"
     ? document.querySelector('[data-floating-cart-target="true"]') as HTMLElement | null
     : null;
   const targetRect = target?.getBoundingClientRect();
 
-  if (!isHome) return null;
+  if (shouldHide || (totalQuantity === 0 && !flyToCart)) return null;
 
   return (
     <>

@@ -7,7 +7,7 @@ const TABS = [
   { key: "order", path: "/order", label: "Đặt riêng", icon: <AiOutlineEdit /> },
   { key: "voucher", path: "/vouchers", label: "Ưu đãi", icon: <AiOutlineGift /> },
   { key: "contact", path: "/contact", label: "Liên hệ", icon: <AiOutlineMessage /> },
-  // { key: "account", path: "/account", label: "Tài khoản", icon: <AiOutlineUser /> },
+  { key: "account", path: "/account", label: "Tài khoản", icon: <AiOutlineUser /> },
 ] as const;
 
 export const BottomNav = () => {
@@ -15,7 +15,7 @@ export const BottomNav = () => {
   const navigate = useNavigate();
   const route = ROUTES.find((r) => matchPath({ path: r.path, end: true }, pathname));
   if (route?.hideNavBottom) return null;
-  const activeKey = TABS.find((tab) => tab.path === pathname)?.key ?? TABS[0].key;
+  const activeKey = TABS.find((tab) => tab.path === pathname || (tab.path !== "/" && pathname.startsWith(tab.path)))?.key ?? TABS[0].key;
 
   return (
     <div

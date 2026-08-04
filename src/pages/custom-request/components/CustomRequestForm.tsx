@@ -26,6 +26,7 @@ export const CustomRequestForm = () => {
     const { getPhone, getPhoneOnce, isLoading: isGettingPhone, error: phoneError } = useZaloPhoneNumber();
     const navigate = useNavigate();
     const [submitConfirmValues, setSubmitConfirmValues] = useState<CustomRequestInput | null>(null);
+    const [zaloUserId, setZaloUserId] = useState<string>();
     const {
         mutate: createCustomRequest,
         isPending,
@@ -59,6 +60,9 @@ export const CustomRequestForm = () => {
                         shouldDirty: false,
                         shouldValidate: true,
                     });
+                }
+                if (userInfo.id) {
+                    setZaloUserId(userInfo.id);
                 }
             })
             .catch(() => { });
@@ -118,7 +122,10 @@ export const CustomRequestForm = () => {
     };
 
     const submitCustomRequest = (values: CustomRequestInput) => {
-        createCustomRequest(values, {
+        createCustomRequest({
+            ...values,
+            zalo_user_id: zaloUserId,
+        }, {
             onSuccess: () => {
                 resetForm(getDefaultFormValues());
             },

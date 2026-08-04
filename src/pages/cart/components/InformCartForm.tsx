@@ -98,19 +98,20 @@ export const InformCartForm = ({
               Bạn giúp shop nhập địa chỉ của bạn vẫn là thông tin chính. Nút dùng vị trí này sẽ giúp shop xác định vị trí của bạn chính xác hơn để hỗ trợ giao hàng nhanh hơn.
             </p>
           </div>
+        </div>
+        {hasDeliveryLocation ? (
+          <p className="mt-2 rounded-xl bg-white px-3 py-2 text-xs text-center font-bold text-text-main">
+            Đã lưu vị trí để shop hỗ trợ giao hàng.
+          </p>
+        ) : (
           <button
             type="button"
             onClick={handleGetLocation}
             disabled={isGettingLocation}
             className="shrink-0 w-full rounded-full bg-white px-3 py-2 text-xs font-bold text-title-text shadow-sm disabled:text-text-muted"
           >
-            {isGettingLocation ? <Spinner label="Đang lấy vị trí..." variant="inline" /> : "Dùng vị trí"}
+            {isGettingLocation ? "Đang lấy vị trí..." : "Dùng vị trí"}
           </button>
-        </div>
-        {hasDeliveryLocation && (
-          <p className="mt-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-text-main">
-            Đã lưu vị trí để shop hỗ trợ giao hàng.
-          </p>
         )}
       </div>
 

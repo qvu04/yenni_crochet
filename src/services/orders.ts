@@ -1,5 +1,23 @@
-import { CreateOrderInput } from "types";
+import { CreateOrderInput, CustomerOrder, CustomerOrderFilter } from "types";
 import { supabase } from "./supabase";
+
+const toCustomerOrder = (order: CustomerOrder): CustomerOrder => ({
+  ...order,
+  subtotal_price: Number(order.subtotal_price ?? 0),
+  discount_amount: Number(order.discount_amount ?? 0),
+  final_price: Number(order.final_price ?? 0),
+  deposit_amount: Number(order.deposit_amount ?? 0),
+  remaining_amount: Number(order.remaining_amount ?? 0),
+  delivery_latitude: order.delivery_latitude == null ? null : Number(order.delivery_latitude),
+  delivery_longitude: order.delivery_longitude == null ? null : Number(order.delivery_longitude),
+  delivery_location_accuracy: order.delivery_location_accuracy == null ? null : Number(order.delivery_location_accuracy),
+  items: (order.items ?? []).map((item) => ({
+    ...item,
+    quantity: Number(item.quantity ?? 0),
+    unit_price: Number(item.unit_price ?? 0),
+    total_price: Number(item.total_price ?? 0),
+  })),
+});
 
 export const orderServices = {
   createOrder: async (input: CreateOrderInput): Promise<void> => {
@@ -43,5 +61,37 @@ export const orderServices = {
     if (error) {
       throw new Error(error.message);
     }
+  },
+
+  getCustomerOrderHistory: async (zaloUserId: string, status: CustomerOrderFilter = "all"): Promise<CustomerOrder[]> => {
+    const { data, error } = await supabase.rpc("get_user_order_history", {
+      p_zalo_user_id: zaloUserId,
+      p_status: status,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return ((data ?? []) as CustomerOrder[]).map(toCustomerOrder);
+  },
+
+  getCustomerOrderDetail: async (zaloUserId: string, orderId: string): Promise<CustomerOrder> => {
+    const { data, error } = await supabase.rpc("get_user_order_detail", {
+      p_zalo_user_id: zaloUserId,
+      p_order_id: orderId,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const order = (Array.isArray(data) ? data[0] : data) as CustomerOrder | null;
+
+    if (!order) {
+      throw new Error("Không tìm thấy đơn hàng.");
+    }
+
+    return toCustomerOrder(order);
   },
 };

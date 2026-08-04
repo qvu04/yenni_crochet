@@ -13,5 +13,7 @@ export const ROUTES: RouteConfig[] = [
   { path: "/vouchers", title: "Ưu đãi", showHeader: true },
   { path: "/contact", title: "Liên hệ", showHeader: true },
   { path: "/account", title: "Tài khoản", showHeader: true },
+  { path: "/account/orders", title: "Lịch sử đơn hàng", showHeader: true, showBackButton: true },
+  { path: "/account/orders/:orderId", title: "Chi tiết đơn hàng", showHeader: true, showBackButton: true },
   { path: "/cart", title: "Giỏ hàng", showHeader: true, showBackButton: true, hideNavBottom: true },
 ];

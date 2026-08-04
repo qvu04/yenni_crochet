@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Swiper } from 'antd-mobile';
-import { formatPrice, formatProductDescription, getMatchedPriceTier, getStockLabel, getVisiblePriceTiers, resolveUnitPrice } from 'utils';
-import { useGetProductById } from 'queries';
+import { formatPrice, formatProductDescription, getFriendlyErrorMessage, getMatchedPriceTier, getStockLabel, getVisiblePriceTiers, resolveUnitPrice, showErrorToast, showSuccessToast } from 'utils';
+import { useGetProductById, useIsProductFavorited, useToggleFavoriteProduct } from 'queries';
 import { CloseButtonSheet, ProductDetailSkeleton } from 'components/ui';
 import { useCartStore } from 'stores/cart';
 import { useFlyToCartStore } from 'stores/flyToCart';
-import { AiOutlineMinus, AiOutlinePlus } from 'react-icons/ai';
+import { AiFillHeart, AiOutlineHeart, AiOutlineMinus, AiOutlinePlus } from 'react-icons/ai';
 import { ProductVariant } from 'types';
 import { DescriptionToggleIcon } from 'components/icons';
+import { useZaloCustomerProfile } from 'hooks/useZaloCustomerProfile';
 
 interface ProductDetailContentProps {
     productId: string;
@@ -22,6 +23,12 @@ const getVariantImages = (variant?: ProductVariant | null) => {
 
 export const ProductDetailContent = ({ productId, onClose }: ProductDetailContentProps) => {
     const { data: product, isLoading, isError } = useGetProductById({ id: productId });
+    const { profile } = useZaloCustomerProfile();
+    const { data: isFavorited } = useIsProductFavorited({
+        zaloUserId: profile?.zalo_user_id,
+        productId,
+    });
+    const { mutate: toggleFavorite, isPending: isTogglingFavorite } = useToggleFavoriteProduct();
     const navigate = useNavigate();
     const addItem = useCartStore((state) => state.addItem);
     const triggerFlyToCart = useFlyToCartStore((state) => state.triggerFlyToCart);
@@ -116,6 +123,7 @@ export const ProductDetailContent = ({ productId, onClose }: ProductDetailConten
         const imageRect = productImageRef.current?.getBoundingClientRect();
         addItem(product, quantity, selectedVariant);
         onClose();
+        showSuccessToast("Đã thêm sản phẩm vào giỏ hàng.");
 
         if (imageRect && displayImages[0]) {
             window.setTimeout(() => {
@@ -140,6 +148,28 @@ export const ProductDetailContent = ({ productId, onClose }: ProductDetailConten
         addItem(product, quantity, selectedVariant);
         onClose();
         navigate("/cart");
+    };
+
+    const handleToggleFavorite = () => {
+        if (!profile?.zalo_user_id) {
+            showErrorToast("Bạn mở tab Tài khoản để cấp quyền Zalo trước khi lưu wishlist nhé.");
+            return;
+        }
+
+        toggleFavorite(
+            {
+                zaloUserId: profile.zalo_user_id,
+                productId,
+            },
+            {
+                onSuccess: (result) => {
+                    showSuccessToast(result.is_favorited ? "Đã thêm vào wishlist." : "Đã bỏ khỏi wishlist.");
+                },
+                onError: (err) => {
+                    showErrorToast(`Cập nhật wishlist thất bại: ${getFriendlyErrorMessage(err)}`);
+                },
+            },
+        );
     };
 
     return (
@@ -186,7 +216,7 @@ export const ProductDetailContent = ({ productId, onClose }: ProductDetailConten
 
                     <div className="space-y-4 px-5 pt-4">
                         <div className="flex items-start justify-between gap-3">
-                            <div>
+                            <div className="min-w-0 flex-1">
                                 <p className="font-heading text-xl font-bold text-title-text">{product.name} - {formatPrice(displayPrice)}</p>
                                 {matchedPriceTier && displayBasePrice !== displayPrice && (
                                     <p className="mt-1 text-xs font-bold text-text-muted">
@@ -194,6 +224,16 @@ export const ProductDetailContent = ({ productId, onClose }: ProductDetailConten
                                     </p>
                                 )}
                             </div>
+                            <button
+                                type="button"
+                                onClick={handleToggleFavorite}
+                                disabled={isTogglingFavorite}
+                                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-2xl shadow-sm ring-1 ring-text-main/10 transition active:scale-95 disabled:opacity-60 ${isFavorited ? "text-[#B91C1C]" : "text-title-text"
+                                    }`}
+                                aria-label={isFavorited ? "Bỏ khỏi wishlist" : "Thêm vào wishlist"}
+                            >
+                                {isFavorited ? <AiFillHeart /> : <AiOutlineHeart />}
+                            </button>
                             {/* <span
                                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-white ${inStock ? "bg-[#22C55E]" : "bg-[#EF4444]"
                                     }`}

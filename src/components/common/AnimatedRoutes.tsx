@@ -3,6 +3,7 @@ import { matchPath, Route, Routes, useLocation } from "react-router-dom";
 import { ROUTES } from "constant";
 import { CartPage } from "pages/cart";
 import { AccountPage } from "pages/account";
+import { OrderDetailPage, OrderHistoryPage } from "pages/account/orders";
 import { ContactPage } from "pages/contact";
 import { CustomRequestPage } from "pages/custom-request";
 import { HomePage } from "pages/home";
@@ -37,6 +38,8 @@ export const AnimatedRoutes = () => {
           <Route path="/vouchers" element={<VouchersPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/account/orders" element={<OrderHistoryPage />} />
+          <Route path="/account/orders/:orderId" element={<OrderDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
         </Routes>
       </motion.div>
