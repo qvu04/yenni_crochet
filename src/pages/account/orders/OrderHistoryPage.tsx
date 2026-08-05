@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ConditionalRender } from "components/common";
 import { EmptyCartIcon } from "components/icons";
 import { Emptier, Spinner } from "components/ui";
 import { useZaloCustomerProfile } from "hooks/useZaloCustomerProfile";
@@ -16,6 +17,7 @@ export const OrderHistoryPage = () => {
     data: orders,
     isLoading,
     error,
+    refetch,
   } = useGetCustomerOrderHistory({
     zaloUserId: profile?.zalo_user_id,
     status: activeFilter,
@@ -23,6 +25,8 @@ export const OrderHistoryPage = () => {
       refetchOnMount: "always",
     },
   });
+  const isLoadingOrders = isLoading || isLoadingProfile;
+  const isEmptyOrders = !isLoadingOrders && !error && orders?.length === 0;
 
   return (
     <main className="bg-background-main pb-6">
@@ -48,38 +52,44 @@ export const OrderHistoryPage = () => {
       </div>
 
       <div className="px-5">
-        {(isLoading || isLoadingProfile) && <Spinner label="Đang tải đơn hàng..." />}
-
-        {error && (
-          <div className="rounded-2xl bg-white p-4 text-sm font-semibold leading-6 text-[#B91C1C] shadow-sm ring-1 ring-text-main/5">
-            {getFriendlyErrorMessage(error)}
-          </div>
-        )}
-
-        {!isLoading && !isLoadingProfile && !error && orders?.length === 0 && (
-          <div className="pt-8">
+        <ConditionalRender
+          isLoading={isLoadingOrders}
+          loadingRender={<Spinner label="Đang tải đơn hàng..." />}
+          isError={Boolean(error)}
+          errorRender={
             <Emptier
               icon={<EmptyCartIcon />}
-              title="Chưa có đơn hàng"
+              title="Không tải được đơn hàng"
               compact
-              description="Khi bạn đặt hàng, lịch sử đơn sẽ xuất hiện ở đây."
+              description={getFriendlyErrorMessage(error)}
+              action={{ label: "Thử lại", onClick: refetch }}
             />
-            <Link
-              to="/"
-              className="mt-3 flex min-h-12 w-full items-center justify-center rounded-2xl bg-primary px-4 text-sm font-extrabold text-text-main"
-            >
-              Xem sản phẩm
-            </Link>
-          </div>
-        )}
-
-        {orders && orders.length > 0 && (
+          }
+          isEmpty={isEmptyOrders}
+          emptyRender={
+            <div className="pt-8">
+              <Emptier
+                icon={<EmptyCartIcon />}
+                title="Chưa có đơn hàng"
+                compact
+                description="Khi bạn đặt hàng, lịch sử đơn sẽ xuất hiện ở đây."
+              />
+              <Link
+                to="/"
+                className="mt-3 flex min-h-12 w-full items-center justify-center rounded-2xl bg-primary px-4 text-sm font-extrabold text-text-main"
+              >
+                Xem sản phẩm
+              </Link>
+            </div>
+          }
+          onRefresh={refetch}
+        >
           <div className="space-y-3">
-            {orders.map((order) => (
+            {orders?.map((order) => (
               <OrderHistoryCard key={order.id} order={order} />
             ))}
           </div>
-        )}
+        </ConditionalRender>
       </div>
     </main>
   );

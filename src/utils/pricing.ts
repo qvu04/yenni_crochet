@@ -72,10 +72,17 @@ export const resolveUnitPrice = ({
   return matchedTier?.unit_price ?? basePrice;
 };
 
-export const calculateDepositAmount = (totalAmount: number, depositRate = 0.3) => {
+export const DEFAULT_DEPOSIT_RATE = 0.3;
+export const DEFAULT_MAX_DEPOSIT_AMOUNT = 200000;
+
+export const calculateDepositAmount = (
+  totalAmount: number,
+  depositRate = DEFAULT_DEPOSIT_RATE,
+  maxDepositAmount = DEFAULT_MAX_DEPOSIT_AMOUNT,
+) => {
   if (totalAmount <= 0) return 0;
 
   const roundedDeposit = Math.ceil((totalAmount * depositRate) / 1000) * 1000;
 
-  return Math.min(totalAmount, roundedDeposit);
+  return Math.min(totalAmount, roundedDeposit, maxDepositAmount);
 };

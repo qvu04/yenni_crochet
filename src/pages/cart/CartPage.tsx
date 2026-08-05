@@ -12,7 +12,7 @@ import { createZaloCheckoutOrder } from "services/zalo-checkout";
 import { getZaloLocationFromToken } from "services";
 import { CartCheckoutInput, CartCheckoutSchema } from "schemas";
 import { useCartStore, getCartSubtotal } from "stores/cart";
-import { calculateDepositAmount, calculatePromotionDiscount, formatPrice, showErrorToast } from "utils";
+import { calculateDepositAmount, calculatePromotionDiscount, DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, formatPrice, showErrorToast } from "utils";
 import {
   CartPromotionSection,
   CartSection,
@@ -21,7 +21,8 @@ import {
 } from "./components";
 
 const REMOVE_ITEM_LOADING_DELAY = 500;
-const CART_DEPOSIT_RATE = 0.3;
+const CART_DEPOSIT_RATE = DEFAULT_DEPOSIT_RATE;
+const CART_MAX_DEPOSIT_AMOUNT = DEFAULT_MAX_DEPOSIT_AMOUNT;
 const ALLOW_UNPAID_ORDER_FOR_TESTING = true;
 
 const PAID_ORDER_SUCCESS_COPY = {
@@ -121,7 +122,7 @@ export const CartPage = () => {
   const canUseSelectedPromotion = Boolean(selectedPromotion && !selectedPromotionPreview.unavailableReason);
   const discountAmount = canUseSelectedPromotion ? selectedPromotionPreview.discountAmount : 0;
   const finalPrice = canUseSelectedPromotion ? selectedPromotionPreview.finalPrice : subtotal;
-  const depositAmount = calculateDepositAmount(finalPrice, CART_DEPOSIT_RATE);
+  const depositAmount = calculateDepositAmount(finalPrice, CART_DEPOSIT_RATE, CART_MAX_DEPOSIT_AMOUNT);
   const remainingAmount = Math.max(0, finalPrice - depositAmount);
   const hasInvalidStock = items.some((item) => item.stock_quantity <= 0 || item.quantity > item.stock_quantity);
   const canSubmit = Boolean(items.length && !hasInvalidStock);
@@ -382,6 +383,8 @@ export const CartPage = () => {
         finalPrice={finalPrice}
         depositAmount={depositAmount}
         remainingAmount={remainingAmount}
+        depositRate={CART_DEPOSIT_RATE}
+        maxDepositAmount={CART_MAX_DEPOSIT_AMOUNT}
         selectedPromotion={selectedPromotion}
         promotionUnavailableReason={selectedPromotionPreview.unavailableReason}
         hasInvalidStock={hasInvalidStock}

@@ -7,6 +7,8 @@ interface CartSummarySectionProps {
   finalPrice: number;
   depositAmount: number;
   remainingAmount: number;
+  depositRate: number;
+  maxDepositAmount: number;
   selectedPromotion?: Promotions;
   promotionUnavailableReason?: string | null;
   hasInvalidStock: boolean;
@@ -19,6 +21,8 @@ export const CartSummarySection = ({
   finalPrice,
   depositAmount,
   remainingAmount,
+  depositRate,
+  maxDepositAmount,
   selectedPromotion,
   promotionUnavailableReason,
   hasInvalidStock,
@@ -41,12 +45,14 @@ export const CartSummarySection = ({
         </div>
         <div className="mt-2 rounded-2xl bg-background-main p-3">
           <div className="flex items-center justify-between gap-3">
-            <span className="font-bold text-text-main">Cọc hôm nay</span>
+            <span className="font-bold text-text-main">Đặt cọc</span>
             <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(depositAmount)}</span>
           </div>
           <div className="mt-1 flex items-start justify-between gap-3 text-xs font-semibold text-text-muted">
-            <span className="min-w-0 leading-5">Còn lại thanh toán khi shop xác nhận/giao hàng</span>
-            <span className="shrink-0 text-right leading-5">{formatPrice(remainingAmount)}</span>
+            <span className="min-w-0 leading-5">
+              Cọc  <span className="font-bold text-[#B91C1C]">{Math.round(depositRate * 100)}%</span> đơn hàng hoặc tối đa <span className="font-bold text-[#B91C1C]">{formatPrice(maxDepositAmount)}</span>. Còn lại là <span className="font-bold text-[#B91C1C]">{formatPrice(remainingAmount)}</span> bạn thanh toán COD hoặc sau khi nhận hàng giúp shop nhé.
+            </span>
+            {/* <span className="shrink-0 text-right leading-5">{formatPrice(remainingAmount)}</span> */}
           </div>
         </div>
       </div>
