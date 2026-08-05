@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Swiper } from 'antd-mobile';
 import { formatPrice, formatProductDescription, getFriendlyErrorMessage, getMatchedPriceTier, getStockLabel, getVisiblePriceTiers, resolveUnitPrice, showErrorToast, showSuccessToast } from 'utils';
 import { useGetProductById, useIsProductFavorited, useToggleFavoriteProduct } from 'queries';
-import { CloseButtonSheet, ProductDetailSkeleton } from 'components/ui';
+import { CloseButtonSheet, ProductDetailSkeleton, QuantityStepper } from 'components/ui';
 import { useCartStore } from 'stores/cart';
 import { useFlyToCartStore } from 'stores/flyToCart';
-import { AiFillHeart, AiOutlineHeart, AiOutlineMinus, AiOutlinePlus } from 'react-icons/ai';
+import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 import { ProductVariant } from 'types';
 import { DescriptionToggleIcon } from 'components/icons';
 import { useZaloCustomerProfile } from 'hooks/useZaloCustomerProfile';
@@ -381,25 +381,12 @@ export const ProductDetailContent = ({ productId, onClose }: ProductDetailConten
                                         {getStockLabel(displayStock)}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-2 rounded-full bg-background-main px-2 py-1">
-                                    <button
-                                        type="button"
-                                        disabled={!inStock || quantity <= 1}
-                                        onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-text-main shadow-sm disabled:text-text-muted disabled:shadow-none"
-                                    >
-                                        <AiOutlineMinus />
-                                    </button>
-                                    <span className="w-8 text-center text-sm font-extrabold text-text-main">{quantity}</span>
-                                    <button
-                                        type="button"
-                                        disabled={!inStock || quantity >= displayStock}
-                                        onClick={() => setQuantity((value) => Math.min(displayStock, value + 1))}
-                                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-text-main shadow-sm disabled:text-text-muted disabled:shadow-none"
-                                    >
-                                        <AiOutlinePlus />
-                                    </button>
-                                </div>
+                                <QuantityStepper
+                                    value={quantity}
+                                    max={displayStock}
+                                    disabled={!inStock}
+                                    onChange={setQuantity}
+                                />
                             </div>
                             <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-background-main px-3 py-2 text-sm">
                                 <span className="font-semibold text-text-muted">Tạm tính</span>

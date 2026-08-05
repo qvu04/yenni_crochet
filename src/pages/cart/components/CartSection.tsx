@@ -1,4 +1,5 @@
-import { AiOutlineDelete, AiOutlineMinus, AiOutlinePlus } from 'react-icons/ai';
+import { AiOutlineDelete } from 'react-icons/ai';
+import { QuantityStepper } from 'components/ui';
 import { formatPrice, getMatchedPriceTier, getStockLabel } from 'utils';
 import { CartItem, useCartStore } from 'stores/cart';
 interface CartSectionProps {
@@ -64,23 +65,12 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                                 </div>
 
                                 <div className="mt-3 flex items-center justify-between gap-3">
-                                    <div className="flex items-center gap-2 rounded-full bg-background-main px-2 py-1">
-                                        <button
-                                            type="button"
-                                            onClick={() => updateQuantity(itemId, item.quantity - 1)}
-                                            className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-text-main shadow-sm"
-                                        >
-                                            <AiOutlineMinus />
-                                        </button>
-                                        <span className="w-7 text-center text-sm font-bold text-text-main">{item.quantity}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => updateQuantity(itemId, item.quantity + 1)}
-                                            className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-text-main shadow-sm"
-                                        >
-                                            <AiOutlinePlus />
-                                        </button>
-                                    </div>
+                                    <QuantityStepper
+                                        value={item.quantity}
+                                        max={item.stock_quantity > 0 ? item.stock_quantity : undefined}
+                                        size="sm"
+                                        onChange={(nextQuantity) => updateQuantity(itemId, nextQuantity)}
+                                    />
                                     {/* <p className={`text-[10px] font-bold ${item.stock_quantity > 0 ? "text-text-muted" : "text-[#B91C1C]"}`}>
                                     {getStockLabel(item.stock_quantity)}
                                 </p> */}
