@@ -344,11 +344,22 @@ export const CartPage = () => {
   }
 
   return (
-    <main className="bg-background-main px-5 pb-3 pt-4">
-      <header className="mb-5">
-        <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">Giỏ hàng</p>
-        <h1 className="mt-1 font-heading text-3xl font-bold text-title-text">Đơn hàng của bạn</h1>
-        <p className="mt-1 text-sm leading-6 text-text-muted">
+    <main
+      className="bg-background-main px-5 pt-4"
+      style={{ paddingBottom: "calc(112px + var(--zaui-safe-area-inset-bottom, 0px))" }}
+    >
+      <header className="mb-5 rounded-[28px] bg-white p-4 shadow-[0_12px_30px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-text-muted">Giỏ hàng</p>
+            <h1 className="mt-1 font-heading text-3xl font-extrabold text-title-text">Đơn hàng của bạn</h1>
+          </div>
+          <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-3xl bg-primary/50 text-center">
+            <span className="font-heading text-xl font-extrabold leading-none text-title-text">{items.length}</span>
+            <span className="mt-1 text-[10px] font-bold uppercase text-text-muted">món</span>
+          </div>
+        </div>
+        <p className="mt-3 text-sm font-semibold leading-6 text-text-muted">
           Kiểm tra sản phẩm, chọn voucher và điền thông tin nhận hàng giúp shop bạn nhé.
         </p>
       </header>
@@ -391,7 +402,10 @@ export const CartPage = () => {
         orderError={checkoutError ?? orderError}
       />
 
-      <div className="fixed inset-x-0 bottom-0 z-[998] bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      <div
+        className="fixed inset-x-0 bottom-0 z-[998] border-t border-text-main/5 bg-white px-5 pt-3 shadow-[0_-10px_30px_rgba(51,39,42,0.08)]"
+        style={{ paddingBottom: "calc(16px + var(--zaui-safe-area-inset-bottom, 0px))" }}
+      >
         <button
           type="button"
           onClick={handleFormSubmit(handleSubmit)}

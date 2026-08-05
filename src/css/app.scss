@@ -7,6 +7,7 @@
   --color-text-title: #5C4033;
   --color-header-bg: #ffb6c1;
   --header-padding-top: max(calc(var(--zaui-safe-area-inset-top, 24px) + 6px), 30px);
+  --zaui-safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
   --font-heading: "Quicksand", "Be Vietnam Pro", sans-serif;
   --font-body: "Be Vietnam Pro", sans-serif;
 }

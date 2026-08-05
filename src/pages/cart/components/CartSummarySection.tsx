@@ -29,7 +29,13 @@ export const CartSummarySection = ({
   orderError,
 }: CartSummarySectionProps) => {
   return (
-    <section className="mb-5 space-y-2 rounded-3xl bg-white p-4 text-sm shadow-sm ring-1 ring-text-main/5">
+    <section className="mb-5 overflow-hidden rounded-3xl bg-white text-sm shadow-[0_12px_28px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
+      <div className="bg-title-text px-4 py-3">
+        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-white/60">Thanh toán</p>
+        <h2 className="mt-1 font-heading text-xl font-extrabold text-white">Tóm tắt đặt cọc</h2>
+      </div>
+
+      <div className="space-y-2 p-4">
       <div className="flex items-center justify-between gap-3 text-text-muted">
         <span>Tạm tính</span>
         <span className="font-bold text-text-main">{formatPrice(subtotal)}</span>
@@ -38,12 +44,12 @@ export const CartSummarySection = ({
         <span>Giảm giá</span>
         <span className="font-bold text-[#B91C1C]">-{formatPrice(discountAmount)}</span>
       </div>
-      <div className="border-t border-text-main/10 pt-2">
+      <div className="border-y border-dashed border-text-main/15 py-3">
         <div className="flex items-center justify-between gap-3">
           <span className="font-bold text-text-main">Tổng đơn</span>
           <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(finalPrice)}</span>
         </div>
-        <div className="mt-2 rounded-2xl bg-background-main p-3">
+        <div className="mt-3 rounded-3xl bg-primary/20 p-3">
           <div className="flex items-center justify-between gap-3">
             <span className="font-bold text-text-main">Đặt cọc</span>
             <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(depositAmount)}</span>
@@ -72,6 +78,7 @@ export const CartSummarySection = ({
           Đặt hàng thất bại, thử lại nhé: {orderError.message}
         </p>
       )}
+      </div>
     </section>
   );
 };

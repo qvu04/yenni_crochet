@@ -113,16 +113,16 @@ export const AccountPage = () => {
       : null;
 
   return (
-    <main className="min-h-screen bg-background-main px-5 pb-6 pt-5">
-      <header className="mb-5">
-        <p className="text-xs font-bold uppercase text-text-muted">Tài khoản</p>
-        <h1 className="mt-1 font-heading text-3xl font-extrabold text-title-text">Thông tin của bạn</h1>
-        <p className="mt-1 text-sm font-semibold leading-6 text-text-muted">
+    <main className="min-h-screen bg-background-main pb-6">
+      <header className="px-5 pb-4 pt-5">
+        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-text-muted">Tài khoản</p>
+        <h1 className="mt-1 font-heading text-[32px] font-extrabold leading-9 text-title-text">Thông tin của bạn</h1>
+        <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
           Theo dõi nhanh đơn hàng và yêu cầu đặt riêng đã gửi cho Yenni Crochet.
         </p>
       </header>
 
-      <div className="space-y-4">
+      <div className="space-y-4 px-5">
         {errorMessage && <AccountNotice message={errorMessage} />}
 
         <AccountProfileCard
@@ -142,18 +142,18 @@ export const AccountPage = () => {
 
         <Link
           to="/account/orders"
-          className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5 transition active:scale-[0.99]"
+          className="group flex items-center gap-3 overflow-hidden rounded-3xl bg-title-text p-4 text-white shadow-[0_12px_28px_rgba(92,64,51,0.18)] transition active:scale-[0.99]"
         >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/60 text-xl text-title-text">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15 text-xl">
             <AiOutlineShoppingCart />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-heading text-lg font-extrabold text-title-text">Lịch sử đơn hàng</p>
-            <p className="mt-1 text-xs font-semibold text-text-muted">
+            <p className="font-heading text-lg font-extrabold">Lịch sử đơn hàng</p>
+            <p className="mt-1 text-xs font-semibold leading-5 text-white/70">
               Xem trạng thái, sản phẩm và thanh toán của từng đơn.
             </p>
           </div>
-          <AiOutlineRight className="shrink-0 text-lg text-text-muted" />
+          <AiOutlineRight className="shrink-0 text-lg text-white/70 transition group-active:translate-x-0.5" />
         </Link>
 
         <AccountWishlistSection

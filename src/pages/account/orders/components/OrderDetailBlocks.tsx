@@ -7,23 +7,23 @@ interface OrderDetailBlocksProps {
 }
 
 export const OrderDeliveryBlock = ({ order }: OrderDetailBlocksProps) => (
-  <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
+  <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
     <h2 className="font-heading text-lg font-extrabold text-title-text">Thông tin nhận hàng</h2>
-    <div className="mt-3 space-y-3 text-sm font-semibold text-text-muted">
-      <div className="flex gap-3">
+    <div className="mt-3 space-y-2 text-sm font-semibold text-text-main">
+      <div className="flex gap-3 rounded-2xl bg-background-main/70 p-3">
         <AiOutlineUser className="mt-0.5 shrink-0 text-lg text-title-text" />
-        <span>{order.customer_name}</span>
+        <span className="min-w-0 flex-1">{order.customer_name}</span>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-3 rounded-2xl bg-background-main/70 p-3">
         <AiOutlinePhone className="mt-0.5 shrink-0 text-lg text-title-text" />
-        <span>{order.phone}</span>
+        <span className="min-w-0 flex-1">{order.phone}</span>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-3 rounded-2xl bg-background-main/70 p-3">
         <AiOutlineEnvironment className="mt-0.5 shrink-0 text-lg text-title-text" />
-        <span className="leading-6">{order.address}</span>
+        <span className="min-w-0 flex-1 leading-6">{order.address}</span>
       </div>
       {order.note && (
-        <p className="rounded-2xl bg-background-main p-3 text-xs font-bold leading-5 text-text-muted">
+        <p className="rounded-2xl border border-primary/60 bg-primary/15 p-3 text-xs font-bold leading-5 text-text-muted">
           Ghi chú: {order.note}
         </p>
       )}
@@ -35,10 +35,12 @@ export const OrderProductsBlock = ({ order }: OrderDetailBlocksProps) => {
   const totalQuantity = order.items.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
+    <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-heading text-lg font-extrabold text-title-text">Sản phẩm</h2>
-        <span className="text-xs font-extrabold text-text-muted">{totalQuantity} món</span>
+        <span className="rounded-full bg-background-main px-3 py-1 text-xs font-extrabold text-text-muted">
+          {totalQuantity} món
+        </span>
       </div>
       <div className="mt-3 divide-y divide-text-main/5">
         {order.items.map((item) => (
@@ -74,9 +76,11 @@ export const OrderProductsBlock = ({ order }: OrderDetailBlocksProps) => {
 };
 
 export const OrderPaymentBlock = ({ order }: OrderDetailBlocksProps) => (
-  <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
-    <h2 className="font-heading text-lg font-extrabold text-title-text">Thanh toán</h2>
-    <div className="mt-3 space-y-2 text-sm">
+  <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-text-main/5">
+    <div className="bg-title-text px-4 py-3">
+      <h2 className="font-heading text-lg font-extrabold text-white">Thanh toán</h2>
+    </div>
+    <div className="space-y-2 p-4 text-sm">
       <div className="flex justify-between gap-3 text-text-muted">
         <span>Tạm tính</span>
         <span className="font-bold text-text-main">{formatPrice(order.subtotal_price)}</span>
@@ -85,19 +89,21 @@ export const OrderPaymentBlock = ({ order }: OrderDetailBlocksProps) => (
         <span>Giảm giá</span>
         <span className="font-bold text-[#B91C1C]">-{formatPrice(order.discount_amount)}</span>
       </div>
-      <div className="border-t border-text-main/10 pt-2">
+      <div className="border-y border-dashed border-text-main/15 py-3">
         <div className="flex justify-between gap-3">
           <span className="font-bold text-text-main">Tổng đơn</span>
           <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(order.final_price)}</span>
         </div>
       </div>
-      <div className="flex justify-between gap-3 text-text-muted">
-        <span>Đã cọc</span>
-        <span className="font-bold text-text-main">{formatPrice(order.deposit_amount)}</span>
-      </div>
-      <div className="flex justify-between gap-3 text-text-muted">
-        <span>Còn lại</span>
-        <span className="font-bold text-text-main">{formatPrice(order.remaining_amount)}</span>
+      <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="rounded-2xl bg-primary/20 p-3">
+          <p className="text-xs font-bold text-text-muted">Đã cọc</p>
+          <p className="mt-1 font-extrabold text-text-main">{formatPrice(order.deposit_amount)}</p>
+        </div>
+        <div className="rounded-2xl bg-background-main p-3">
+          <p className="text-xs font-bold text-text-muted">Còn lại</p>
+          <p className="mt-1 font-extrabold text-text-main">{formatPrice(order.remaining_amount)}</p>
+        </div>
       </div>
     </div>
   </section>

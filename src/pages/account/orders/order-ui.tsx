@@ -44,6 +44,66 @@ export const getOrderStatusClassName = (order: CustomerOrder) => {
   return "bg-primary/70 text-title-text ring-primary";
 };
 
+export const getOrderStatusTone = (order: CustomerOrder) => {
+  if (order.status === "cancelled" || order.status === "canceled" || order.payment_status === "failed") {
+    return {
+      rail: "bg-[#EF4444]",
+      surface: "bg-[#FEF2F2]",
+      text: "text-[#B91C1C]",
+      ring: "ring-[#FECACA]",
+      softBorder: "border-[#FECACA]",
+    };
+  }
+
+  if (order.status === "done" || order.status === "completed") {
+    return {
+      rail: "bg-[#22C55E]",
+      surface: "bg-[#F0FDF4]",
+      text: "text-[#166534]",
+      ring: "ring-[#BBF7D0]",
+      softBorder: "border-[#BBF7D0]",
+    };
+  }
+
+  if (order.status === "shipping" || order.status === "delivering") {
+    return {
+      rail: "bg-[#38BDF8]",
+      surface: "bg-[#EFF6FF]",
+      text: "text-[#075985]",
+      ring: "ring-[#BAE6FD]",
+      softBorder: "border-[#BAE6FD]",
+    };
+  }
+
+  if (order.status === "making") {
+    return {
+      rail: "bg-[#C084FC]",
+      surface: "bg-[#FAF5FF]",
+      text: "text-[#6B21A8]",
+      ring: "ring-[#E9D5FF]",
+      softBorder: "border-[#E9D5FF]",
+    };
+  }
+
+  if (order.status === "pending" && order.payment_status === "pending") {
+    return {
+      rail: "bg-[#F59E0B]",
+      surface: "bg-[#FFFBEB]",
+      text: "text-[#92400E]",
+      ring: "ring-[#FDE68A]",
+      softBorder: "border-[#FDE68A]",
+    };
+  }
+
+  return {
+    rail: "bg-primary",
+    surface: "bg-primary/20",
+    text: "text-title-text",
+    ring: "ring-primary",
+    softBorder: "border-primary",
+  };
+};
+
 export const getOrderStep = (order?: CustomerOrder) => {
   if (!order) return 1;
   if (order.status === "done" || order.status === "completed") return 5;

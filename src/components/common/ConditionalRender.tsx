@@ -10,6 +10,7 @@ interface ConditionalRenderProps {
     isEmpty?: boolean;
     emptyRender?: ReactNode;
     onRefresh?: () => Promise<unknown> | unknown;
+    enablePullToRefresh?: boolean;
     children: ReactNode;
 }
 
@@ -21,6 +22,7 @@ export const ConditionalRender = ({
     isEmpty,
     emptyRender,
     onRefresh,
+    enablePullToRefresh,
     children,
 }: ConditionalRenderProps) => {
     const content = (() => {
@@ -47,7 +49,7 @@ export const ConditionalRender = ({
         return children;
     })();
 
-    if (!onRefresh) {
+    if (!onRefresh || !enablePullToRefresh) {
         return <>{content}</>;
     }
 

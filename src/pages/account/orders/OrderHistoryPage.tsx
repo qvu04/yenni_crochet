@@ -31,7 +31,7 @@ export const OrderHistoryPage = () => {
   return (
     <main className="bg-background-main pb-6">
       <div className="top-[calc(56px+var(--zaui-safe-area-inset-top,0px))] z-20 bg-background-main/95 px-5 py-3 backdrop-blur">
-        <div className="scrollbar-none flex gap-1 overflow-x-auto rounded-2xl bg-white/80 p-1 shadow-sm ring-1 ring-text-main/5">
+        <div className="scrollbar-none flex gap-2 overflow-x-auto rounded-3xl bg-white/85 p-1.5 shadow-[0_10px_24px_rgba(51,39,42,0.06)] ring-1 ring-text-main/5">
           {ORDER_FILTERS.map((filter) => {
             const isActive = filter.key === activeFilter;
             return (
@@ -39,8 +39,8 @@ export const OrderHistoryPage = () => {
                 key={filter.key}
                 type="button"
                 onClick={() => setActiveFilter(filter.key)}
-                className={`shrink-0 rounded-xl px-3.5 py-2 text-[13px] font-extrabold leading-none transition ${isActive
-                  ? "bg-title-text text-white shadow-[0_6px_14px_rgba(92,64,51,0.18)]"
+                className={`min-h-10 shrink-0 rounded-2xl px-4 text-[13px] font-extrabold leading-none transition ${isActive
+                  ? "bg-title-text text-white shadow-[0_8px_18px_rgba(92,64,51,0.2)]"
                   : "text-text-muted active:bg-background-main"
                   }`}
               >
@@ -83,6 +83,7 @@ export const OrderHistoryPage = () => {
             </div>
           }
           onRefresh={refetch}
+          enablePullToRefresh
         >
           <div className="space-y-3">
             {orders?.map((order) => (

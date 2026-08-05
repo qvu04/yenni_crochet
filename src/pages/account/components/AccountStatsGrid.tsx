@@ -40,32 +40,40 @@ export const AccountStatsGrid = ({ summary, isLoading }: AccountStatsGridProps) 
       value: summary?.total_orders ?? 0,
       icon: <AiOutlineShoppingCart />,
       helper: `${summary?.pending_orders ?? 0} đơn đang theo dõi`,
+      className: "bg-white",
+      iconClassName: "bg-primary/60 text-title-text",
     },
     {
       label: "Đơn đã cọc",
       value: summary?.paid_orders ?? 0,
       icon: <AiOutlineCheckCircle />,
       helper: "Thanh toán cọc thành công",
+      className: "bg-[#F0FDF4]",
+      iconClassName: "bg-white text-[#166534]",
     },
     {
       label: "Tiền cọc đã gửi",
       value: formatPrice(summary?.total_deposit_amount ?? 0),
       icon: <AiOutlineClockCircle />,
       helper: "Ghi nhận từ Checkout",
+      className: "bg-[#FFFBEB]",
+      iconClassName: "bg-white text-[#92400E]",
     },
     {
       label: "Yêu cầu đặt riêng",
       value: summary?.total_custom_requests ?? 0,
       icon: <AiOutlineTool />,
       helper: `${summary?.pending_custom_requests ?? 0} yêu cầu đang xử lý`,
+      className: "bg-[#FAF5FF]",
+      iconClassName: "bg-white text-[#6B21A8]",
     },
   ];
 
   return (
     <section className="grid grid-cols-2 gap-3">
       {stats.map((stat) => (
-        <div key={stat.label} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/60 text-xl text-title-text">
+        <div key={stat.label} className={`rounded-3xl p-4 shadow-sm ring-1 ring-text-main/5 ${stat.className}`}>
+          <span className={`flex h-9 w-9 items-center justify-center rounded-full text-xl shadow-sm ${stat.iconClassName}`}>
             {stat.icon}
           </span>
           <p className="mt-4 text-xs font-bold text-text-muted">{stat.label}</p>

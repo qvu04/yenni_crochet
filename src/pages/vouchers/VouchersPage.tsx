@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getUserInfo } from "zmp-sdk/apis";
 import { motion } from "motion/react";
-import { AiOutlineGift } from "react-icons/ai";
+import { AiOutlineGift, AiOutlineReload } from "react-icons/ai";
 import { ConditionalRender } from "components/common";
 import { ConfirmDialog, Emptier, ModalSuccess } from "components/ui";
 import { QUERY_KEY } from "constant";
@@ -26,9 +26,9 @@ export const VouchersPage = () => {
   const [zaloUserId, setZaloUserId] = useState<string>();
   const [userInfoError, setUserInfoError] = useState(false);
   const [claimConfirmPromotion, setClaimConfirmPromotion] = useState<Promotions | null>(null);
-  const { data: promotions, isLoading: isLoadingPromotions, isError: isPromotionsError, refetch: refetchPromotions } =
+  const { data: promotions, isLoading: isLoadingPromotions, isFetching: isFetchingPromotions, isError: isPromotionsError, refetch: refetchPromotions } =
     useGetActivePromotions();
-  const { data: userPromotions, isLoading: isLoadingUserPromotions, isError: isUserPromotionsError } =
+  const { data: userPromotions, isLoading: isLoadingUserPromotions, isFetching: isFetchingUserPromotions, isError: isUserPromotionsError, refetch: refetchUserPromotions } =
     useGetUserPromotions({ zaloUserId });
   const { mutate: claimPromotion, isPending: isClaiming } = useClaimPromotion();
 
@@ -96,6 +96,7 @@ export const VouchersPage = () => {
   };
 
   const isLoading = isLoadingPromotions || (Boolean(zaloUserId) && isLoadingUserPromotions);
+  const isRefreshing = isFetchingPromotions || isFetchingUserPromotions;
   const isError = isPromotionsError || (activeTab !== "available" && isUserPromotionsError);
   const currentItems =
     activeTab === "available"
@@ -105,12 +106,30 @@ export const VouchersPage = () => {
         : usedPromotions;
 
   return (
-    <main className="h-full bg-background-main px-5 pb-10 pt-4">
+    <main className="h-full bg-background-main px-5 pt-4">
       <header className="mb-5">
-        <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
-          Ví ưu đãi
-        </p>
-        <h1 className="mt-1 font-heading text-3xl font-bold text-title-text">Ưu đãi</h1>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
+              Ví ưu đãi
+            </p>
+            <h1 className="mt-1 font-heading text-3xl font-bold text-title-text">Ưu đãi</h1>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              await refetchPromotions();
+              if (zaloUserId) {
+                await refetchUserPromotions();
+              }
+            }}
+            disabled={isRefreshing}
+            className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-extrabold text-title-text shadow-sm ring-1 ring-text-main/5 disabled:text-text-muted"
+          >
+            <AiOutlineReload className={isRefreshing ? "animate-spin" : ""} />
+            {isRefreshing ? "Đang cập nhật" : "Cập nhật"}
+          </button>
+        </div>
         <p className="mt-1 text-sm leading-6 text-text-muted">
           Nhận voucher và dùng cho những đơn hàng handmade sắp tới.
         </p>

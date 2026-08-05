@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Emptier, ProductGridSkeleton } from "components/ui";
 import { EmptyProductIcon } from "components/icons";
 import { motion } from "motion/react";
+import { ProductTypeShowcase } from "./components";
 
 const productTypeLabels: Record<ProductType, string> = {
   best_seller: "Sản phẩm bán chạy",
@@ -56,6 +57,7 @@ export const ProductsPage = () => {
   const productType = isProductType(typeParam) ? typeParam : undefined;
   const isPreOrder = productType === "pre_order";
   const isAllProductsPage = !productType;
+  const hasCustomTypeLayout = productType === "best_seller" || productType === "new";
   const [selectedFilter, setSelectedFilter] = useState<ProductFilter>("all");
   const { data: products, isLoading, isError } = useGetProductsList({
     productType: isPreOrder ? undefined : productType,
@@ -89,30 +91,32 @@ export const ProductsPage = () => {
   }, [typeParam]);
 
   return (
-    <main className="flex min-h-[calc(100dvh-64px-var(--zaui-safe-area-inset-bottom,0px))] flex-col bg-background-main px-5 pt-4">
-      <section className="mb-4 shrink-0 overflow-hidden rounded-[28px] bg-white p-4 shadow-[0_12px_30px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-text-muted">
-          Bộ sưu tập
-        </p>
-        <div className="mt-2 flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="font-heading text-[26px] font-extrabold leading-8 text-title-text">
-              {pageTitle}
-            </h1>
-            <p className="mt-1 text-sm leading-5 text-text-muted">
-              {pageDescription}
-            </p>
+    <main className="flex min-h-screen flex-col bg-background-main px-5 pt-4">
+      {!hasCustomTypeLayout && (
+        <section className="mb-4 shrink-0 overflow-hidden rounded-[28px] bg-white p-4 shadow-[0_12px_30px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-text-muted">
+            Bộ sưu tập
+          </p>
+          <div className="mt-2 flex items-end justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-heading text-[26px] font-extrabold leading-8 text-title-text">
+                {pageTitle}
+              </h1>
+              <p className="mt-1 text-sm leading-5 text-text-muted">
+                {pageDescription}
+              </p>
+            </div>
+            <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-3xl bg-background-main text-center">
+              <span className="font-heading text-xl font-extrabold leading-none text-title-text">
+                {visibleProducts.length}
+              </span>
+              <span className="mt-1 text-[10px] font-bold uppercase text-text-muted">
+                mẫu
+              </span>
+            </div>
           </div>
-          <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-3xl bg-background-main text-center">
-            <span className="font-heading text-xl font-extrabold leading-none text-title-text">
-              {visibleProducts.length}
-            </span>
-            <span className="mt-1 text-[10px] font-bold uppercase text-text-muted">
-              mẫu
-            </span>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {isAllProductsPage && (
         <div className="scrollbar-none mb-4 flex shrink-0 gap-2 overflow-x-auto px-1 py-1">
@@ -148,7 +152,7 @@ export const ProductsPage = () => {
             <Emptier
               icon={<EmptyProductIcon />}
               compact
-              className="min-h-[calc(100dvh-260px-var(--zaui-safe-area-inset-bottom,0px))]"
+              className="rounded-[28px] bg-white/70"
               title="Chưa có sản phẩm"
               description="Yenni Crochet sẽ cập nhật thêm sản phẩm phù hợp trong thời gian tới."
             />
@@ -157,18 +161,22 @@ export const ProductsPage = () => {
             <ProductGridSkeleton />
           }
         >
-          <div className="grid grid-cols-2 gap-3 pb-6">
-            {visibleProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.24, delay: Math.min(index * 0.025, 0.16), ease: "easeOut" }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </div>
+          {hasCustomTypeLayout && productType ? (
+            <ProductTypeShowcase products={visibleProducts} productType={productType} />
+          ) : (
+            <div className="grid grid-cols-2 gap-3 pb-6">
+              {visibleProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.24, delay: Math.min(index * 0.025, 0.16), ease: "easeOut" }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </ConditionalRender>
       </div>
     </main>
