@@ -35,6 +35,10 @@ body {
   top: max(calc(var(--zaui-safe-area-inset-top, 0px) + 16px), 28px) !important;
 }
 
+.yenni-confirm-dialog-body {
+  overscroll-behavior: contain;
+}
+
 h1,
 h2,
 h3,

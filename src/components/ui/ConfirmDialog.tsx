@@ -33,6 +33,12 @@ export const ConfirmDialog = ({
     <Modal
       visible={visible}
       className="!w-[calc(100vw-32px)] !max-w-[380px]"
+      getContainer={() => document.body}
+      bodyClassName="yenni-confirm-dialog-body"
+      bodyStyle={{
+        maxHeight: "calc(100dvh - var(--zaui-safe-area-inset-top, 0px) - var(--zaui-safe-area-inset-bottom, 0px) - 48px)",
+        overflowY: "auto",
+      }}
       closeOnMaskClick={!isLoading}
       onClose={onCancel}
       content={
