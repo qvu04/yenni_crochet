@@ -13,24 +13,6 @@ dist-ssr
 www
 *.local
 .env
-
-# Schema/RLS chứa cấu trúc database — không public
-supabase/schema.sql
-supabase/rls.sql
-supabase/migrate-product-type.sql
-supabase/notify-order-trigger.sql
-supabase/notify-custom-request-trigger.sql
-supabase/feature-tables.sql
-supabase/custom-requests-fields.sql
-supabase/custom-request-storage-policy.sql
-supabase/campaign-detail-fields.sql
-supabase/cart-order-items.sql
-supabase/cleanup-unused-tables-and-sync-core.sql
-supabase/product-variants.sql
-supabase/drop-product-variant-image-url.sql
-supabase/admin-auth.sql
-CLAUDE.md
-PRD.md
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
