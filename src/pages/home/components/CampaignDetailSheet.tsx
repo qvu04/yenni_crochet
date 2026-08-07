@@ -104,7 +104,7 @@ export const CampaignDetailSheet = ({
             <div className="absolute inset-0 bg-gradient-to-b from-text-main/5 via-text-main/10 to-text-main/60" />
             <div className="absolute inset-x-0 bottom-0 p-5">
               {campaign.subtitle && (
-                <p className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-white/85">
+                <p className="mb-1 text-xs font-extrabold uppercase tracking-[0.12em] text-white/85">
                   {campaign.subtitle}
                 </p>
               )}

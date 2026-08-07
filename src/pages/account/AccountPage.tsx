@@ -163,7 +163,7 @@ export const AccountPage = () => {
 
         <AccountActivityPanel summary={summary} />
 
-        <AccountNotice message="Lịch sử chi tiết đơn hàng, wishlist và địa chỉ mặc định sẽ dùng cùng dữ liệu tài khoản này ở bước tiếp theo." />
+        {/* <AccountNotice message="Lịch sử chi tiết đơn hàng, wishlist và địa chỉ mặc định sẽ dùng cùng dữ liệu tài khoản này ở bước tiếp theo." /> */}
       </div>
     </main>
   );
