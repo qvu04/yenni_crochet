@@ -8,11 +8,11 @@ import { ConfirmDialog, Emptier, ModalSuccess, Spinner } from "components/ui";
 import { EmptyCartIcon } from "components/icons";
 import { useZaloPhoneNumber } from "hooks/useZaloPhoneNumber";
 import { useCreateOrder, useGetUserPromotions } from "queries";
-import { createZaloCheckoutOrder } from "services/zalo-checkout";
+import { createZaloCheckoutOrder, isZaloCheckoutCancelledError } from "services/zalo-checkout";
 import { getZaloLocationFromToken } from "services";
 import { CartCheckoutInput, CartCheckoutSchema } from "schemas";
 import { useCartStore, getCartSubtotal } from "stores/cart";
-import { calculateDepositAmount, calculatePromotionDiscount, DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, formatPrice, showErrorToast } from "utils";
+import { calculateDepositAmount, calculatePromotionDiscount, DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, formatPrice, showErrorToast, showSuccessToast } from "utils";
 import {
   CartPromotionSection,
   CartSection,
@@ -23,16 +23,11 @@ import {
 const REMOVE_ITEM_LOADING_DELAY = 500;
 const CART_DEPOSIT_RATE = DEFAULT_DEPOSIT_RATE;
 const CART_MAX_DEPOSIT_AMOUNT = DEFAULT_MAX_DEPOSIT_AMOUNT;
-const ALLOW_UNPAID_ORDER_FOR_TESTING = true;
+const CHECKOUT_CANCELLED_COPY = "Bạn vừa hủy đặt cọc, hiện tại shop sẽ chưa tiến hành xác nhận đơn hàng.";
 
 const PAID_ORDER_SUCCESS_COPY = {
   heading: "Đặt cọc thành công!",
-  title: "Cảm ơn bạn đã đặt cọc. Yenni Crochet sẽ liên hệ xác nhận đơn và phần còn lại sớm nhất nhé.",
-};
-
-const TEST_ORDER_SUCCESS_COPY = {
-  heading: "Đã tạo đơn thử nghiệm!",
-  title: "Đơn đã được ghi nhận nhưng chưa thanh toán tiền cọc. Yenni Crochet sẽ dùng đơn này để kiểm tra quy trình.",
+  title: "Đơn của bạn đã được đưa vào lịch sử ở trạng thái chờ shop xác nhận. Yenni Crochet sẽ liên hệ sớm nhất nhé.",
 };
 
 interface DeliveryLocation {
@@ -221,9 +216,6 @@ export const CartPage = () => {
       let checkoutOrderId: string | undefined;
       let checkoutTransactionId: string | undefined;
       let checkoutMessageToken: string | undefined;
-      let paymentStatus: "pending" | "paid" = "paid";
-      let paidDepositAmount = checkoutAmount;
-      let orderRemainingAmount = remainingAmount;
 
       if (checkoutAmount > 0) {
         try {
@@ -263,14 +255,11 @@ export const CartPage = () => {
           checkoutMessageToken = checkoutOrder.messageToken;
           hasCompletedCheckout = true;
         } catch (checkoutErr) {
-          if (!ALLOW_UNPAID_ORDER_FOR_TESTING) {
-            throw checkoutErr;
+          if (isZaloCheckoutCancelledError(checkoutErr)) {
+            showErrorToast(CHECKOUT_CANCELLED_COPY);
+            return;
           }
-
-          paymentStatus = "pending";
-          paidDepositAmount = 0;
-          orderRemainingAmount = finalPrice;
-          showErrorToast("Đang bật chế độ test: đơn vẫn được tạo dù chưa thanh toán cọc.");
+          throw checkoutErr;
         }
       }
 
@@ -288,10 +277,10 @@ export const CartPage = () => {
         zalo_user_id: zaloUserId,
         promotion_id: canUseSelectedPromotion ? selectedPromotionId : undefined,
         payment_type: "deposit",
-        payment_status: paymentStatus,
+        payment_status: "paid",
         deposit_rate: CART_DEPOSIT_RATE,
-        deposit_amount: paidDepositAmount,
-        remaining_amount: orderRemainingAmount,
+        deposit_amount: checkoutAmount,
+        remaining_amount: remainingAmount,
         checkout_order_id: checkoutOrderId,
         checkout_transaction_id: checkoutTransactionId,
         checkout_message_token: checkoutMessageToken,
@@ -304,8 +293,9 @@ export const CartPage = () => {
       clearCart();
       reset();
       setDeliveryLocation(null);
-      setSuccessCopy(paymentStatus === "paid" ? PAID_ORDER_SUCCESS_COPY : TEST_ORDER_SUCCESS_COPY);
+      setSuccessCopy(PAID_ORDER_SUCCESS_COPY);
       setIsSuccessVisible(true);
+      showSuccessToast("Đặt cọc thành công, đơn đang chờ shop xác nhận.");
     } catch (err) {
       const paymentError = err instanceof Error ? err : new Error("Thanh toán thất bại");
 

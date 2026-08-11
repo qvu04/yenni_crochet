@@ -3,6 +3,7 @@ import { formatPrice, getStockLabel, hasBulkPricing } from 'utils';
 import { useProductSheetStore } from 'stores/productSheet';
 import { motion } from 'motion/react';
 import { getProductBadges } from 'utils/product';
+import { LazyImage } from 'components/ui';
 interface ProductCardProps {
     product: Products;
     showProductTypeBadge?: boolean;
@@ -22,17 +23,13 @@ export const ProductCard = ({ product, showProductTypeBadge = true }: ProductCar
             transition={{ type: "spring", stiffness: 420, damping: 28 }}
         >
             <div className="relative aspect-square w-full overflow-hidden bg-background-main">
-                {product.images?.[0] ? (
-                    <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className={`h-full w-full object-cover transition duration-300 group-active:scale-105`}
-                    />
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center px-4 text-center text-xs font-semibold text-text-muted">
-                        Yenni Crochet
-                    </div>
-                )}
+                <LazyImage
+                    src={product.images?.[0]}
+                    alt={product.name}
+                    wrapperClassName="h-full w-full"
+                    className="h-full w-full object-cover group-active:scale-105"
+                    sizes="(max-width: 480px) 45vw, 176px"
+                />
 
                 <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-text-main/25 to-transparent" />
                 {(badges.length > 0 || hasPriceTiers) && (

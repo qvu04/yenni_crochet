@@ -1,36 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
-import { getUserInfo } from "zmp-sdk/apis";
+import { getZaloSession } from "services/zalo-session";
 import { ZaloCustomerProfile } from "types";
-
-interface ZaloUserInfo {
-  id?: string;
-  name?: string;
-  avatar?: string;
-  avatarUrl?: string;
-}
-
-const normalizeZaloUserInfo = (userInfo: ZaloUserInfo): ZaloCustomerProfile | null => {
-  if (!userInfo.id) return null;
-
-  return {
-    zalo_user_id: userInfo.id,
-    display_name: userInfo.name,
-    avatar_url: userInfo.avatar ?? userInfo.avatarUrl,
-  };
-};
 
 export const useZaloCustomerProfile = () => {
   const [profile, setProfile] = useState<ZaloCustomerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const loadProfile = useCallback(async () => {
+  const loadProfile = useCallback(async ({ forceRefresh = false } = {}) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const { userInfo } = await getUserInfo({ autoRequestPermission: true });
-      const normalizedProfile = normalizeZaloUserInfo(userInfo as ZaloUserInfo);
+      const session = await getZaloSession({ forceRefresh });
+      const normalizedProfile = session?.profile ?? null;
 
       if (!normalizedProfile) {
         throw new Error("Chưa lấy được thông tin Zalo của bạn.");
@@ -55,6 +38,6 @@ export const useZaloCustomerProfile = () => {
     profile,
     isLoading,
     error,
-    refreshProfile: loadProfile,
+    refreshProfile: () => loadProfile({ forceRefresh: true }),
   };
 };

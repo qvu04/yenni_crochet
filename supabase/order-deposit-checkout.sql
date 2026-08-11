@@ -112,6 +112,7 @@ declare
   v_user_promotion_id uuid;
   v_payment_type text := coalesce(nullif(trim(p_payment_type), ''), 'deposit');
   v_payment_status text := coalesce(nullif(trim(p_payment_status), ''), 'paid');
+  v_order_status text;
   v_deposit_amount integer := greatest(coalesce(p_deposit_amount, 0), 0);
   v_remaining_amount integer := greatest(coalesce(p_remaining_amount, 0), 0);
 begin
@@ -126,6 +127,11 @@ begin
   if v_payment_status not in ('pending', 'paid', 'failed', 'refunded') then
     raise exception 'Trạng thái thanh toán không hợp lệ';
   end if;
+
+  v_order_status := case
+    when v_payment_status = 'paid' then 'awaiting_confirmation'
+    else 'pending'
+  end;
 
   create temporary table tmp_cart_items (
     product_id uuid not null,
@@ -322,7 +328,7 @@ begin
     p_delivery_longitude,
     p_delivery_location_accuracy,
     nullif(trim(coalesce(p_delivery_location_token, '')), ''),
-    'pending'
+    v_order_status
   )
   returning id into v_order_id;
 

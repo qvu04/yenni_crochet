@@ -1,5 +1,5 @@
 import { AiOutlineDelete } from 'react-icons/ai';
-import { QuantityStepper } from 'components/ui';
+import { LazyImage, QuantityStepper } from 'components/ui';
 import { formatPrice, getMatchedPriceTier, getStockLabel } from 'utils';
 import { CartItem, useCartStore } from 'stores/cart';
 interface CartSectionProps {
@@ -22,10 +22,11 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                 return (
                     <article key={itemId} className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
                         <div className="flex gap-3">
-                            <img
+                            <LazyImage
                                 src={item.image}
                                 alt={item.name}
-                                className="h-20 w-20 shrink-0 rounded-2xl object-cover"
+                                wrapperClassName="h-20 w-20 shrink-0 rounded-2xl"
+                                className="h-full w-full object-cover"
                             />
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-start justify-between gap-3">

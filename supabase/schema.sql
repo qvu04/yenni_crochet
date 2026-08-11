@@ -60,7 +60,7 @@ create table orders (
   zalo_user_id text,                 -- để dành cho "đơn hàng của tôi" sau này — MVP chưa dùng
 
   status text not null default 'pending'
-    check (status in ('pending', 'confirmed', 'done', 'cancelled')),
+    check (status in ('pending', 'awaiting_confirmation', 'confirmed', 'making', 'shipping', 'delivering', 'done', 'completed', 'cancelled', 'canceled')),
 
   created_at timestamptz default now()
 );

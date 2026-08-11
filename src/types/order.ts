@@ -31,6 +31,7 @@ export interface CreateOrderInput {
 
 export type CustomerOrderStatus =
   | "pending"
+  | "awaiting_confirmation"
   | "confirmed"
   | "making"
   | "shipping"

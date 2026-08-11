@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AiOutlineDown } from "react-icons/ai";
+import { LazyImage } from "components/ui";
 import { CustomerOrderItem } from "types";
 
 interface OrderItemsPreviewProps {
@@ -16,13 +17,13 @@ export const OrderItemsPreview = ({ items }: OrderItemsPreviewProps) => {
       <div className="space-y-2">
         {visibleItems.map((item) => (
           <div key={item.id} className="flex items-center gap-3 border-t border-text-main/5 pt-2 first:border-t-0 first:pt-0">
-            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-background-main">
-              {item.product_image ? (
-                <img src={item.product_image} alt={item.product_name ?? "Sản phẩm"} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-text-muted">YC</div>
-              )}
-            </div>
+            <LazyImage
+              src={item.product_image ?? undefined}
+              alt={item.product_name ?? "Sản phẩm"}
+              fallbackLabel="YC"
+              wrapperClassName="h-10 w-10 shrink-0 rounded-xl"
+              className="h-full w-full object-cover"
+            />
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 text-xs font-extrabold leading-5 text-text-main">
                 x{item.quantity} {item.product_name ?? "Sản phẩm Yenni Crochet"}

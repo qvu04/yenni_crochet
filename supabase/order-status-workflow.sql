@@ -1,6 +1,6 @@
 -- Yenni Crochet - order workflow status constraint
 -- Run in Supabase Dashboard -> SQL Editor if updating orders.status to
--- confirmed/making/shipping/done/cancelled is rejected.
+-- awaiting_confirmation/confirmed/making/shipping/done/cancelled is rejected.
 -- It also accepts old aliases (delivering/completed/canceled) so older rows do
 -- not block the migration; the Mini App maps them to the same UI states.
 
@@ -29,6 +29,7 @@ alter table public.orders
 add constraint orders_status_check
 check (status in (
   'pending',
+  'awaiting_confirmation',
   'confirmed',
   'making',
   'shipping',
@@ -38,3 +39,8 @@ check (status in (
   'cancelled',
   'canceled'
 ));
+
+update public.orders
+set status = 'awaiting_confirmation'
+where status = 'pending'
+  and payment_status = 'paid';

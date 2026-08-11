@@ -4,8 +4,8 @@ import { CustomerOrder, CustomerOrderFilter, CustomerOrderStatus } from "types";
 export const ORDER_FILTERS: Array<{ key: CustomerOrderFilter; label: string }> = [
   { key: "all", label: "Tất cả" },
   { key: "waiting_payment", label: "Chờ cọc" },
-  { key: "paid_deposit", label: "Đã cọc" },
-  { key: "confirmed", label: "Đã nhận" },
+  { key: "paid_deposit", label: "Chờ xác nhận" },
+  { key: "confirmed", label: "Đã xác nhận" },
   { key: "making", label: "Đang làm" },
   { key: "shipping", label: "Đang giao" },
   { key: "done", label: "Hoàn thành" },
@@ -13,8 +13,9 @@ export const ORDER_FILTERS: Array<{ key: CustomerOrderFilter; label: string }> =
 ];
 
 export const ORDER_STATUS_LABELS: Record<CustomerOrderStatus, string> = {
-  pending: "Shop đã nhận đơn",
-  confirmed: "Đã nhận",
+  pending: "Chờ xác nhận",
+  awaiting_confirmation: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
   making: "Đang làm",
   shipping: "Đang giao",
   delivering: "Đang giao",
@@ -28,6 +29,7 @@ export const getOrderStatusLabel = (order: CustomerOrder) => {
   if (order.status === "cancelled" || order.status === "canceled") return ORDER_STATUS_LABELS.cancelled;
   if (order.status === "done" || order.status === "completed") return ORDER_STATUS_LABELS.done;
   if (order.status === "pending" && order.payment_status === "pending") return "Chờ đặt cọc";
+  if (order.status === "awaiting_confirmation" || (order.status === "pending" && order.payment_status === "paid")) return "Chờ xác nhận";
   return ORDER_STATUS_LABELS[order.status] ?? "Đang xử lý";
 };
 
@@ -106,17 +108,26 @@ export const getOrderStatusTone = (order: CustomerOrder) => {
 
 export const getOrderStep = (order?: CustomerOrder) => {
   if (!order) return 1;
-  if (order.status === "done" || order.status === "completed") return 5;
-  if (order.status === "shipping" || order.status === "delivering") return 4;
-  if (order.status === "making") return 3;
-  if (order.status === "confirmed" || order.payment_status === "paid") return 2;
+  if (order.status === "done" || order.status === "completed") return 4;
+  if (order.status === "shipping" || order.status === "delivering") return 3;
+  if (order.status === "making") return 2;
   return 1;
 };
 
 export const ORDER_STEPS = [
-  { title: "Chờ cọc", icon: <AiOutlineClockCircle /> },
-  { title: "Đã nhận", icon: <AiOutlineCheck /> },
+  { title: "Chờ xác nhận", icon: <AiOutlineCheck /> },
   { title: "Đang làm", icon: <AiOutlineTool /> },
   { title: "Đang giao", icon: <AiOutlineShoppingCart /> },
   { title: "Hoàn thành", icon: <AiOutlineCheck /> },
 ];
+
+export const getOrderProgressSteps = (order?: CustomerOrder) => {
+  if (order?.status === "pending" && order.payment_status === "pending") {
+    return [
+      { title: "Chờ cọc", icon: <AiOutlineClockCircle /> },
+      ...ORDER_STEPS.slice(1),
+    ];
+  }
+
+  return ORDER_STEPS;
+};

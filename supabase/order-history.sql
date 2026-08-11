@@ -82,7 +82,10 @@ as $$
       or (p_status = 'done' and orders.status = 'completed')
       or (p_status = 'cancelled' and orders.status = 'canceled')
       or (p_status = 'waiting_payment' and orders.status = 'pending' and orders.payment_status = 'pending')
-      or (p_status = 'paid_deposit' and orders.payment_status = 'paid')
+      or (p_status = 'paid_deposit' and (
+        orders.status = 'awaiting_confirmation'
+        or (orders.status = 'pending' and orders.payment_status = 'paid')
+      ))
     )
   group by orders.id
   order by orders.created_at desc;

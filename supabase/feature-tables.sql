@@ -120,7 +120,7 @@ create table if not exists order_status_events (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references orders(id) on delete cascade,
   status text not null
-    check (status in ('pending', 'confirmed', 'making', 'shipping', 'done', 'cancelled')),
+    check (status in ('pending', 'awaiting_confirmation', 'confirmed', 'making', 'shipping', 'done', 'cancelled')),
   note text,
   created_at timestamptz not null default now()
 );

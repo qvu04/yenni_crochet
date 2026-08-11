@@ -5,5 +5,6 @@ export * from "./orders";
 export * from "./custom-request";
 export * from "./vouchers";
 export * from "./zalo-location";
+export * from "./zalo-session";
 export * from "./account";
 export * from "./wishlist";

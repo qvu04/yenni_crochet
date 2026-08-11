@@ -11,6 +11,7 @@ import {
   AccountProfileCard,
   AccountStatsGrid,
   AccountWishlistSection,
+  DepositPolicyCard,
 } from "./components";
 
 export const AccountPage = () => {
@@ -117,9 +118,9 @@ export const AccountPage = () => {
       <header className="px-5 pb-4 pt-5">
         <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-text-muted">Tài khoản</p>
         <h1 className="mt-1 font-heading text-[32px] font-extrabold leading-9 text-title-text">Thông tin của bạn</h1>
-        <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
-          Theo dõi nhanh đơn hàng và yêu cầu đặt riêng đã gửi cho Yenni Crochet.
-        </p>
+        {/* <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
+          Theo dõi nhanh đơn hàng đã gửi cho Yenni Crochet.
+        </p> */}
       </header>
 
       <div className="space-y-4 px-5">
@@ -160,6 +161,8 @@ export const AccountPage = () => {
           items={wishlistItems}
           isLoading={isLoadingWishlist}
         />
+
+        <DepositPolicyCard />
 
         <AccountActivityPanel summary={summary} />
 

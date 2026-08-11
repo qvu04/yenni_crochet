@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { CustomerOrder } from "types";
-import { getOrderStep, ORDER_STEPS } from "../order-ui";
+import { getOrderProgressSteps, getOrderStep } from "../order-ui";
 
 interface OrderProgressStepperProps {
   order?: CustomerOrder;
@@ -8,9 +8,10 @@ interface OrderProgressStepperProps {
 
 export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
   const currentStep = getOrderStep(order);
+  const orderSteps = getOrderProgressSteps(order);
   const isCancelled = order?.status === "cancelled" || order?.status === "canceled";
   const isDone = order?.status === "done" || order?.status === "completed";
-  const progressPercent = `${((currentStep - 1) / (ORDER_STEPS.length - 1)) * 100}%`;
+  const progressPercent = `${((currentStep - 1) / (orderSteps.length - 1)) * 100}%`;
 
   if (isCancelled) {
     return (
@@ -23,8 +24,8 @@ export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
   return (
     <div className="w-full">
       <div className="relative px-1">
-        <div className="absolute left-[calc(10%+2px)] right-[calc(10%+2px)] top-4 h-1 rounded-full bg-text-main/10" />
-        <div className="absolute left-[calc(10%+2px)] right-[calc(10%+2px)] top-4 h-1 overflow-hidden rounded-full">
+        <div className="absolute left-[calc(12.5%+2px)] right-[calc(12.5%+2px)] top-3.5 h-1 rounded-full bg-text-main/10" />
+        <div className="absolute left-[calc(12.5%+2px)] right-[calc(12.5%+2px)] top-3.5 h-1 overflow-hidden rounded-full">
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-300"
             style={{ width: progressPercent }}
@@ -32,7 +33,7 @@ export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
         </div>
       </div>
       <div className="relative flex items-start">
-        {ORDER_STEPS.map((step, index) => {
+        {orderSteps.map((step, index) => {
           const stepNumber = index + 1;
           const isCompleted = stepNumber < currentStep || isDone;
           const isActive = stepNumber === currentStep && !isDone;
@@ -40,7 +41,7 @@ export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
           return (
             <div key={step.title} className="relative flex flex-1 flex-col items-center">
               <div
-                className={`z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-base shadow-sm transition ${isCompleted
+                className={`z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 text-sm shadow-sm transition ${isCompleted
                   ? "border-primary bg-primary text-title-text"
                   : isActive
                     ? "border-title-text bg-white text-title-text ring-4 ring-primary/25"
@@ -57,7 +58,7 @@ export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
                   step.icon
                 )}
               </div>
-              <p className={`mt-2 max-w-[70px] text-center text-[11px] font-bold leading-4 ${stepNumber <= currentStep ? "text-text-main" : "text-text-muted"}`}>
+              <p className={`mt-2 max-w-[76px] text-center text-[10px] font-bold leading-4 ${stepNumber <= currentStep ? "text-text-main" : "text-text-muted"}`}>
                 {step.title}
               </p>
             </div>

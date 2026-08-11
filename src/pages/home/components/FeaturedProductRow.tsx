@@ -2,7 +2,6 @@
 import { ConditionalRender, ProductCard } from "components/common";
 import { EmptyProductIcon } from "components/icons";
 import { Emptier, ProductRowSkeleton } from "components/ui";
-import { motion } from "motion/react";
 import { useGetFeaturedProductsByType } from "queries";
 import { ReactNode, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -161,18 +160,14 @@ export const FeaturedProductRow = ({ title, productType, preOrder, showTypeBadge
                     />
                 }
             >
-                <div ref={contentRef} className="scrollbar-none flex snap-x gap-3 overflow-x-auto pb-1">
+                <div ref={contentRef} className="scrollbar-none flex min-h-[270px] snap-x snap-mandatory gap-3 overflow-x-auto pb-1">
                     {products?.map((product) => (
-                        <motion.div
+                        <div
                             key={product.id}
                             className="w-[40%] min-w-[150px] max-w-[176px] shrink-0 snap-start"
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.35 }}
-                            transition={{ duration: 0.35, ease: "easeOut" }}
                         >
                             <ProductCard product={product} showProductTypeBadge={showTypeBadge} />
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
             </ConditionalRender>

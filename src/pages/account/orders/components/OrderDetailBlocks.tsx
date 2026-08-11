@@ -1,4 +1,5 @@
 import { AiOutlineEnvironment, AiOutlinePhone, AiOutlineUser } from "react-icons/ai";
+import { LazyImage } from "components/ui";
 import { CustomerOrder } from "types";
 import { formatPrice } from "utils";
 
@@ -45,13 +46,13 @@ export const OrderProductsBlock = ({ order }: OrderDetailBlocksProps) => {
       <div className="mt-3 divide-y divide-text-main/5">
         {order.items.map((item) => (
           <div key={item.id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
-            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-background-main">
-              {item.product_image ? (
-                <img src={item.product_image} alt={item.product_name ?? "Sản phẩm"} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-text-muted">YC</div>
-              )}
-            </div>
+            <LazyImage
+              src={item.product_image ?? undefined}
+              alt={item.product_name ?? "Sản phẩm"}
+              fallbackLabel="YC"
+              wrapperClassName="h-14 w-14 shrink-0 rounded-xl"
+              className="h-full w-full object-cover"
+            />
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 text-sm font-extrabold leading-5 text-text-main">
                 x{item.quantity} {item.product_name ?? "Sản phẩm Yenni Crochet"}

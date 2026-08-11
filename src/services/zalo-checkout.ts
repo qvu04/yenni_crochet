@@ -45,6 +45,17 @@ interface CheckoutTransactionResult {
   msg?: string;
 }
 
+export class ZaloCheckoutCancelledError extends Error {
+  constructor(message = "Bạn vừa hủy đặt cọc, hiện tại shop sẽ chưa tiến hành xác nhận đơn hàng.") {
+    super(message);
+    this.name = "ZaloCheckoutCancelledError";
+  }
+}
+
+export const isZaloCheckoutCancelledError = (error: unknown) =>
+  error instanceof ZaloCheckoutCancelledError ||
+  (error instanceof Error && error.name === "ZaloCheckoutCancelledError");
+
 const getRuntimeMiniAppId = () => {
   const runtimeWindow = window as Window & {
     APP_ID?: string | number;
@@ -94,12 +105,20 @@ const waitForSuccessfulPayment = () => {
 
         cleanup();
 
-        if (transaction.resultCode === 1) {
-          resolve(transaction);
-          return;
+        switch (transaction.resultCode) {
+          case 1:
+            resolve(transaction);
+            return;
+          case -2:
+            reject(new ZaloCheckoutCancelledError());
+            return;
+          case 0:
+            reject(new Error(transaction.msg || "Giao dịch đang chờ xử lý, shop chưa thể xác nhận đơn lúc này."));
+            return;
+          default:
+            reject(new Error(transaction.msg || "Bạn chưa hoàn tất thanh toán tiền cọc"));
+            return;
         }
-
-        reject(new Error(transaction.msg || "Bạn chưa hoàn tất thanh toán tiền cọc"));
       } catch (err) {
         cleanup();
         reject(err instanceof Error ? err : new Error("Không kiểm tra được kết quả thanh toán"));
@@ -108,7 +127,7 @@ const waitForSuccessfulPayment = () => {
 
     const handlePaymentClose = () => {
       cleanup();
-      reject(new Error("Bạn đã hủy thanh toán tiền cọc"));
+      reject(new ZaloCheckoutCancelledError());
     };
 
     cleanup = () => {

@@ -1,3 +1,4 @@
+import { LazyImage } from 'components/ui';
 import { Products } from 'types';
 import { formatPrice, getStockLabel, hasBulkPricing } from 'utils';
 
@@ -15,13 +16,12 @@ export const ProductPreview = ({ product, onSelect }: ProductReviewProps) => {
             className="flex min-w-[148px] max-w-[148px] flex-col overflow-hidden rounded-2xl bg-white text-left shadow-[0_10px_24px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5 active:scale-[0.98]"
         >
             <div className="relative aspect-square w-full overflow-hidden bg-background-main">
-                {product.images?.[0] ? (
-                    <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
-                ) : (
-                    <div className="flex h-full items-center justify-center px-3 text-center text-xs font-semibold text-text-muted">
-                        Yenni Crochet
-                    </div>
-                )}
+                <LazyImage
+                    src={product.images?.[0]}
+                    alt={product.name}
+                    wrapperClassName="h-full w-full"
+                    className="h-full w-full object-cover"
+                />
                 {hasPriceTiers && (
                     <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold leading-none text-title-text shadow-sm">
                         Giá sỉ

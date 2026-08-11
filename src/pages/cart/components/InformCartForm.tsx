@@ -91,7 +91,7 @@ export const InformCartForm = ({
       </div>
 
       <div className="rounded-2xl bg-background-main p-3">
-        <div className="flex flex-col items-center justify-between gap-3">
+        <div className="flex flex-col items-center justify-between gap-3 mb-3">
           <div className="min-w-0">
             <p className="text-sm font-bold text-text-main">Vị trí hỗ trợ giao hàng</p>
             <p className="mt-1 text-xs font-semibold leading-5 text-text-muted">

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AiOutlineCheck, AiOutlineCopy, AiOutlineGift, AiOutlineTag } from 'react-icons/ai';
 import { copyToClipboard, formatDate, formatDiscount, getPromotionConditions } from 'utils';
 import { Promotions } from 'types';
-import { ModalSuccess, Spinner } from 'components/ui';
+import { LazyImage, ModalSuccess, Spinner } from 'components/ui';
 
 interface PromotionCardProps {
     promotion: Promotions;
@@ -33,9 +33,12 @@ export const PromotionCard = ({
     return (
         <article className="overflow-hidden rounded-2xl bg-white shadow-[0_10px_24px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
             {promotion.banner_url && (
-                <div className="h-44 overflow-hidden bg-background-main">
-                    <img src={promotion.banner_url} alt={promotion.title} className="h-full w-full object-cover" />
-                </div>
+                <LazyImage
+                    src={promotion.banner_url}
+                    alt={promotion.title}
+                    wrapperClassName="h-44"
+                    className="h-full w-full object-cover"
+                />
             )}
 
             <div className="space-y-4 p-4">
