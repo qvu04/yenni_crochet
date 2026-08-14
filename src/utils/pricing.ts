@@ -73,16 +73,19 @@ export const resolveUnitPrice = ({
 };
 
 export const DEFAULT_DEPOSIT_RATE = 0.3;
+export const DEFAULT_MIN_DEPOSIT_AMOUNT = 10000;
 export const DEFAULT_MAX_DEPOSIT_AMOUNT = 200000;
 
 export const calculateDepositAmount = (
   totalAmount: number,
   depositRate = DEFAULT_DEPOSIT_RATE,
   maxDepositAmount = DEFAULT_MAX_DEPOSIT_AMOUNT,
+  minDepositAmount = DEFAULT_MIN_DEPOSIT_AMOUNT,
 ) => {
   if (totalAmount <= 0) return 0;
 
   const roundedDeposit = Math.ceil((totalAmount * depositRate) / 1000) * 1000;
+  const policyDeposit = Math.max(roundedDeposit, minDepositAmount);
 
-  return Math.min(totalAmount, roundedDeposit, maxDepositAmount);
+  return Math.min(totalAmount, policyDeposit, maxDepositAmount);
 };

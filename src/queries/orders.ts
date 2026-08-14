@@ -5,7 +5,7 @@ import { orderServices } from "services";
 import { CreateOrderInput, CustomerOrder, CustomerOrderFilter } from "types";
 
 interface UseCreateOrderProps {
-  options?: UseMutationOptions<void, Error, CreateOrderInput>
+  options?: UseMutationOptions<string | null, Error, CreateOrderInput>
 };
 export const useCreateOrder = ({ options }: UseCreateOrderProps = {}) => {
   const queryClient = useQueryClient();
@@ -19,6 +19,8 @@ export const useCreateOrder = ({ options }: UseCreateOrderProps = {}) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_FEATURED_PRODUCTS_BY_TYPE] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_USER_PROMOTIONS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_ACTIVE_PROMOTIONS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_CUSTOMER_ACCOUNT_SUMMARY] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GET_CUSTOMER_ORDER_HISTORY] });
     },
     ...options,
   });

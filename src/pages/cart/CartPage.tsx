@@ -4,7 +4,7 @@ import { getLocation, getUserInfo } from "zmp-sdk/apis";
 import { AiOutlineDelete, AiOutlineShoppingCart } from "react-icons/ai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ConfirmDialog, Emptier, ModalSuccess, Spinner } from "components/ui";
+import { ConfirmDialog, Emptier, Spinner } from "components/ui";
 import { EmptyCartIcon } from "components/icons";
 import { useZaloPhoneNumber } from "hooks/useZaloPhoneNumber";
 import { useCreateOrder, useGetUserPromotions } from "queries";
@@ -12,23 +12,20 @@ import { createZaloCheckoutOrder, isZaloCheckoutCancelledError } from "services/
 import { getZaloLocationFromToken } from "services";
 import { CartCheckoutInput, CartCheckoutSchema } from "schemas";
 import { useCartStore, getCartSubtotal } from "stores/cart";
-import { calculateDepositAmount, calculatePromotionDiscount, DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, formatPrice, showErrorToast, showSuccessToast } from "utils";
+import { calculateDepositAmount, calculatePromotionDiscount, DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, DEFAULT_MIN_DEPOSIT_AMOUNT, formatPrice, handleAppError, showErrorToast, showSuccessToast } from "utils";
 import {
   CartPromotionSection,
   CartSection,
   CartSummarySection,
+  DepositSuccessModal,
   InformCartForm,
 } from "./components";
 
 const REMOVE_ITEM_LOADING_DELAY = 500;
 const CART_DEPOSIT_RATE = DEFAULT_DEPOSIT_RATE;
+const CART_MIN_DEPOSIT_AMOUNT = DEFAULT_MIN_DEPOSIT_AMOUNT;
 const CART_MAX_DEPOSIT_AMOUNT = DEFAULT_MAX_DEPOSIT_AMOUNT;
 const CHECKOUT_CANCELLED_COPY = "Bạn vừa hủy đặt cọc, hiện tại shop sẽ chưa tiến hành xác nhận đơn hàng.";
-
-const PAID_ORDER_SUCCESS_COPY = {
-  heading: "Đặt cọc thành công!",
-  title: "Đơn của bạn đã được đưa vào lịch sử ở trạng thái chờ shop xác nhận. Yenni Crochet sẽ liên hệ sớm nhất nhé.",
-};
 
 interface DeliveryLocation {
   latitude?: number;
@@ -42,6 +39,14 @@ interface RawLocationResponse {
   longitude?: string | number;
   accuracy?: string | number;
   token?: string;
+}
+
+interface DepositSuccessState {
+  orderId: string | null;
+  itemCount: number;
+  finalPrice: number;
+  depositAmount: number;
+  remainingAmount: number;
 }
 
 const toOptionalNumber = (value: unknown) => {
@@ -65,7 +70,7 @@ export const CartPage = () => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [deliveryLocation, setDeliveryLocation] = useState<DeliveryLocation | null>(null);
-  const [successCopy, setSuccessCopy] = useState(PAID_ORDER_SUCCESS_COPY);
+  const [depositSuccess, setDepositSuccess] = useState<DepositSuccessState | null>(null);
   const removeItemTimeoutRef = useRef<number>();
   const {
     register,
@@ -117,7 +122,7 @@ export const CartPage = () => {
   const canUseSelectedPromotion = Boolean(selectedPromotion && !selectedPromotionPreview.unavailableReason);
   const discountAmount = canUseSelectedPromotion ? selectedPromotionPreview.discountAmount : 0;
   const finalPrice = canUseSelectedPromotion ? selectedPromotionPreview.finalPrice : subtotal;
-  const depositAmount = calculateDepositAmount(finalPrice, CART_DEPOSIT_RATE, CART_MAX_DEPOSIT_AMOUNT);
+  const depositAmount = calculateDepositAmount(finalPrice, CART_DEPOSIT_RATE, CART_MAX_DEPOSIT_AMOUNT, CART_MIN_DEPOSIT_AMOUNT);
   const remainingAmount = Math.max(0, finalPrice - depositAmount);
   const hasInvalidStock = items.some((item) => item.stock_quantity <= 0 || item.quantity > item.stock_quantity);
   const canSubmit = Boolean(items.length && !hasInvalidStock);
@@ -181,7 +186,11 @@ export const CartPage = () => {
       setDeliveryLocation(nextLocation);
     } catch (err) {
       const error = err instanceof Error ? err : new Error("Chưa lấy được vị trí hiện tại.");
-      showErrorToast(error.message);
+      handleAppError(error, {
+        component: "CartPage",
+        action: "getDeliveryLocation",
+        fallback: "Chưa lấy được vị trí hiện tại.",
+      });
     } finally {
       setIsGettingLocation(false);
     }
@@ -263,7 +272,7 @@ export const CartPage = () => {
         }
       }
 
-      await createOrder({
+      const createdOrderId = await createOrder({
         items: items.map((item) => ({
           product_id: item.product_id,
           variant_id: item.variant_id,
@@ -290,10 +299,16 @@ export const CartPage = () => {
         delivery_location_token: deliveryLocation?.token,
       });
 
+      setDepositSuccess({
+        orderId: createdOrderId,
+        itemCount: items.length,
+        finalPrice,
+        depositAmount: checkoutAmount,
+        remainingAmount,
+      });
       clearCart();
       reset();
       setDeliveryLocation(null);
-      setSuccessCopy(PAID_ORDER_SUCCESS_COPY);
       setIsSuccessVisible(true);
       showSuccessToast("Đặt cọc thành công, đơn đang chờ shop xác nhận.");
     } catch (err) {
@@ -302,7 +317,11 @@ export const CartPage = () => {
       if (hasCompletedCheckout) {
         setCheckoutError(new Error(`Đã nhận tiền cọc nhưng tạo đơn thất bại: ${paymentError.message}`));
       } else {
-        showErrorToast(paymentError.message);
+        handleAppError(paymentError, {
+          component: "CartPage",
+          action: "submitDepositCheckout",
+          fallback: "Đặt cọc chưa thành công, bạn thử lại giúp shop nhé.",
+        });
       }
     } finally {
       setIsCheckingOut(false);
@@ -385,6 +404,7 @@ export const CartPage = () => {
         depositAmount={depositAmount}
         remainingAmount={remainingAmount}
         depositRate={CART_DEPOSIT_RATE}
+        minDepositAmount={CART_MIN_DEPOSIT_AMOUNT}
         maxDepositAmount={CART_MAX_DEPOSIT_AMOUNT}
         selectedPromotion={selectedPromotion}
         promotionUnavailableReason={selectedPromotionPreview.unavailableReason}
@@ -406,17 +426,26 @@ export const CartPage = () => {
         </button>
       </div>
 
-      <ModalSuccess
+      <DepositSuccessModal
         visible={isSuccessVisible}
-        heading={successCopy.heading}
-        title={successCopy.title}
+        orderId={depositSuccess?.orderId}
+        itemCount={depositSuccess?.itemCount ?? 0}
+        finalPrice={depositSuccess?.finalPrice ?? 0}
+        depositAmount={depositSuccess?.depositAmount ?? 0}
+        remainingAmount={depositSuccess?.remainingAmount ?? 0}
         onClose={() => setIsSuccessVisible(false)}
-        primaryAction={{
-          label: "Tiếp tục mua hàng",
-          onClick: () => {
-            setIsSuccessVisible(false);
-            navigate("/");
-          },
+        onViewOrder={() => {
+          if (!depositSuccess?.orderId) return;
+          setIsSuccessVisible(false);
+          navigate(`/account/orders/${depositSuccess.orderId}`);
+        }}
+        onContactShop={() => {
+          setIsSuccessVisible(false);
+          navigate("/contact");
+        }}
+        onContinueShopping={() => {
+          setIsSuccessVisible(false);
+          navigate("/");
         }}
       />
 
@@ -451,7 +480,7 @@ export const CartPage = () => {
         visible={Boolean(submitConfirmValues)}
         icon={<AiOutlineShoppingCart />}
         title="Xác nhận đặt cọc?"
-        description={`Bạn sẽ cọc ${formatPrice(depositAmount)} cho đơn ${items.length} sản phẩm. Phần còn lại là ${formatPrice(remainingAmount)}.`}
+        description={`Bạn sẽ cọc ${formatPrice(depositAmount)} cho đơn ${items.length} sản phẩm. Shop áp dụng cọc tối thiểu ${formatPrice(CART_MIN_DEPOSIT_AMOUNT)}, tối đa ${formatPrice(CART_MAX_DEPOSIT_AMOUNT)}; phần còn lại là ${formatPrice(remainingAmount)}.`}
         confirmText="Đặt cọc"
         cancelText="Kiểm tra lại"
         isLoading={isPending || isCheckingOut}

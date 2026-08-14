@@ -1,11 +1,11 @@
 import { AiOutlineFileText, AiOutlineSafetyCertificate, AiOutlineWallet } from "react-icons/ai";
-import { DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, formatPrice } from "utils";
+import { DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, DEFAULT_MIN_DEPOSIT_AMOUNT, formatPrice } from "utils";
 
 const policyItems = [
   {
     icon: <AiOutlineWallet />,
     title: "Mức cọc",
-    description: `Khách cọc ${Math.round(DEFAULT_DEPOSIT_RATE * 100)}% giá trị đơn, tối đa ${formatPrice(DEFAULT_MAX_DEPOSIT_AMOUNT)}.`,
+    description: `Khách cọc ${Math.round(DEFAULT_DEPOSIT_RATE * 100)}% giá trị đơn, tối thiểu ${formatPrice(DEFAULT_MIN_DEPOSIT_AMOUNT)} và tối đa ${formatPrice(DEFAULT_MAX_DEPOSIT_AMOUNT)}.`,
   },
   {
     icon: <AiOutlineSafetyCertificate />,

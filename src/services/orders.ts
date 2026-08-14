@@ -20,7 +20,7 @@ const toCustomerOrder = (order: CustomerOrder): CustomerOrder => ({
 });
 
 export const orderServices = {
-  createOrder: async (input: CreateOrderInput): Promise<void> => {
+  createOrder: async (input: CreateOrderInput): Promise<string | null> => {
     const rpcPayload = {
       p_customer_name: input.customer_name,
       p_phone: input.phone,
@@ -30,7 +30,7 @@ export const orderServices = {
       p_promotion_id: input.promotion_id ?? null,
     };
 
-    const { error } = input.items?.length
+    const { data, error } = input.items?.length
       ? await supabase.rpc("create_cart_order_with_promotion", {
         ...rpcPayload,
         p_items: input.items.map((item) => ({
@@ -61,6 +61,8 @@ export const orderServices = {
     if (error) {
       throw new Error(error.message);
     }
+
+    return typeof data === "string" ? data : null;
   },
 
   getCustomerOrderHistory: async (zaloUserId: string, status: CustomerOrderFilter = "all"): Promise<CustomerOrder[]> => {

@@ -3,11 +3,11 @@ import { motion } from "motion/react";
 import { AiOutlineHome, AiOutlineEdit, AiOutlineUser, AiOutlineGift, AiOutlineMessage } from "react-icons/ai";
 import { ROUTES } from "constant";
 const TABS = [
-  { key: "home", path: "/", label: "Trang chủ", icon: <AiOutlineHome /> },
-  { key: "order", path: "/order", label: "Đặt riêng", icon: <AiOutlineEdit /> },
-  { key: "voucher", path: "/vouchers", label: "Ưu đãi", icon: <AiOutlineGift /> },
-  { key: "contact", path: "/contact", label: "Liên hệ", icon: <AiOutlineMessage /> },
-  { key: "account", path: "/account", label: "Tài khoản", icon: <AiOutlineUser /> },
+  { key: "home", path: "/", label: "Trang chủ", icon: <AiOutlineHome />, activeColor: "#F4A3A6" },
+  { key: "order", path: "/order", label: "Đặt riêng", icon: <AiOutlineEdit />, activeColor: "#D97706" },
+  { key: "voucher", path: "/vouchers", label: "Ưu đãi", icon: <AiOutlineGift />, activeColor: "#16A34A" },
+  { key: "contact", path: "/contact", label: "Liên hệ", icon: <AiOutlineMessage />, activeColor: "#2563EB" },
+  { key: "account", path: "/account", label: "Tài khoản", icon: <AiOutlineUser />, activeColor: "#7C3AED" },
 ] as const;
 
 export const BottomNav = () => {
@@ -28,31 +28,44 @@ export const BottomNav = () => {
           <button
             key={tab.key}
             onClick={() => navigate(tab.path)}
-            className="relative flex flex-1 flex-col items-center gap-0.5"
+            className="relative flex min-h-[64px] flex-1 flex-col items-center justify-center gap-0.5"
           >
-            {isActive && (
-              <motion.span
-                layoutId="bottomNavIndicator"
-                className="absolute inset-x-3 -top-2 bottom-0 rounded-2xl bg-primary/10"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
-
             <motion.span
               animate={{ scale: isActive ? 1.15 : 1, y: isActive ? -2 : 0 }}
               whileTap={{ scale: 0.85 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              className={`relative z-10 text-xl mt-2 ${isActive ? "text-text-main" : "text-text-muted"}`}
+              className="relative z-10 flex h-9 w-9 items-center justify-center text-xl"
+              style={{ color: isActive ? tab.activeColor : "var(--color-text-muted)" }}
             >
-              {tab.icon}
+              {isActive && (
+                <motion.span
+                  layoutId="bottomNavIndicator"
+                  className="absolute inset-0 rounded-full border-2 bg-white shadow-[0_8px_18px_rgba(51,39,42,0.12)]"
+                  style={{ borderColor: tab.activeColor }}
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">
+                {tab.icon}
+              </span>
             </motion.span>
 
-            <span
-              className={`relative z-10 text-[11px] font-semibold transition-colors ${isActive ? "text-text-main" : "text-text-muted"
-                }`}
+            <motion.span
+              animate={{ color: isActive ? tab.activeColor : "var(--color-text-muted)" }}
+              transition={{ duration: 0.18 }}
+              className="relative z-10 text-[11px] font-semibold transition-colors"
             >
               {tab.label}
-            </span>
+            </motion.span>
+
+            {isActive && (
+              <motion.span
+                layoutId="bottomNavDot"
+                className="relative z-10 mt-0.5 h-1 w-1 rounded-full"
+                style={{ backgroundColor: tab.activeColor }}
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
           </button>
         );
       })}

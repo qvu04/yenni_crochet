@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Swiper } from 'antd-mobile';
-import { formatPrice, formatProductDescription, getFriendlyErrorMessage, getMatchedPriceTier, getStockLabel, getVisiblePriceTiers, resolveUnitPrice, showErrorToast, showSuccessToast } from 'utils';
+import { formatPrice, formatProductDescription, getFriendlyErrorMessage, getMatchedPriceTier, getStockLabel, getVisiblePriceTiers, handleAppError, resolveUnitPrice, showErrorToast, showSuccessToast } from 'utils';
 import { useGetProductById, useIsProductFavorited, useToggleFavoriteProduct } from 'queries';
 import { CloseButtonSheet, ProductDetailSkeleton, QuantityStepper } from 'components/ui';
 import { useCartStore } from 'stores/cart';
@@ -166,7 +166,11 @@ export const ProductDetailContent = ({ productId, onClose }: ProductDetailConten
                     showSuccessToast(result.is_favorited ? "Đã thêm vào wishlist." : "Đã bỏ khỏi wishlist.");
                 },
                 onError: (err) => {
-                    showErrorToast(`Cập nhật wishlist thất bại: ${getFriendlyErrorMessage(err)}`);
+                    handleAppError(err, {
+                        component: "ProductDetailContent",
+                        action: "toggleFavorite",
+                        userMessage: `Cập nhật wishlist thất bại: ${getFriendlyErrorMessage(err)}`,
+                    });
                 },
             },
         );

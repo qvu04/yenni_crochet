@@ -3,7 +3,7 @@ import { matchPath, MemoryRouter, useLocation } from "react-router-dom";
 import { AppProviders } from "providers";
 import { ROUTES } from "constant";
 import { CampaignSheet } from "pages/home/components";
-import { AnimatedRoutes, CartFloatingButton, SplashScreen, ProductDetailSheet, ScrollToTop } from "components/common";
+import { AnimatedRoutes, AppErrorBoundary, CartFloatingButton, SplashScreen, ProductDetailSheet, ScrollToTop } from "components/common";
 import { AppHeader, BottomNav } from "components/Layout";
 
 const AppShell = () => {
@@ -38,7 +38,9 @@ export default function App() {
   return (
     <AppProviders>
       <MemoryRouter>
-        <AppShell />
+        <AppErrorBoundary>
+          <AppShell />
+        </AppErrorBoundary>
       </MemoryRouter>
     </AppProviders>
   );

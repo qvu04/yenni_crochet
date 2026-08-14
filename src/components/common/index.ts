@@ -6,3 +6,4 @@ export * from "./ProductDetailContent";
 export * from "./ConditionalRender";
 export * from "./ScrollToTop";
 export * from "./CartFloatingButton";
+export * from "./AppErrorBoundary";
