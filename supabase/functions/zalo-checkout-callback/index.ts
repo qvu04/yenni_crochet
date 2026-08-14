@@ -117,7 +117,7 @@ const getPaymentStatus = (resultCode: unknown) => {
   const numericCode = Number(resultCode);
 
   if (numericCode === 1) return "paid";
-  if (numericCode === 0) return "refunded";
+  if (numericCode === 0) return "pending";
 
   return "failed";
 };
@@ -163,14 +163,42 @@ const updateOrderPayment = async (data: CheckoutCallbackData) => {
   }
 
   const paymentStatus = getPaymentStatus(data.resultCode);
+  const orderRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/orders?checkout_order_id=eq.${encodeURIComponent(data.orderId)}&select=id,final_price`,
+    {
+      headers: serviceRoleHeaders,
+    },
+  );
+
+  if (!orderRes.ok) {
+    console.error("zalo-checkout-callback order lookup failed:", await orderRes.text());
+    return { updated: false };
+  }
+
+  const orders = await orderRes.json();
+  const order = Array.isArray(orders) ? orders[0] : null;
+
+  if (!order?.id) {
+    return { updated: false };
+  }
+
+  const paidAmount = data.amount != null ? Number(data.amount) : 0;
+  const finalPrice = Number(order.final_price ?? 0);
   const updatePayload = {
     payment_status: paymentStatus,
     checkout_transaction_id: data.transId ?? null,
     paid_at: paymentStatus === "paid" ? new Date().toISOString() : null,
+    ...(paymentStatus === "paid"
+      ? {
+        status: "awaiting_confirmation",
+        deposit_amount: paidAmount,
+        remaining_amount: Math.max(finalPrice - paidAmount, 0),
+      }
+      : {}),
   };
 
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/orders?checkout_order_id=eq.${encodeURIComponent(data.orderId)}&select=id`,
+    `${SUPABASE_URL}/rest/v1/orders?id=eq.${encodeURIComponent(order.id)}&select=id`,
     {
       method: "PATCH",
       headers: {

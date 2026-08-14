@@ -23,7 +23,7 @@ export const CartPromotionSection = ({
   const hasPromotions = Boolean(promotions?.length);
 
   return (
-    <section className="mb-5 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
+    <section className="mb-4 rounded-[28px] bg-white p-4 shadow-sm ring-1 ring-text-main/5">
       <div className="mb-3 flex items-center gap-2">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-lg text-title-text">
           <AiOutlineGift />
@@ -68,12 +68,12 @@ export const CartPromotionSection = ({
                   if (isUnavailable) return;
                   onSelectPromotion(isSelected ? undefined : userPromotion.promotion_id);
                 }}
-                className={`w-full rounded-2xl p-3 text-left transition disabled:cursor-not-allowed ${
+                className={`w-full rounded-3xl border p-3 text-left transition disabled:cursor-not-allowed ${
                   isUnavailable
-                    ? "bg-background-main/70 text-text-muted opacity-70 ring-1 ring-text-main/5"
+                    ? "border-text-main/5 bg-background-main/70 text-text-muted opacity-70"
                     : isSelected
-                      ? "bg-primary text-text-main ring-2 ring-title-text/10"
-                      : "bg-background-main text-text-main ring-1 ring-text-main/5"
+                      ? "border-primary bg-primary/60 text-text-main shadow-sm"
+                      : "border-text-main/5 bg-background-main/70 text-text-main"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">

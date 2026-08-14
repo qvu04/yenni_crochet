@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useZaloCustomerProfile } from "hooks/useZaloCustomerProfile";
 import { useZaloPhoneNumber } from "hooks/useZaloPhoneNumber";
-import { useGetCustomerAccountSummary, useGetUserWishlist, useUpsertCustomerProfile } from "queries";
+import { useGetCustomerAccountSummary, useGetCustomerOrderHistory, useGetUserWishlist, useUpsertCustomerProfile } from "queries";
+import { CustomerAccountSummary } from "types";
 import { getFriendlyErrorMessage, handleAppError, showSuccessToast } from "utils";
 import {
   AccountActivityPanel,
@@ -40,6 +41,34 @@ export const AccountPage = () => {
   } = useGetUserWishlist({
     zaloUserId: profile?.zalo_user_id,
   });
+  const {
+    data: accountOrders,
+    isLoading: isLoadingAccountOrders,
+  } = useGetCustomerOrderHistory({
+    zaloUserId: profile?.zalo_user_id,
+    status: "all",
+  });
+
+  const reconciledSummary = useMemo<CustomerAccountSummary | undefined>(() => {
+    if (!summary || !accountOrders) return summary;
+
+    const activeOrders = accountOrders.filter(
+      (order) => !["cancelled", "canceled", "done", "completed"].includes(order.status),
+    );
+    const depositOrders = accountOrders.filter(
+      (order) => order.deposit_amount > 0 && !["failed", "refunded"].includes(order.payment_status),
+    );
+    const totalDepositAmount = depositOrders.reduce((total, order) => total + order.deposit_amount, 0);
+
+    return {
+      ...summary,
+      total_orders: accountOrders.length,
+      pending_orders: activeOrders.length,
+      paid_orders: depositOrders.length,
+      total_deposit_amount: totalDepositAmount,
+      latest_order_at: accountOrders[0]?.created_at ?? summary.latest_order_at,
+    };
+  }, [accountOrders, summary]);
 
   useEffect(() => {
     if (!profile?.zalo_user_id) return;
@@ -146,7 +175,7 @@ export const AccountPage = () => {
 
         <AccountProfileCard
           profile={profile}
-          summary={summary}
+          summary={reconciledSummary}
           isLoadingProfile={isLoadingProfile}
           isGettingPhone={isGettingPhone}
           isSyncing={isSyncingProfile}
@@ -155,11 +184,11 @@ export const AccountPage = () => {
         />
 
         <AccountStatsGrid
-          summary={summary}
-          isLoading={isLoadingSummary || isSyncingProfile}
+          summary={reconciledSummary}
+          isLoading={isLoadingSummary || isLoadingAccountOrders || isSyncingProfile}
         />
 
-        <AccountOrderTrackerCard summary={summary} />
+        <AccountOrderTrackerCard summary={reconciledSummary} />
 
         <AccountWishlistSection
           items={wishlistItems}
@@ -168,7 +197,7 @@ export const AccountPage = () => {
 
         <DepositPolicyCard />
 
-        <AccountActivityPanel summary={summary} />
+        <AccountActivityPanel summary={reconciledSummary} />
 
         {/* <AccountNotice message="Lịch sử chi tiết đơn hàng, wishlist và địa chỉ mặc định sẽ dùng cùng dữ liệu tài khoản này ở bước tiếp theo." /> */}
       </div>

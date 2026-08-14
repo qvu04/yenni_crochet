@@ -36,6 +36,7 @@ interface CheckoutOrderResult {
   orderId: string;
   messageToken?: string;
   transId?: string;
+  paymentStatus?: "paid" | "pending";
 }
 
 interface CheckoutTransactionResult {
@@ -66,6 +67,8 @@ const getRuntimeMiniAppId = () => {
 };
 
 const CHECKOUT_RESULT_TIMEOUT_MS = 5 * 60 * 1000;
+const CHECKOUT_PENDING_SETTLE_MS = 30 * 1000;
+const CHECKOUT_PENDING_RETRY_MS = 1500;
 
 const getFunctionErrorMessage = async (error: unknown) => {
   const functionError = error as FunctionErrorWithContext;
@@ -87,11 +90,13 @@ const getPaymentEventOrderId = (data?: PaymentEventData | null) =>
 const waitForSuccessfulPayment = () => {
   let createdOrderId: string | undefined;
   let timeoutId: number | undefined;
+  let pendingStartedAt: number | undefined;
+  let pendingRetryId: number | undefined;
 
   let cleanup = () => { };
 
   const paymentResultPromise = new Promise<CheckoutTransactionResult>((resolve, reject) => {
-    const handlePaymentDone = async (data?: PaymentEventData) => {
+    const checkPaymentResult = async (data?: PaymentEventData) => {
       const eventOrderId = getPaymentEventOrderId(data);
 
       if (createdOrderId && eventOrderId && eventOrderId !== createdOrderId) return;
@@ -103,19 +108,30 @@ const waitForSuccessfulPayment = () => {
 
         if (createdOrderId && transaction.orderId && transaction.orderId !== createdOrderId) return;
 
-        cleanup();
-
         switch (transaction.resultCode) {
           case 1:
+            cleanup();
             resolve(transaction);
             return;
           case -2:
+            cleanup();
             reject(new ZaloCheckoutCancelledError());
             return;
           case 0:
-            reject(new Error(transaction.msg || "Giao dịch đang chờ xử lý, shop chưa thể xác nhận đơn lúc này."));
+            pendingStartedAt ??= Date.now();
+
+            if (Date.now() - pendingStartedAt >= CHECKOUT_PENDING_SETTLE_MS) {
+              cleanup();
+              resolve({ ...transaction, resultCode: 0 });
+              return;
+            }
+
+            pendingRetryId = window.setTimeout(() => {
+              void checkPaymentResult(data ?? { zmpOrderId: createdOrderId });
+            }, CHECKOUT_PENDING_RETRY_MS);
             return;
           default:
+            cleanup();
             reject(new Error(transaction.msg || "Bạn chưa hoàn tất thanh toán tiền cọc"));
             return;
         }
@@ -123,6 +139,10 @@ const waitForSuccessfulPayment = () => {
         cleanup();
         reject(err instanceof Error ? err : new Error("Không kiểm tra được kết quả thanh toán"));
       }
+    };
+
+    const handlePaymentDone = (data?: PaymentEventData) => {
+      void checkPaymentResult(data);
     };
 
     const handlePaymentClose = () => {
@@ -136,6 +156,10 @@ const waitForSuccessfulPayment = () => {
 
       if (timeoutId) {
         window.clearTimeout(timeoutId);
+      }
+
+      if (pendingRetryId) {
+        window.clearTimeout(pendingRetryId);
       }
     };
 
@@ -202,6 +226,7 @@ export const createZaloCheckoutOrder = async ({
     return {
       ...checkoutOrder,
       transId: transaction.transId || checkoutOrder.transId,
+      paymentStatus: transaction.resultCode === 1 ? "paid" as const : "pending" as const,
     };
   } catch (err) {
     paymentResult.cleanup();

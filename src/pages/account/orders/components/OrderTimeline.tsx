@@ -1,14 +1,16 @@
 import { AiOutlineCheck, AiOutlineClockCircle } from "react-icons/ai";
 import { CustomerOrder } from "types";
 import { formatDate } from "utils";
-import { getOrderStep, ORDER_STEPS } from "../order-ui";
+import { getOrderActiveStep, getOrderCompletedStep, getOrderProgressSteps } from "../order-ui";
 
 interface OrderTimelineProps {
   order: CustomerOrder;
 }
 
 export const OrderTimeline = ({ order }: OrderTimelineProps) => {
-  const currentStep = getOrderStep(order);
+  const activeStep = getOrderActiveStep(order);
+  const completedStep = getOrderCompletedStep(order);
+  const orderSteps = getOrderProgressSteps(order);
   const isDone = order.status === "done" || order.status === "completed";
   const isCancelled = order.status === "cancelled" || order.status === "canceled";
 
@@ -27,11 +29,11 @@ export const OrderTimeline = ({ order }: OrderTimelineProps) => {
     <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-text-main/5">
       <h2 className="font-heading text-lg font-extrabold text-title-text">Theo dõi đơn hàng</h2>
       <div className="mt-4 space-y-0">
-        {ORDER_STEPS.map((step, index) => {
+        {orderSteps.map((step, index) => {
           const stepNumber = index + 1;
-          const isCompleted = isDone || stepNumber < currentStep;
-          const isCurrent = !isDone && stepNumber === currentStep;
-          const isLast = index === ORDER_STEPS.length - 1;
+          const isCompleted = isDone || stepNumber <= completedStep;
+          const isCurrent = !isDone && stepNumber === activeStep;
+          const isLast = index === orderSteps.length - 1;
 
           return (
             <div key={step.title} className="relative flex gap-3 pb-5 last:pb-0">
@@ -51,12 +53,14 @@ export const OrderTimeline = ({ order }: OrderTimelineProps) => {
                 {isCompleted ? <AiOutlineCheck /> : <AiOutlineClockCircle />}
               </span>
               <div className="min-w-0 flex-1 pt-0.5">
-                <p className={`text-sm font-extrabold ${stepNumber <= currentStep || isDone ? "text-text-main" : "text-text-muted"}`}>
+                <p className={`text-sm font-extrabold ${isCompleted || isCurrent ? "text-text-main" : "text-text-muted"}`}>
                   {step.title}
                 </p>
                 <p className="mt-1 text-xs font-semibold leading-5 text-text-muted">
                   {stepNumber === 1
-                    ? `Đơn được tạo ngày ${formatDate(order.created_at)}`
+                    ? isCompleted
+                      ? "Shop đã xác nhận đơn hàng"
+                      : `Đơn được tạo ngày ${formatDate(order.created_at)}`
                     : isCurrent
                       ? "Trạng thái hiện tại của đơn"
                       : isCompleted

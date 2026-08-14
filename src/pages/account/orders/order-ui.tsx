@@ -28,6 +28,7 @@ export const ORDER_STATUS_LABELS: Record<CustomerOrderStatus, string> = {
 export const getOrderStatusLabel = (order: CustomerOrder) => {
   if (order.status === "cancelled" || order.status === "canceled") return ORDER_STATUS_LABELS.cancelled;
   if (order.status === "done" || order.status === "completed") return ORDER_STATUS_LABELS.done;
+  if (order.status === "pending" && order.payment_status === "pending" && order.deposit_amount > 0) return "Đang xác nhận cọc";
   if (order.status === "pending" && order.payment_status === "pending") return "Chờ đặt cọc";
   if (order.status === "awaiting_confirmation" || (order.status === "pending" && order.payment_status === "paid")) return "Chờ xác nhận";
   return ORDER_STATUS_LABELS[order.status] ?? "Đang xử lý";
@@ -87,6 +88,16 @@ export const getOrderStatusTone = (order: CustomerOrder) => {
     };
   }
 
+  if (order.status === "confirmed") {
+    return {
+      rail: "bg-[#FB7185]",
+      surface: "bg-[#FFF1F2]",
+      text: "text-[#9F1239]",
+      ring: "ring-[#FDA4AF]",
+      softBorder: "border-[#FDA4AF]",
+    };
+  }
+
   if (order.status === "pending" && order.payment_status === "pending") {
     return {
       rail: "bg-[#F59E0B]",
@@ -114,6 +125,24 @@ export const getOrderStep = (order?: CustomerOrder) => {
   return 1;
 };
 
+export const getOrderActiveStep = (order?: CustomerOrder) => {
+  if (!order) return 1;
+  if (order.status === "cancelled" || order.status === "canceled") return undefined;
+  if (order.status === "done" || order.status === "completed") return undefined;
+  if (order.status === "confirmed") return undefined;
+  if (order.status === "shipping" || order.status === "delivering") return 3;
+  if (order.status === "making") return 2;
+  return 1;
+};
+
+export const getOrderCompletedStep = (order?: CustomerOrder) => {
+  if (!order) return 0;
+  if (order.status === "done" || order.status === "completed") return 4;
+  if (order.status === "shipping" || order.status === "delivering") return 2;
+  if (order.status === "making" || order.status === "confirmed") return 1;
+  return 0;
+};
+
 export const ORDER_STEPS = [
   { title: "Chờ xác nhận", icon: <AiOutlineCheck /> },
   { title: "Đang làm", icon: <AiOutlineTool /> },
@@ -124,7 +153,21 @@ export const ORDER_STEPS = [
 export const getOrderProgressSteps = (order?: CustomerOrder) => {
   if (order?.status === "pending" && order.payment_status === "pending") {
     return [
-      { title: "Chờ cọc", icon: <AiOutlineClockCircle /> },
+      { title: order.deposit_amount > 0 ? "Xác nhận cọc" : "Chờ cọc", icon: <AiOutlineClockCircle /> },
+      ...ORDER_STEPS.slice(1),
+    ];
+  }
+
+  if (
+    order?.status === "confirmed" ||
+    order?.status === "making" ||
+    order?.status === "shipping" ||
+    order?.status === "delivering" ||
+    order?.status === "done" ||
+    order?.status === "completed"
+  ) {
+    return [
+      { title: "Đã xác nhận", icon: <AiOutlineCheck /> },
       ...ORDER_STEPS.slice(1),
     ];
   }

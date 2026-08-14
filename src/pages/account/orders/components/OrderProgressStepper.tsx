@@ -1,17 +1,19 @@
 import { motion } from "motion/react";
 import { CustomerOrder } from "types";
-import { getOrderProgressSteps, getOrderStep } from "../order-ui";
+import { getOrderActiveStep, getOrderCompletedStep, getOrderProgressSteps } from "../order-ui";
 
 interface OrderProgressStepperProps {
   order?: CustomerOrder;
 }
 
 export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
-  const currentStep = getOrderStep(order);
+  const activeStep = getOrderActiveStep(order);
+  const completedStep = getOrderCompletedStep(order);
   const orderSteps = getOrderProgressSteps(order);
   const isCancelled = order?.status === "cancelled" || order?.status === "canceled";
   const isDone = order?.status === "done" || order?.status === "completed";
-  const progressPercent = `${((currentStep - 1) / (orderSteps.length - 1)) * 100}%`;
+  const progressStep = activeStep ?? completedStep;
+  const progressPercent = `${((Math.max(progressStep, 1) - 1) / (orderSteps.length - 1)) * 100}%`;
 
   if (isCancelled) {
     return (
@@ -35,8 +37,8 @@ export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
       <div className="relative flex items-start">
         {orderSteps.map((step, index) => {
           const stepNumber = index + 1;
-          const isCompleted = stepNumber < currentStep || isDone;
-          const isActive = stepNumber === currentStep && !isDone;
+          const isCompleted = stepNumber <= completedStep || isDone;
+          const isActive = stepNumber === activeStep && !isDone;
 
           return (
             <div key={step.title} className="relative flex flex-1 flex-col items-center">
@@ -58,7 +60,7 @@ export const OrderProgressStepper = ({ order }: OrderProgressStepperProps) => {
                   step.icon
                 )}
               </div>
-              <p className={`mt-2 max-w-[76px] text-center text-[10px] font-bold leading-4 ${stepNumber <= currentStep ? "text-text-main" : "text-text-muted"}`}>
+              <p className={`mt-2 max-w-[76px] text-center text-[10px] font-bold leading-4 ${isCompleted || isActive ? "text-text-main" : "text-text-muted"}`}>
                 {step.title}
               </p>
             </div>

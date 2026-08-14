@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getLocation, getUserInfo } from "zmp-sdk/apis";
-import { AiOutlineDelete, AiOutlineShoppingCart } from "react-icons/ai";
+import { AiOutlineCheckCircle, AiOutlineDelete, AiOutlineShoppingCart } from "react-icons/ai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ConfirmDialog, Emptier, Spinner } from "components/ui";
@@ -47,6 +47,7 @@ interface DepositSuccessState {
   finalPrice: number;
   depositAmount: number;
   remainingAmount: number;
+  paymentStatus: "pending" | "paid";
 }
 
 const toOptionalNumber = (value: unknown) => {
@@ -225,6 +226,7 @@ export const CartPage = () => {
       let checkoutOrderId: string | undefined;
       let checkoutTransactionId: string | undefined;
       let checkoutMessageToken: string | undefined;
+      let checkoutPaymentStatus: "pending" | "paid" = "paid";
 
       if (checkoutAmount > 0) {
         try {
@@ -262,7 +264,8 @@ export const CartPage = () => {
           checkoutOrderId = checkoutOrder.orderId;
           checkoutTransactionId = checkoutOrder.transId;
           checkoutMessageToken = checkoutOrder.messageToken;
-          hasCompletedCheckout = true;
+          checkoutPaymentStatus = checkoutOrder.paymentStatus ?? "paid";
+          hasCompletedCheckout = checkoutPaymentStatus === "paid";
         } catch (checkoutErr) {
           if (isZaloCheckoutCancelledError(checkoutErr)) {
             showErrorToast(CHECKOUT_CANCELLED_COPY);
@@ -286,7 +289,7 @@ export const CartPage = () => {
         zalo_user_id: zaloUserId,
         promotion_id: canUseSelectedPromotion ? selectedPromotionId : undefined,
         payment_type: "deposit",
-        payment_status: "paid",
+        payment_status: checkoutPaymentStatus,
         deposit_rate: CART_DEPOSIT_RATE,
         deposit_amount: checkoutAmount,
         remaining_amount: remainingAmount,
@@ -305,12 +308,17 @@ export const CartPage = () => {
         finalPrice,
         depositAmount: checkoutAmount,
         remainingAmount,
+        paymentStatus: checkoutPaymentStatus,
       });
       clearCart();
       reset();
       setDeliveryLocation(null);
       setIsSuccessVisible(true);
-      showSuccessToast("Đặt cọc thành công, đơn đang chờ shop xác nhận.");
+      showSuccessToast(
+        checkoutPaymentStatus === "paid"
+          ? "Đặt cọc thành công, đơn đang chờ shop xác nhận."
+          : "Shop đã ghi nhận đơn và đang chờ Zalo xác nhận giao dịch.",
+      );
     } catch (err) {
       const paymentError = err instanceof Error ? err : new Error("Thanh toán thất bại");
 
@@ -354,24 +362,48 @@ export const CartPage = () => {
 
   return (
     <main
-      className="bg-background-main px-5 pt-4"
+      className="min-h-screen bg-background-main px-5 pt-4"
       style={{ paddingBottom: "calc(112px + var(--zaui-safe-area-inset-bottom, 0px))" }}
     >
-      <header className="mb-5 rounded-[28px] bg-white p-4 shadow-[0_12px_30px_rgba(51,39,42,0.08)] ring-1 ring-text-main/5">
-        <div className="flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-text-muted">Giỏ hàng</p>
-            <h1 className="mt-1 font-heading text-3xl font-extrabold text-title-text">Đơn hàng của bạn</h1>
-          </div>
-          <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-3xl bg-primary/50 text-center">
-            <span className="font-heading text-xl font-extrabold leading-none text-title-text">{items.length}</span>
-            <span className="mt-1 text-[10px] font-bold uppercase text-text-muted">món</span>
+      <header className="mb-4 overflow-hidden rounded-[30px] bg-title-text text-white shadow-[0_16px_36px_rgba(51,39,42,0.16)]">
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-white/60">Giỏ hàng</p>
+              <h1 className="mt-1 font-heading text-[30px] font-extrabold leading-9">Đặt cọc đơn hàng</h1>
+            </div>
+            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-3xl bg-white/12 text-center ring-1 ring-white/15">
+              <span className="font-heading text-xl font-extrabold leading-none">{items.length}</span>
+              <span className="mt-1 text-[10px] font-bold uppercase text-white/55">món</span>
+            </div>
           </div>
         </div>
-        <p className="mt-3 text-sm font-semibold leading-6 text-text-muted">
-          Kiểm tra sản phẩm, chọn voucher và điền thông tin nhận hàng giúp shop bạn nhé.
-        </p>
+        <div className="grid grid-cols-2 border-t border-white/10 bg-white/5">
+          <div className="p-4">
+            <p className="text-[11px] font-bold uppercase text-white/50">Cọc hôm nay</p>
+            <p className="mt-1 font-heading text-xl font-extrabold">{formatPrice(depositAmount)}</p>
+          </div>
+          <div className="border-l border-white/10 p-4">
+            <p className="text-[11px] font-bold uppercase text-white/50">Còn lại</p>
+            <p className="mt-1 font-heading text-xl font-extrabold">{formatPrice(remainingAmount)}</p>
+          </div>
+        </div>
       </header>
+
+      <div className="mb-4 rounded-3xl border border-primary/70 bg-white/80 p-3 shadow-sm">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#DCFCE7] text-lg text-[#166534]">
+            <AiOutlineCheckCircle />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-extrabold text-text-main">Shop chỉ thu cọc trước</p>
+            <p className="mt-0.5 text-xs font-semibold leading-5 text-text-muted">
+              Cọc tối thiểu {formatPrice(CART_MIN_DEPOSIT_AMOUNT)}, tối đa {formatPrice(CART_MAX_DEPOSIT_AMOUNT)}.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <CartSection
         items={items}
         handleRemoveItem={handleRemoveItem}
@@ -413,16 +445,20 @@ export const CartPage = () => {
       />
 
       <div
-        className="fixed inset-x-0 bottom-0 z-[998] border-t border-text-main/5 bg-white px-5 pt-3 shadow-[0_-10px_30px_rgba(51,39,42,0.08)]"
+        className="fixed inset-x-0 bottom-0 z-[998] border-t border-text-main/5 bg-white/95 px-5 pt-3 shadow-[0_-12px_34px_rgba(51,39,42,0.12)] backdrop-blur"
         style={{ paddingBottom: "calc(16px + var(--zaui-safe-area-inset-bottom, 0px))" }}
       >
+        <div className="mb-2 flex items-center justify-between gap-3 text-xs">
+          <span className="font-bold text-text-muted">Số tiền cọc</span>
+          <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(depositAmount)}</span>
+        </div>
         <button
           type="button"
           onClick={handleFormSubmit(handleSubmit)}
           disabled={!canSubmit || isPending || isCheckingOut}
-          className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-primary px-4 text-base font-extrabold text-text-main disabled:bg-text-muted disabled:text-white"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-title-text px-4 text-base font-extrabold text-white disabled:bg-text-muted disabled:text-white"
         >
-          {isPending || isCheckingOut ? <Spinner label="Đang đặt cọc..." variant="inline" /> : `Xác nhận đặt cọc`}
+          {isPending || isCheckingOut ? <Spinner label="Đang đặt cọc..." variant="inline" /> : "Xác nhận đặt cọc"}
         </button>
       </div>
 
@@ -433,6 +469,7 @@ export const CartPage = () => {
         finalPrice={depositSuccess?.finalPrice ?? 0}
         depositAmount={depositSuccess?.depositAmount ?? 0}
         remainingAmount={depositSuccess?.remainingAmount ?? 0}
+        paymentStatus={depositSuccess?.paymentStatus ?? "paid"}
         onClose={() => setIsSuccessVisible(false)}
         onViewOrder={() => {
           if (!depositSuccess?.orderId) return;

@@ -9,6 +9,7 @@ interface DepositSuccessModalProps {
   finalPrice: number;
   depositAmount: number;
   remainingAmount: number;
+  paymentStatus: "pending" | "paid";
   onViewOrder: () => void;
   onContactShop: () => void;
   onContinueShopping: () => void;
@@ -26,11 +27,14 @@ export const DepositSuccessModal = ({
   finalPrice,
   depositAmount,
   remainingAmount,
+  paymentStatus,
   onViewOrder,
   onContactShop,
   onContinueShopping,
   onClose,
 }: DepositSuccessModalProps) => {
+  const isPaid = paymentStatus === "paid";
+
   return (
     <Modal
       visible={visible}
@@ -51,13 +55,15 @@ export const DepositSuccessModal = ({
               <AiOutlineCheckCircle />
             </div>
             <p className="mt-4 text-xs font-extrabold uppercase tracking-[0.12em] text-text-muted">
-              Đặt cọc thành công
+              {isPaid ? "Đặt cọc thành công" : "Đang kiểm tra giao dịch"}
             </p>
             <h2 className="mt-1 font-heading text-2xl font-extrabold leading-8 text-title-text">
-              Shop đã nhận đơn của bạn
+              {isPaid ? "Shop đã nhận đơn của bạn" : "Shop đã ghi nhận đơn của bạn"}
             </h2>
             <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
-              Yenni Crochet sẽ kiểm tra lịch làm và liên hệ xác nhận sớm nhất nhé.
+              {isPaid
+                ? "Yenni Crochet sẽ kiểm tra lịch làm và liên hệ xác nhận sớm nhất nhé."
+                : "Zalo đang xác nhận kết quả chuyển khoản. Khi giao dịch hoàn tất, đơn sẽ tự chuyển sang trạng thái chờ shop xác nhận."}
             </p>
           </div>
 
@@ -77,7 +83,7 @@ export const DepositSuccessModal = ({
             <div className="mt-3 grid grid-cols-2 gap-2">
               <SummaryCell label="Số món" value={`${itemCount} món`} />
               <SummaryCell label="Tổng đơn" value={formatPrice(finalPrice)} />
-              <SummaryCell label="Đã cọc" value={formatPrice(depositAmount)} strong />
+              <SummaryCell label={isPaid ? "Đã cọc" : "Đang xác nhận"} value={isPaid ? formatPrice(depositAmount) : "Chờ Zalo"} strong />
               <SummaryCell label="Còn lại" value={formatPrice(remainingAmount)} />
             </div>
           </div>

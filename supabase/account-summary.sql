@@ -131,9 +131,15 @@ as $$
         where coalesce(orders.payment_status, 'pending') in ('pending', 'paid')
       )::bigint as pending_orders,
       count(*) filter (
-        where orders.payment_status = 'paid'
+        where coalesce(orders.deposit_amount, 0) > 0
+          and coalesce(orders.payment_status, 'pending') not in ('failed', 'refunded')
       )::bigint as paid_orders,
-      coalesce(sum(coalesce(orders.deposit_amount, 0)), 0)::numeric as total_deposit_amount,
+      coalesce(
+        sum(coalesce(orders.deposit_amount, 0)) filter (
+          where coalesce(orders.payment_status, 'pending') not in ('failed', 'refunded')
+        ),
+        0
+      )::numeric as total_deposit_amount,
       max(orders.created_at) as latest_order_at
     from orders
     where orders.zalo_user_id = trim(p_zalo_user_id)

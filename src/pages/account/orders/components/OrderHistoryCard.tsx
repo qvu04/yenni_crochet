@@ -16,6 +16,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
   const totalQuantity = order.items.reduce((total, item) => total + item.quantity, 0);
   const statusTone = getOrderStatusTone(order);
   const hasDeposit = order.deposit_amount > 0;
+  const depositLabel = order.payment_status === "paid" ? "Đã cọc" : "Đang xác nhận cọc";
 
   return (
     <button
@@ -45,14 +46,14 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
           {hasDeposit && (
             <>
               <span className="h-1 w-1 rounded-full bg-text-muted/40" />
-              <span>Đã cọc {formatPrice(order.deposit_amount)}</span>
+              <span>{depositLabel} {formatPrice(order.deposit_amount)}</span>
             </>
           )}
         </div>
 
         <div className={`mt-4 grid grid-cols-2 gap-2 rounded-2xl ${statusTone.surface} p-2.5`}>
           <div>
-            <p className={`text-[11px] font-bold ${statusTone.text}`}>Đặt cọc</p>
+            <p className={`text-[11px] font-bold ${statusTone.text}`}>{depositLabel}</p>
             <p className="mt-0.5 text-sm font-extrabold text-text-main">
               {formatPrice(order.deposit_amount)}
             </p>
