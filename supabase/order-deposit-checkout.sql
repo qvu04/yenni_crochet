@@ -272,6 +272,14 @@ begin
     raise exception 'Tiền cọc vượt quá tổng đơn';
   end if;
 
+  if v_payment_type = 'full' then
+    v_deposit_amount := v_final_price;
+    v_remaining_amount := 0;
+  elsif v_payment_type = 'none' then
+    v_deposit_amount := 0;
+    v_remaining_amount := v_final_price;
+  end if;
+
   if v_remaining_amount <> v_final_price - v_deposit_amount then
     v_remaining_amount := greatest(v_final_price - v_deposit_amount, 0);
   end if;
@@ -317,7 +325,11 @@ begin
     v_final_price,
     v_payment_type,
     v_payment_status,
-    p_deposit_rate,
+    case
+      when v_payment_type = 'full' then 1
+      when v_payment_type = 'none' then 0
+      else p_deposit_rate
+    end,
     v_deposit_amount,
     v_remaining_amount,
     nullif(trim(coalesce(p_checkout_order_id, '')), ''),

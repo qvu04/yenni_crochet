@@ -297,13 +297,22 @@ Deno.serve(async (req) => {
       }
     }
 
+    const paymentTypeLabel = order.payment_type === "full" ? "Thanh toán toàn bộ" : "Đặt cọc";
+    const paidAmountLabel = order.payment_type === "full" ? "Đã thanh toán" : "Tiền cọc";
+    const paymentStatusLabel = order.payment_status === "paid"
+      ? order.payment_type === "full"
+        ? "Đã thanh toán"
+        : "Đã cọc"
+      : escapeHtml(order.payment_status || "pending");
+
     const rows: [string, string][] = [
       ["Sản phẩm", productSummary || escapeHtml(productName)],
       ["Tạm tính", totalText || "—"],
       ["Giảm giá", order.discount_amount != null ? `-${formatPrice(Number(order.discount_amount))}` : "—"],
       ["Tổng đơn", finalText || totalText || "—"],
-      ["Trạng thái thanh toán", order.payment_status === "paid" ? "Đã cọc" : escapeHtml(order.payment_status || "pending")],
-      ["Tiền cọc", order.deposit_amount != null ? formatPrice(Number(order.deposit_amount)) : "—"],
+      ["Hình thức thanh toán", paymentTypeLabel],
+      ["Trạng thái thanh toán", paymentStatusLabel],
+      [paidAmountLabel, order.deposit_amount != null ? formatPrice(Number(order.deposit_amount)) : "—"],
       ["Còn lại", order.remaining_amount != null ? formatPrice(Number(order.remaining_amount)) : "—"],
       ["Mã Checkout Zalo", order.checkout_order_id ? escapeHtml(order.checkout_order_id) : "—"],
       ["Khách hàng", escapeHtml(order.customer_name)],

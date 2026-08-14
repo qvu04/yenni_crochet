@@ -36,7 +36,7 @@ interface CheckoutOrderResult {
   orderId: string;
   messageToken?: string;
   transId?: string;
-  paymentStatus?: "paid" | "pending";
+  paymentStatus?: "paid";
 }
 
 interface CheckoutTransactionResult {
@@ -67,8 +67,9 @@ const getRuntimeMiniAppId = () => {
 };
 
 const CHECKOUT_RESULT_TIMEOUT_MS = 5 * 60 * 1000;
-const CHECKOUT_PENDING_SETTLE_MS = 30 * 1000;
+const CHECKOUT_PENDING_SETTLE_MS = 8 * 1000;
 const CHECKOUT_PENDING_RETRY_MS = 1500;
+const CHECKOUT_PENDING_COPY = "Zalo chưa xác nhận thanh toán thành công, shop sẽ chưa ghi nhận đơn lúc này.";
 
 const getFunctionErrorMessage = async (error: unknown) => {
   const functionError = error as FunctionErrorWithContext;
@@ -122,7 +123,7 @@ const waitForSuccessfulPayment = () => {
 
             if (Date.now() - pendingStartedAt >= CHECKOUT_PENDING_SETTLE_MS) {
               cleanup();
-              resolve({ ...transaction, resultCode: 0 });
+              reject(new Error(transaction.msg || CHECKOUT_PENDING_COPY));
               return;
             }
 
@@ -226,7 +227,7 @@ export const createZaloCheckoutOrder = async ({
     return {
       ...checkoutOrder,
       transId: transaction.transId || checkoutOrder.transId,
-      paymentStatus: transaction.resultCode === 1 ? "paid" as const : "pending" as const,
+      paymentStatus: "paid" as const,
     };
   } catch (err) {
     paymentResult.cleanup();

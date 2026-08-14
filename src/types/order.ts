@@ -29,6 +29,8 @@ export interface CreateOrderInput {
   delivery_location_token?: string;
 }
 
+export type OrderPaymentType = "deposit" | "full" | "none";
+
 export type CustomerOrderStatus =
   | "pending"
   | "awaiting_confirmation"

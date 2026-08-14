@@ -28,6 +28,7 @@ export const ORDER_STATUS_LABELS: Record<CustomerOrderStatus, string> = {
 export const getOrderStatusLabel = (order: CustomerOrder) => {
   if (order.status === "cancelled" || order.status === "canceled") return ORDER_STATUS_LABELS.cancelled;
   if (order.status === "done" || order.status === "completed") return ORDER_STATUS_LABELS.done;
+  if (order.status === "pending" && order.payment_status === "pending" && order.payment_type === "full") return "Đang xác nhận thanh toán";
   if (order.status === "pending" && order.payment_status === "pending" && order.deposit_amount > 0) return "Đang xác nhận cọc";
   if (order.status === "pending" && order.payment_status === "pending") return "Chờ đặt cọc";
   if (order.status === "awaiting_confirmation" || (order.status === "pending" && order.payment_status === "paid")) return "Chờ xác nhận";
@@ -153,7 +154,7 @@ export const ORDER_STEPS = [
 export const getOrderProgressSteps = (order?: CustomerOrder) => {
   if (order?.status === "pending" && order.payment_status === "pending") {
     return [
-      { title: order.deposit_amount > 0 ? "Xác nhận cọc" : "Chờ cọc", icon: <AiOutlineClockCircle /> },
+      { title: order.payment_type === "full" ? "Xác nhận thanh toán" : order.deposit_amount > 0 ? "Xác nhận cọc" : "Chờ cọc", icon: <AiOutlineClockCircle /> },
       ...ORDER_STEPS.slice(1),
     ];
   }

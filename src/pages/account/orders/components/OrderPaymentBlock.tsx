@@ -6,7 +6,9 @@ interface OrderPaymentBlockProps {
 }
 
 export const OrderPaymentBlock = ({ order }: OrderPaymentBlockProps) => {
-  const depositLabel = order.payment_status === "paid" ? "Đã cọc" : "Cọc đang xác nhận";
+  const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã cọc";
+  const pendingLabel = order.payment_type === "full" ? "Thanh toán đang xác nhận" : "Cọc đang xác nhận";
+  const paymentLabel = order.payment_status === "paid" ? paidLabel : pendingLabel;
 
   return (
     <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-text-main/5">
@@ -30,7 +32,7 @@ export const OrderPaymentBlock = ({ order }: OrderPaymentBlockProps) => {
         </div>
         <div className="grid grid-cols-2 gap-2 pt-1">
           <div className="rounded-2xl bg-primary/20 p-3">
-            <p className="text-xs font-bold text-text-muted">{depositLabel}</p>
+            <p className="text-xs font-bold text-text-muted">{paymentLabel}</p>
             <p className="mt-1 font-extrabold text-text-main">{formatPrice(order.deposit_amount)}</p>
           </div>
           <div className="rounded-2xl bg-background-main p-3">

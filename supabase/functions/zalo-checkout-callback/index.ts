@@ -164,7 +164,7 @@ const updateOrderPayment = async (data: CheckoutCallbackData) => {
 
   const paymentStatus = getPaymentStatus(data.resultCode);
   const orderRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/orders?checkout_order_id=eq.${encodeURIComponent(data.orderId)}&select=id,final_price`,
+    `${SUPABASE_URL}/rest/v1/orders?checkout_order_id=eq.${encodeURIComponent(data.orderId)}&select=id,final_price,payment_type,deposit_amount`,
     {
       headers: serviceRoleHeaders,
     },
@@ -182,8 +182,9 @@ const updateOrderPayment = async (data: CheckoutCallbackData) => {
     return { updated: false };
   }
 
-  const paidAmount = data.amount != null ? Number(data.amount) : 0;
   const finalPrice = Number(order.final_price ?? 0);
+  const fallbackPaidAmount = order.payment_type === "full" ? finalPrice : Number(order.deposit_amount ?? 0);
+  const paidAmount = data.amount != null ? Number(data.amount) : fallbackPaidAmount;
   const updatePayload = {
     payment_status: paymentStatus,
     checkout_transaction_id: data.transId ?? null,

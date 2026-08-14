@@ -13,7 +13,7 @@ export const BestSellerShowcase = ({ products }: { products: Products[] }) => {
             <button
                 type="button"
                 onClick={() => openProduct(spotlightProduct.id)}
-                className="group relative min-h-[250px] w-full overflow-hidden rounded-[30px] bg-title-text text-left shadow-[0_16px_36px_rgba(92,64,51,0.2)] active:scale-[0.99]"
+                className="group relative h-[clamp(286px,76vw,340px)] w-full overflow-hidden rounded-[30px] bg-title-text text-left shadow-[0_16px_36px_rgba(92,64,51,0.2)] active:scale-[0.99]"
             >
                 {getProductImage(spotlightProduct) ? (
                     <img
@@ -33,9 +33,9 @@ export const BestSellerShowcase = ({ products }: { products: Products[] }) => {
                     <h2 className="mt-1 line-clamp-2 font-heading text-2xl font-extrabold leading-8">
                         {spotlightProduct.name}
                     </h2>
-                    <div className="mt-3 flex items-center justify-between gap-3">
-                        <p className="font-heading text-xl font-extrabold">{formatPrice(spotlightProduct.price)}</p>
-                        <span className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold">
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                        <p className="min-w-0 font-heading text-xl font-extrabold">{formatPrice(spotlightProduct.price)}</p>
+                        <span className="shrink-0 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold">
                             {getStockLabel(spotlightProduct.stock_quantity)}
                         </span>
                     </div>
@@ -54,7 +54,7 @@ export const BestSellerShowcase = ({ products }: { products: Products[] }) => {
                                 key={product.id}
                                 type="button"
                                 onClick={() => openProduct(product.id)}
-                                className="flex w-full items-center gap-3 rounded-2xl bg-background-main/80 p-2 text-left transition active:scale-[0.99]"
+                                className="flex min-h-[76px] w-full items-center gap-3 rounded-2xl bg-background-main/80 p-2 text-left transition active:scale-[0.99]"
                             >
                                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-title-text font-heading text-sm font-extrabold text-white">
                                     #{index + 2}

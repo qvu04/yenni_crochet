@@ -63,10 +63,9 @@ export const ConfirmDialog = ({
             </Button>
             <Button
               block
-              fill="outline"
               disabled={isLoading}
               onClick={onCancel}
-              className="!rounded-2xl !border-background-main !py-3 !text-base !font-bold !text-text-main"
+              className="!rounded-2xl !border-background-main !bg-background-main !py-3 !text-base !font-bold !text-title-text [--adm-button-background-color:var(--color-background-main)] [--adm-button-border-color:var(--color-background-main)] [--adm-button-text-color:var(--color-text-title)]"
             >
               {cancelText}
             </Button>

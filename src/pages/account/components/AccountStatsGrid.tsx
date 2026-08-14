@@ -14,8 +14,8 @@ interface AccountStatsGridProps {
 
 const loadingStats = [
   "Tổng đơn hàng",
-  "Đơn đã cọc",
-  "Tiền cọc đã gửi",
+  "Đơn đã thanh toán",
+  "Tiền đã gửi",
   "Yêu cầu đặt riêng",
 ];
 
@@ -44,15 +44,15 @@ export const AccountStatsGrid = ({ summary, isLoading }: AccountStatsGridProps) 
       iconClassName: "bg-primary/60 text-title-text",
     },
     {
-      label: "Đơn đã cọc",
+      label: "Đơn đã thanh toán",
       value: summary?.paid_orders ?? 0,
       icon: <AiOutlineCheckCircle />,
-      helper: "Thanh toán cọc thành công",
+      helper: "Cọc hoặc thanh toán full",
       className: "bg-[#F0FDF4]",
       iconClassName: "bg-white text-[#166534]",
     },
     {
-      label: "Tiền cọc đã gửi",
+      label: "Tiền đã gửi",
       value: formatPrice(summary?.total_deposit_amount ?? 0),
       icon: <AiOutlineClockCircle />,
       helper: "Ghi nhận từ Checkout",

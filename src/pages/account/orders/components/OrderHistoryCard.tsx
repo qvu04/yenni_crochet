@@ -16,7 +16,9 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
   const totalQuantity = order.items.reduce((total, item) => total + item.quantity, 0);
   const statusTone = getOrderStatusTone(order);
   const hasDeposit = order.deposit_amount > 0;
-  const depositLabel = order.payment_status === "paid" ? "Đã cọc" : "Đang xác nhận cọc";
+  const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã cọc";
+  const pendingLabel = order.payment_type === "full" ? "Đang xác nhận thanh toán" : "Đang xác nhận cọc";
+  const depositLabel = order.payment_status === "paid" ? paidLabel : pendingLabel;
 
   return (
     <button

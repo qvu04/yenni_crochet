@@ -39,6 +39,16 @@ body {
   overscroll-behavior: contain;
 }
 
+.yenni-deposit-success-modal .adm-center-popup-wrap {
+  width: calc(100vw - 20px);
+  min-width: 0;
+  max-width: 430px;
+}
+
+.yenni-deposit-success-modal .adm-center-popup-body {
+  width: 100%;
+}
+
 h1,
 h2,
 h3,

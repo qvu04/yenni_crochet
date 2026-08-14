@@ -20,7 +20,7 @@ export const AccountOrderTrackerCard = ({ summary }: AccountOrderTrackerCardProp
             <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-white/60">Theo dõi đơn</p>
             <h2 className="mt-1 font-heading text-2xl font-extrabold leading-8">Đơn hàng của bạn</h2>
             <p className="mt-2 text-sm font-semibold leading-6 text-white/72">
-              Xem trạng thái cọc, lịch làm và tiến độ giao của từng đơn đã gửi cho Yenni.
+              Xem trạng thái thanh toán, lịch làm và tiến độ giao của từng đơn đã gửi cho Yenni.
             </p>
           </div>
           <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[22px] bg-white/15 text-2xl">
@@ -37,12 +37,12 @@ export const AccountOrderTrackerCard = ({ summary }: AccountOrderTrackerCardProp
           <div className="rounded-2xl bg-white/12 p-3">
             <AiOutlineCheckCircle className="text-xl text-[#86EFAC]" />
             <p className="mt-2 font-heading text-xl font-extrabold leading-none">{paidOrders}</p>
-            <p className="mt-1 text-[10px] font-bold leading-4 text-white/65">đơn đã cọc</p>
+            <p className="mt-1 text-[10px] font-bold leading-4 text-white/65">đơn đã trả</p>
           </div>
           <div className="rounded-2xl bg-white/12 p-3">
             <span className="text-lg font-extrabold text-[#FDE68A]">₫</span>
             <p className="mt-2 break-words font-heading text-sm font-extrabold leading-5">{formatPrice(totalDepositAmount)}</p>
-            <p className="mt-1 text-[10px] font-bold leading-4 text-white/65">tiền cọc</p>
+            <p className="mt-1 text-[10px] font-bold leading-4 text-white/65">tiền đã gửi</p>
           </div>
         </div>
       </div>

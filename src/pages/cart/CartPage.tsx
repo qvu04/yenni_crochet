@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getLocation, getUserInfo } from "zmp-sdk/apis";
-import { AiOutlineCheckCircle, AiOutlineDelete, AiOutlineShoppingCart } from "react-icons/ai";
+import { AiOutlineDelete, AiOutlineShoppingCart } from "react-icons/ai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ConfirmDialog, Emptier, Spinner } from "components/ui";
@@ -12,6 +12,7 @@ import { createZaloCheckoutOrder, isZaloCheckoutCancelledError } from "services/
 import { getZaloLocationFromToken } from "services";
 import { CartCheckoutInput, CartCheckoutSchema } from "schemas";
 import { useCartStore, getCartSubtotal } from "stores/cart";
+import { OrderPaymentType } from "types";
 import { calculateDepositAmount, calculatePromotionDiscount, DEFAULT_DEPOSIT_RATE, DEFAULT_MAX_DEPOSIT_AMOUNT, DEFAULT_MIN_DEPOSIT_AMOUNT, formatPrice, handleAppError, showErrorToast, showSuccessToast } from "utils";
 import {
   CartPromotionSection,
@@ -25,7 +26,7 @@ const REMOVE_ITEM_LOADING_DELAY = 500;
 const CART_DEPOSIT_RATE = DEFAULT_DEPOSIT_RATE;
 const CART_MIN_DEPOSIT_AMOUNT = DEFAULT_MIN_DEPOSIT_AMOUNT;
 const CART_MAX_DEPOSIT_AMOUNT = DEFAULT_MAX_DEPOSIT_AMOUNT;
-const CHECKOUT_CANCELLED_COPY = "Bạn vừa hủy đặt cọc, hiện tại shop sẽ chưa tiến hành xác nhận đơn hàng.";
+const CHECKOUT_CANCELLED_COPY = "Thanh toán chưa hoàn tất nên shop chưa ghi nhận đơn hàng. Bạn có thể kiểm tra lại giỏ và thanh toán khi sẵn sàng.";
 
 interface DeliveryLocation {
   latitude?: number;
@@ -48,6 +49,7 @@ interface DepositSuccessState {
   depositAmount: number;
   remainingAmount: number;
   paymentStatus: "pending" | "paid";
+  paymentType: Extract<OrderPaymentType, "deposit" | "full">;
 }
 
 const toOptionalNumber = (value: unknown) => {
@@ -72,6 +74,7 @@ export const CartPage = () => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [deliveryLocation, setDeliveryLocation] = useState<DeliveryLocation | null>(null);
   const [depositSuccess, setDepositSuccess] = useState<DepositSuccessState | null>(null);
+  const [paymentType, setPaymentType] = useState<Extract<OrderPaymentType, "deposit" | "full">>("deposit");
   const removeItemTimeoutRef = useRef<number>();
   const {
     register,
@@ -125,6 +128,10 @@ export const CartPage = () => {
   const finalPrice = canUseSelectedPromotion ? selectedPromotionPreview.finalPrice : subtotal;
   const depositAmount = calculateDepositAmount(finalPrice, CART_DEPOSIT_RATE, CART_MAX_DEPOSIT_AMOUNT, CART_MIN_DEPOSIT_AMOUNT);
   const remainingAmount = Math.max(0, finalPrice - depositAmount);
+  const checkoutAmount = paymentType === "full" ? finalPrice : depositAmount;
+  const checkoutRemainingAmount = paymentType === "full" ? 0 : remainingAmount;
+  const checkoutActionLabel = paymentType === "full" ? "Thanh toán toàn bộ" : "Xác nhận đặt cọc";
+  const checkoutSummaryLabel = paymentType === "full" ? "Thanh toán hôm nay" : "Số tiền cọc";
   const hasInvalidStock = items.some((item) => item.stock_quantity <= 0 || item.quantity > item.stock_quantity);
   const canSubmit = Boolean(items.length && !hasInvalidStock);
 
@@ -215,7 +222,6 @@ export const CartPage = () => {
   const submitOrder = async (values: CartCheckoutInput) => {
     if (!canSubmit || isPending || isCheckingOut) return;
 
-    const checkoutAmount = depositAmount;
     const merchantTransactionId = `cart-${Date.now()}`;
     let hasCompletedCheckout = false;
 
@@ -236,18 +242,18 @@ export const CartPage = () => {
             item: [
               {
                 id: merchantTransactionId,
-                name: "Tien coc Yenni Crochet",
+                name: paymentType === "full" ? "Thanh toan don Yenni Crochet" : "Tien coc Yenni Crochet",
                 amount: checkoutAmount,
                 quantity: 1,
               },
             ],
             extradata: {
               merchantTransactionId,
-              paymentType: "deposit",
-              depositRate: CART_DEPOSIT_RATE,
+              paymentType,
+              depositRate: paymentType === "full" ? 1 : CART_DEPOSIT_RATE,
               orderTotal: finalPrice,
               depositAmount: checkoutAmount,
-              remainingAmount,
+              remainingAmount: checkoutRemainingAmount,
               customerName: values.customer_name.trim(),
               phone: values.phone.trim(),
               deliveryLocation,
@@ -268,7 +274,7 @@ export const CartPage = () => {
           hasCompletedCheckout = checkoutPaymentStatus === "paid";
         } catch (checkoutErr) {
           if (isZaloCheckoutCancelledError(checkoutErr)) {
-            showErrorToast(CHECKOUT_CANCELLED_COPY);
+            showErrorToast(CHECKOUT_CANCELLED_COPY, { duration: 5200 });
             return;
           }
           throw checkoutErr;
@@ -288,11 +294,11 @@ export const CartPage = () => {
         note: values.note,
         zalo_user_id: zaloUserId,
         promotion_id: canUseSelectedPromotion ? selectedPromotionId : undefined,
-        payment_type: "deposit",
+        payment_type: paymentType,
         payment_status: checkoutPaymentStatus,
-        deposit_rate: CART_DEPOSIT_RATE,
+        deposit_rate: paymentType === "full" ? 1 : CART_DEPOSIT_RATE,
         deposit_amount: checkoutAmount,
-        remaining_amount: remainingAmount,
+        remaining_amount: checkoutRemainingAmount,
         checkout_order_id: checkoutOrderId,
         checkout_transaction_id: checkoutTransactionId,
         checkout_message_token: checkoutMessageToken,
@@ -307,8 +313,9 @@ export const CartPage = () => {
         itemCount: items.length,
         finalPrice,
         depositAmount: checkoutAmount,
-        remainingAmount,
+        remainingAmount: checkoutRemainingAmount,
         paymentStatus: checkoutPaymentStatus,
+        paymentType,
       });
       clearCart();
       reset();
@@ -316,7 +323,9 @@ export const CartPage = () => {
       setIsSuccessVisible(true);
       showSuccessToast(
         checkoutPaymentStatus === "paid"
-          ? "Đặt cọc thành công, đơn đang chờ shop xác nhận."
+          ? paymentType === "full"
+            ? "Thanh toán thành công, đơn đang chờ shop xác nhận."
+            : "Đặt cọc thành công, đơn đang chờ shop xác nhận."
           : "Shop đã ghi nhận đơn và đang chờ Zalo xác nhận giao dịch.",
       );
     } catch (err) {
@@ -328,7 +337,7 @@ export const CartPage = () => {
         handleAppError(paymentError, {
           component: "CartPage",
           action: "submitDepositCheckout",
-          fallback: "Đặt cọc chưa thành công, bạn thử lại giúp shop nhé.",
+          fallback: "Thanh toán chưa thành công, bạn thử lại giúp shop nhé.",
         });
       }
     } finally {
@@ -370,7 +379,7 @@ export const CartPage = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-white/60">Giỏ hàng</p>
-              <h1 className="mt-1 font-heading text-[30px] font-extrabold leading-9">Đặt cọc đơn hàng</h1>
+              <h1 className="mt-1 font-heading text-[30px] font-extrabold leading-9">Xử lý thanh toán</h1>
             </div>
             <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-3xl bg-white/12 text-center ring-1 ring-white/15">
               <span className="font-heading text-xl font-extrabold leading-none">{items.length}</span>
@@ -380,29 +389,29 @@ export const CartPage = () => {
         </div>
         <div className="grid grid-cols-2 border-t border-white/10 bg-white/5">
           <div className="p-4">
-            <p className="text-[11px] font-bold uppercase text-white/50">Cọc hôm nay</p>
-            <p className="mt-1 font-heading text-xl font-extrabold">{formatPrice(depositAmount)}</p>
+            <p className="text-[11px] font-bold uppercase text-white/50">{paymentType === "full" ? "Thanh toán" : "Cọc hôm nay"}</p>
+            <p className="mt-1 font-heading text-xl font-extrabold">{formatPrice(checkoutAmount)}</p>
           </div>
           <div className="border-l border-white/10 p-4">
             <p className="text-[11px] font-bold uppercase text-white/50">Còn lại</p>
-            <p className="mt-1 font-heading text-xl font-extrabold">{formatPrice(remainingAmount)}</p>
+            <p className="mt-1 font-heading text-xl font-extrabold">{formatPrice(checkoutRemainingAmount)}</p>
           </div>
         </div>
       </header>
 
-      <div className="mb-4 rounded-3xl border border-primary/70 bg-white/80 p-3 shadow-sm">
+      {/* <div className="mb-4 rounded-3xl border border-primary/70 bg-white/80 p-3 shadow-sm">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#DCFCE7] text-lg text-[#166534]">
             <AiOutlineCheckCircle />
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-extrabold text-text-main">Shop chỉ thu cọc trước</p>
+            <p className="text-sm font-extrabold text-text-main">Bạn có thể cọc trước hoặc thanh toán toàn bộ</p>
             <p className="mt-0.5 text-xs font-semibold leading-5 text-text-muted">
               Cọc tối thiểu {formatPrice(CART_MIN_DEPOSIT_AMOUNT)}, tối đa {formatPrice(CART_MAX_DEPOSIT_AMOUNT)}.
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <CartSection
         items={items}
@@ -442,6 +451,8 @@ export const CartPage = () => {
         promotionUnavailableReason={selectedPromotionPreview.unavailableReason}
         hasInvalidStock={hasInvalidStock}
         orderError={checkoutError ?? orderError}
+        paymentType={paymentType}
+        onPaymentTypeChange={setPaymentType}
       />
 
       <div
@@ -449,8 +460,8 @@ export const CartPage = () => {
         style={{ paddingBottom: "calc(16px + var(--zaui-safe-area-inset-bottom, 0px))" }}
       >
         <div className="mb-2 flex items-center justify-between gap-3 text-xs">
-          <span className="font-bold text-text-muted">Số tiền cọc</span>
-          <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(depositAmount)}</span>
+          <span className="font-bold text-text-muted">{checkoutSummaryLabel}</span>
+          <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(checkoutAmount)}</span>
         </div>
         <button
           type="button"
@@ -458,7 +469,7 @@ export const CartPage = () => {
           disabled={!canSubmit || isPending || isCheckingOut}
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-title-text px-4 text-base font-extrabold text-white disabled:bg-text-muted disabled:text-white"
         >
-          {isPending || isCheckingOut ? <Spinner label="Đang đặt cọc..." variant="inline" /> : "Xác nhận đặt cọc"}
+          {isPending || isCheckingOut ? <Spinner label="Đang thanh toán..." variant="inline" /> : checkoutActionLabel}
         </button>
       </div>
 
@@ -470,6 +481,7 @@ export const CartPage = () => {
         depositAmount={depositSuccess?.depositAmount ?? 0}
         remainingAmount={depositSuccess?.remainingAmount ?? 0}
         paymentStatus={depositSuccess?.paymentStatus ?? "paid"}
+        paymentType={depositSuccess?.paymentType ?? "deposit"}
         onClose={() => setIsSuccessVisible(false)}
         onViewOrder={() => {
           if (!depositSuccess?.orderId) return;
@@ -516,9 +528,20 @@ export const CartPage = () => {
       <ConfirmDialog
         visible={Boolean(submitConfirmValues)}
         icon={<AiOutlineShoppingCart />}
-        title="Xác nhận đặt cọc?"
-        description={`Bạn sẽ cọc ${formatPrice(depositAmount)} cho đơn ${items.length} sản phẩm. Shop áp dụng cọc tối thiểu ${formatPrice(CART_MIN_DEPOSIT_AMOUNT)}, tối đa ${formatPrice(CART_MAX_DEPOSIT_AMOUNT)}; phần còn lại là ${formatPrice(remainingAmount)}.`}
-        confirmText="Đặt cọc"
+        title={paymentType === "full" ? "Xác nhận thanh toán?" : "Xác nhận đặt cọc?"}
+        description={
+          <span className="space-y-2 text-left">
+            <span className="block">
+              {paymentType === "full"
+                ? `Bạn sẽ thanh toán toàn bộ ${formatPrice(finalPrice)} cho đơn ${items.length} sản phẩm. Sau khi được Zalo xác nhận, đơn sẽ chờ shop xác nhận. Bạn có thể vào phần lịch sử đơn hàng để theo dõi nhé.`
+                : `Bạn sẽ cọc ${formatPrice(depositAmount)} cho đơn ${items.length} sản phẩm. Phần còn lại là ${formatPrice(remainingAmount)}. Sau khi được Zalo xác nhận, đơn sẽ chờ shop xác nhận. Bạn có thể vào phần lịch sử đơn hàng để theo dõi nhé.`}
+            </span>
+            <span className="block rounded-2xl bg-[#FFFBEB] px-3 py-2 text-xs font-bold leading-5 text-[#92400E]">
+              Bạn nhớ lưu lại bill/chứng từ thanh toán từ ngân hàng để shop có thể hỗ trợ đối soát nhanh nếu cần thiết.
+            </span>
+          </span>
+        }
+        confirmText={paymentType === "full" ? "Thanh toán" : "Đặt cọc"}
         cancelText="Kiểm tra lại"
         isLoading={isPending || isCheckingOut}
         onCancel={() => setSubmitConfirmValues(null)}

@@ -34,6 +34,9 @@ export const getFriendlyErrorMessage = (error: unknown, fallback = "Có lỗi x�
 };
 
 type ToastVariant = "error" | "success";
+interface ToastOptions {
+  duration?: number;
+}
 
 const toastTheme: Record<ToastVariant, {
   mark: string;
@@ -69,19 +72,19 @@ const renderToastContent = (message: string, variant: ToastVariant) => {
   );
 };
 
-const showToast = (message: string, variant: ToastVariant) => {
+const showToast = (message: string, variant: ToastVariant, options: ToastOptions = {}) => {
   Toast.show({
     content: renderToastContent(message, variant),
-    duration: 2600,
+    duration: options.duration ?? (variant === "error" ? 4200 : 2800),
     maskClickable: true,
     position: "top",
   });
 };
 
-export const showErrorToast = (message: string) => {
-  showToast(message, "error");
+export const showErrorToast = (message: string, options?: ToastOptions) => {
+  showToast(message, "error", options);
 };
 
-export const showSuccessToast = (message: string) => {
-  showToast(message, "success");
+export const showSuccessToast = (message: string, options?: ToastOptions) => {
+  showToast(message, "success", options);
 };
