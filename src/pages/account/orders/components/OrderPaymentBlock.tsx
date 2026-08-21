@@ -6,9 +6,10 @@ interface OrderPaymentBlockProps {
 }
 
 export const OrderPaymentBlock = ({ order }: OrderPaymentBlockProps) => {
-  const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã cọc";
-  const pendingLabel = order.payment_type === "full" ? "Thanh toán đang xác nhận" : "Cọc đang xác nhận";
+  const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã thanh toán hôm nay";
+  const pendingLabel = order.payment_type === "full" ? "Thanh toán đang xác nhận" : "Cọc + ship đang xác nhận";
   const paymentLabel = order.payment_status === "paid" ? paidLabel : pendingLabel;
+  const payableAmount = order.final_price + order.shipping_fee;
 
   return (
     <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-text-main/5">
@@ -25,9 +26,13 @@ export const OrderPaymentBlock = ({ order }: OrderPaymentBlockProps) => {
           <span className="font-bold text-[#B91C1C]">-{formatPrice(order.discount_amount)}</span>
         </div>
         <div className="border-y border-dashed border-text-main/15 py-3">
+          <div className="mb-2 flex justify-between gap-3 text-text-muted">
+            <span>Phí ship</span>
+            <span className="font-bold text-text-main">{formatPrice(order.shipping_fee)}</span>
+          </div>
           <div className="flex justify-between gap-3">
-            <span className="font-bold text-text-main">Tổng đơn</span>
-            <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(order.final_price)}</span>
+            <span className="font-bold text-text-main">Tổng thanh toán</span>
+            <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(payableAmount)}</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 pt-1">

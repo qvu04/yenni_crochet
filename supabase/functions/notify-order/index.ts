@@ -40,6 +40,7 @@ interface OrderRecord {
   subtotal_price?: number | null;
   discount_amount?: number | null;
   final_price?: number | null;
+  shipping_fee?: number | null;
   payment_type?: string | null;
   payment_status?: string | null;
   deposit_amount?: number | null;
@@ -167,7 +168,7 @@ Deno.serve(async (req) => {
     let order = payload.record as OrderRecord;
 
     const orderRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}&select=id,product_id,quantity,customer_name,phone,address,note,created_at,subtotal_price,discount_amount,final_price,payment_type,payment_status,deposit_amount,remaining_amount,checkout_order_id,delivery_latitude,delivery_longitude,delivery_location_accuracy,delivery_location_token`,
+      `${SUPABASE_URL}/rest/v1/orders?id=eq.${order.id}&select=id,product_id,quantity,customer_name,phone,address,note,created_at,subtotal_price,discount_amount,final_price,shipping_fee,payment_type,payment_status,deposit_amount,remaining_amount,checkout_order_id,delivery_latitude,delivery_longitude,delivery_location_accuracy,delivery_location_token`,
       {
         headers: serviceRoleHeaders,
       },
@@ -298,18 +299,22 @@ Deno.serve(async (req) => {
     }
 
     const paymentTypeLabel = order.payment_type === "full" ? "Thanh toán toàn bộ" : "Đặt cọc";
-    const paidAmountLabel = order.payment_type === "full" ? "Đã thanh toán" : "Tiền cọc";
+    const paidAmountLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã thanh toán hôm nay";
+    const shippingFee = Number(order.shipping_fee ?? 0);
+    const payableText = formatPrice(Number(order.final_price ?? 0) + shippingFee);
     const paymentStatusLabel = order.payment_status === "paid"
       ? order.payment_type === "full"
         ? "Đã thanh toán"
-        : "Đã cọc"
+        : "Đã thanh toán hôm nay"
       : escapeHtml(order.payment_status || "pending");
 
     const rows: [string, string][] = [
       ["Sản phẩm", productSummary || escapeHtml(productName)],
       ["Tạm tính", totalText || "—"],
       ["Giảm giá", order.discount_amount != null ? `-${formatPrice(Number(order.discount_amount))}` : "—"],
-      ["Tổng đơn", finalText || totalText || "—"],
+      ["Tổng sản phẩm", finalText || totalText || "—"],
+      ["Phí ship", formatPrice(shippingFee)],
+      ["Tổng thanh toán", payableText],
       ["Hình thức thanh toán", paymentTypeLabel],
       ["Trạng thái thanh toán", paymentStatusLabel],
       [paidAmountLabel, order.deposit_amount != null ? formatPrice(Number(order.deposit_amount)) : "—"],

@@ -133,7 +133,7 @@ const waitForSuccessfulPayment = () => {
             return;
           default:
             cleanup();
-            reject(new Error(transaction.msg || "Bạn chưa hoàn tất thanh toán tiền cọc"));
+            reject(new Error(transaction.msg || "Bạn chưa hoàn tất thanh toán"));
             return;
         }
       } catch (err) {
@@ -189,7 +189,7 @@ export const createZaloCheckoutOrder = async ({
   extradata,
 }: CreateZaloCheckoutOrderInput) => {
   if (!getRuntimeMiniAppId()) {
-    throw new Error("Bạn cần mở app trong Zalo Mini App để thanh toán tiền cọc.");
+    throw new Error("Bạn cần mở app trong Zalo Mini App để thanh toán.");
   }
 
   const checkoutParams = {

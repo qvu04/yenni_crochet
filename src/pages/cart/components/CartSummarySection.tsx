@@ -5,6 +5,8 @@ interface CartSummarySectionProps {
   subtotal: number;
   discountAmount: number;
   finalPrice: number;
+  shippingFee: number;
+  payableAmount: number;
   depositAmount: number;
   remainingAmount: number;
   depositRate: number;
@@ -22,6 +24,8 @@ export const CartSummarySection = ({
   subtotal,
   discountAmount,
   finalPrice,
+  shippingFee,
+  payableAmount,
   depositAmount,
   remainingAmount,
   depositRate,
@@ -34,8 +38,8 @@ export const CartSummarySection = ({
   paymentType,
   onPaymentTypeChange,
 }: CartSummarySectionProps) => {
-  const checkoutLabel = paymentType === "full" ? "Thanh toán hôm nay" : "Đặt cọc";
-  const checkoutAmount = paymentType === "full" ? finalPrice : depositAmount;
+  const checkoutLabel = paymentType === "full" ? "Thanh toán hôm nay" : "Cọc + phí ship";
+  const checkoutAmount = paymentType === "full" ? payableAmount : depositAmount + shippingFee;
   const nextRemainingAmount = paymentType === "full" ? 0 : remainingAmount;
 
   return (
@@ -83,10 +87,14 @@ export const CartSummarySection = ({
           <span>Giảm giá</span>
           <span className="font-bold text-[#B91C1C]">-{formatPrice(discountAmount)}</span>
         </div>
+        <div className="flex items-center justify-between gap-3 text-text-muted">
+          <span>Phí ship mặc định</span>
+          <span className="font-bold text-text-main">{formatPrice(shippingFee)}</span>
+        </div>
         <div className="border-y border-dashed border-text-main/15 py-3">
           <div className="flex items-center justify-between gap-3">
-            <span className="font-bold text-text-main">Tổng đơn</span>
-            <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(finalPrice)}</span>
+            <span className="font-bold text-text-main">Tổng thanh toán</span>
+            <span className="font-heading text-lg font-extrabold text-title-text">{formatPrice(payableAmount)}</span>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-3xl bg-[#FFF1F2] p-3 ring-1 ring-[#FDA4AF]/60">
@@ -102,8 +110,8 @@ export const CartSummarySection = ({
 
         <p className="rounded-2xl bg-background-main/70 p-3 text-xs font-semibold leading-5 text-text-muted">
           {paymentType === "full"
-            ? "Thanh toán toàn bộ giúp đơn không còn khoản cần thu sau khi shop xác nhận."
-            : `Mức cọc là 30% và lưu ý giúp shop: tối thiểu ${formatPrice(minDepositAmount)} - tối đa ${formatPrice(maxDepositAmount)}.`}
+            ? "Thanh toán toàn bộ đã bao gồm phí ship mặc định, đơn không còn khoản cần thu sau khi shop xác nhận."
+            : `Thanh toán hôm nay gồm tiền cọc sản phẩm và phí ship ${formatPrice(shippingFee)}. Mức cọc là 30%, tối thiểu ${formatPrice(minDepositAmount)} - tối đa ${formatPrice(maxDepositAmount)}.`}
         </p>
 
         {promotionUnavailableReason && selectedPromotion && (

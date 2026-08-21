@@ -7,6 +7,7 @@ add column if not exists payment_status text not null default 'pending',
 add column if not exists deposit_rate numeric(5, 4),
 add column if not exists deposit_amount integer not null default 0,
 add column if not exists remaining_amount integer not null default 0,
+add column if not exists shipping_fee integer not null default 0,
 add column if not exists checkout_order_id text,
 add column if not exists checkout_transaction_id text,
 add column if not exists checkout_message_token text,
@@ -76,6 +77,28 @@ drop function if exists public.create_cart_order_with_promotion(
   text
 );
 
+drop function if exists public.create_cart_order_with_promotion(
+  jsonb,
+  text,
+  text,
+  text,
+  text,
+  text,
+  uuid,
+  text,
+  text,
+  numeric,
+  integer,
+  integer,
+  text,
+  text,
+  text,
+  numeric,
+  numeric,
+  numeric,
+  text
+);
+
 create or replace function public.create_cart_order_with_promotion(
   p_items jsonb,
   p_customer_name text,
@@ -89,6 +112,7 @@ create or replace function public.create_cart_order_with_promotion(
   p_deposit_rate numeric default null,
   p_deposit_amount integer default 0,
   p_remaining_amount integer default 0,
+  p_shipping_fee integer default 0,
   p_checkout_order_id text default null,
   p_checkout_transaction_id text default null,
   p_checkout_message_token text default null,
@@ -115,6 +139,8 @@ declare
   v_order_status text;
   v_deposit_amount integer := greatest(coalesce(p_deposit_amount, 0), 0);
   v_remaining_amount integer := greatest(coalesce(p_remaining_amount, 0), 0);
+  v_shipping_fee integer := greatest(coalesce(p_shipping_fee, 0), 0);
+  v_payable_amount integer := 0;
 begin
   if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'Giỏ hàng đang trống';
@@ -268,20 +294,22 @@ begin
     v_final_price := v_subtotal - v_discount_amount;
   end if;
 
-  if v_deposit_amount > v_final_price then
-    raise exception 'Tiền cọc vượt quá tổng đơn';
+  v_payable_amount := v_final_price + v_shipping_fee;
+
+  if v_deposit_amount > v_payable_amount then
+    raise exception 'Số tiền thanh toán vượt quá tổng đơn';
   end if;
 
   if v_payment_type = 'full' then
-    v_deposit_amount := v_final_price;
+    v_deposit_amount := v_payable_amount;
     v_remaining_amount := 0;
   elsif v_payment_type = 'none' then
     v_deposit_amount := 0;
-    v_remaining_amount := v_final_price;
+    v_remaining_amount := v_payable_amount;
   end if;
 
-  if v_remaining_amount <> v_final_price - v_deposit_amount then
-    v_remaining_amount := greatest(v_final_price - v_deposit_amount, 0);
+  if v_remaining_amount <> v_payable_amount - v_deposit_amount then
+    v_remaining_amount := greatest(v_payable_amount - v_deposit_amount, 0);
   end if;
 
   insert into orders (
@@ -296,6 +324,7 @@ begin
     subtotal_price,
     discount_amount,
     final_price,
+    shipping_fee,
     payment_type,
     payment_status,
     deposit_rate,
@@ -323,6 +352,7 @@ begin
     v_subtotal,
     v_discount_amount,
     v_final_price,
+    v_shipping_fee,
     v_payment_type,
     v_payment_status,
     case
@@ -407,6 +437,7 @@ grant execute on function public.create_cart_order_with_promotion(
   text,
   text,
   numeric,
+  integer,
   integer,
   integer,
   text,

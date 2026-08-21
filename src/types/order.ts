@@ -20,6 +20,7 @@ export interface CreateOrderInput {
   deposit_rate?: number;
   deposit_amount?: number;
   remaining_amount?: number;
+  shipping_fee?: number;
   checkout_order_id?: string;
   checkout_transaction_id?: string;
   checkout_message_token?: string;
@@ -77,6 +78,7 @@ export interface CustomerOrder {
   subtotal_price: number;
   discount_amount: number;
   final_price: number;
+  shipping_fee: number;
   deposit_amount: number;
   remaining_amount: number;
   paid_at?: string | null;

@@ -7,6 +7,8 @@ on orders(zalo_user_id, status, created_at desc);
 create index if not exists idx_order_items_order_id
 on order_items(order_id);
 
+drop function if exists public.get_user_order_history(text, text);
+
 create or replace function public.get_user_order_history(
   p_zalo_user_id text,
   p_status text default null
@@ -24,6 +26,7 @@ returns table (
   subtotal_price integer,
   discount_amount integer,
   final_price integer,
+  shipping_fee integer,
   deposit_amount integer,
   remaining_amount integer,
   paid_at timestamptz,
@@ -47,6 +50,7 @@ as $$
     coalesce(orders.subtotal_price, 0)::integer as subtotal_price,
     coalesce(orders.discount_amount, 0)::integer as discount_amount,
     coalesce(orders.final_price, 0)::integer as final_price,
+    coalesce(orders.shipping_fee, 0)::integer as shipping_fee,
     coalesce(orders.deposit_amount, 0)::integer as deposit_amount,
     coalesce(orders.remaining_amount, 0)::integer as remaining_amount,
     orders.paid_at,
@@ -91,6 +95,8 @@ as $$
   order by orders.created_at desc;
 $$;
 
+drop function if exists public.get_user_order_detail(text, uuid);
+
 create or replace function public.get_user_order_detail(
   p_zalo_user_id text,
   p_order_id uuid
@@ -108,6 +114,7 @@ returns table (
   subtotal_price integer,
   discount_amount integer,
   final_price integer,
+  shipping_fee integer,
   deposit_amount integer,
   remaining_amount integer,
   paid_at timestamptz,
@@ -135,6 +142,7 @@ as $$
     coalesce(orders.subtotal_price, 0)::integer as subtotal_price,
     coalesce(orders.discount_amount, 0)::integer as discount_amount,
     coalesce(orders.final_price, 0)::integer as final_price,
+    coalesce(orders.shipping_fee, 0)::integer as shipping_fee,
     coalesce(orders.deposit_amount, 0)::integer as deposit_amount,
     coalesce(orders.remaining_amount, 0)::integer as remaining_amount,
     orders.paid_at,

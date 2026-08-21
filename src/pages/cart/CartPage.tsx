@@ -26,6 +26,7 @@ const REMOVE_ITEM_LOADING_DELAY = 500;
 const CART_DEPOSIT_RATE = DEFAULT_DEPOSIT_RATE;
 const CART_MIN_DEPOSIT_AMOUNT = DEFAULT_MIN_DEPOSIT_AMOUNT;
 const CART_MAX_DEPOSIT_AMOUNT = DEFAULT_MAX_DEPOSIT_AMOUNT;
+const CART_DEFAULT_SHIPPING_FEE = 30000;
 const CHECKOUT_CANCELLED_COPY = "Thanh toán chưa hoàn tất nên shop chưa ghi nhận đơn hàng. Bạn có thể kiểm tra lại giỏ và thanh toán khi sẵn sàng.";
 
 interface DeliveryLocation {
@@ -46,6 +47,8 @@ interface DepositSuccessState {
   orderId: string | null;
   itemCount: number;
   finalPrice: number;
+  shippingFee: number;
+  payableAmount: number;
   depositAmount: number;
   remainingAmount: number;
   paymentStatus: "pending" | "paid";
@@ -127,11 +130,13 @@ export const CartPage = () => {
   const discountAmount = canUseSelectedPromotion ? selectedPromotionPreview.discountAmount : 0;
   const finalPrice = canUseSelectedPromotion ? selectedPromotionPreview.finalPrice : subtotal;
   const depositAmount = calculateDepositAmount(finalPrice, CART_DEPOSIT_RATE, CART_MAX_DEPOSIT_AMOUNT, CART_MIN_DEPOSIT_AMOUNT);
+  const shippingFee = CART_DEFAULT_SHIPPING_FEE;
+  const payableAmount = finalPrice + shippingFee;
   const remainingAmount = Math.max(0, finalPrice - depositAmount);
-  const checkoutAmount = paymentType === "full" ? finalPrice : depositAmount;
+  const checkoutAmount = paymentType === "full" ? payableAmount : depositAmount + shippingFee;
   const checkoutRemainingAmount = paymentType === "full" ? 0 : remainingAmount;
   const checkoutActionLabel = paymentType === "full" ? "Thanh toán toàn bộ" : "Xác nhận đặt cọc";
-  const checkoutSummaryLabel = paymentType === "full" ? "Thanh toán hôm nay" : "Số tiền cọc";
+  const checkoutSummaryLabel = "Thanh toán hôm nay";
   const hasInvalidStock = items.some((item) => item.stock_quantity <= 0 || item.quantity > item.stock_quantity);
   const canSubmit = Boolean(items.length && !hasInvalidStock);
 
@@ -252,6 +257,8 @@ export const CartPage = () => {
               paymentType,
               depositRate: paymentType === "full" ? 1 : CART_DEPOSIT_RATE,
               orderTotal: finalPrice,
+              shippingFee,
+              payableAmount,
               depositAmount: checkoutAmount,
               remainingAmount: checkoutRemainingAmount,
               customerName: values.customer_name.trim(),
@@ -299,6 +306,7 @@ export const CartPage = () => {
         deposit_rate: paymentType === "full" ? 1 : CART_DEPOSIT_RATE,
         deposit_amount: checkoutAmount,
         remaining_amount: checkoutRemainingAmount,
+        shipping_fee: shippingFee,
         checkout_order_id: checkoutOrderId,
         checkout_transaction_id: checkoutTransactionId,
         checkout_message_token: checkoutMessageToken,
@@ -312,6 +320,8 @@ export const CartPage = () => {
         orderId: createdOrderId,
         itemCount: items.length,
         finalPrice,
+        shippingFee,
+        payableAmount,
         depositAmount: checkoutAmount,
         remainingAmount: checkoutRemainingAmount,
         paymentStatus: checkoutPaymentStatus,
@@ -332,7 +342,7 @@ export const CartPage = () => {
       const paymentError = err instanceof Error ? err : new Error("Thanh toán thất bại");
 
       if (hasCompletedCheckout) {
-        setCheckoutError(new Error(`Đã nhận tiền cọc nhưng tạo đơn thất bại: ${paymentError.message}`));
+        setCheckoutError(new Error(`Đã nhận thanh toán nhưng tạo đơn thất bại: ${paymentError.message}`));
       } else {
         handleAppError(paymentError, {
           component: "CartPage",
@@ -389,7 +399,7 @@ export const CartPage = () => {
         </div>
         <div className="grid grid-cols-2 border-t border-white/10 bg-white/5">
           <div className="p-4">
-            <p className="text-[11px] font-bold uppercase text-white/50">{paymentType === "full" ? "Thanh toán" : "Cọc hôm nay"}</p>
+            <p className="text-[11px] font-bold uppercase text-white/50">Thanh toán</p>
             <p className="mt-1 font-heading text-xl font-extrabold">{formatPrice(checkoutAmount)}</p>
           </div>
           <div className="border-l border-white/10 p-4">
@@ -442,6 +452,8 @@ export const CartPage = () => {
         subtotal={subtotal}
         discountAmount={discountAmount}
         finalPrice={finalPrice}
+        shippingFee={shippingFee}
+        payableAmount={payableAmount}
         depositAmount={depositAmount}
         remainingAmount={remainingAmount}
         depositRate={CART_DEPOSIT_RATE}
@@ -478,6 +490,8 @@ export const CartPage = () => {
         orderId={depositSuccess?.orderId}
         itemCount={depositSuccess?.itemCount ?? 0}
         finalPrice={depositSuccess?.finalPrice ?? 0}
+        shippingFee={depositSuccess?.shippingFee ?? 0}
+        payableAmount={depositSuccess?.payableAmount ?? 0}
         depositAmount={depositSuccess?.depositAmount ?? 0}
         remainingAmount={depositSuccess?.remainingAmount ?? 0}
         paymentStatus={depositSuccess?.paymentStatus ?? "paid"}
@@ -533,8 +547,8 @@ export const CartPage = () => {
           <span className="space-y-2 text-left">
             <span className="block">
               {paymentType === "full"
-                ? `Bạn sẽ thanh toán toàn bộ ${formatPrice(finalPrice)} cho đơn ${items.length} sản phẩm. Sau khi được Zalo xác nhận, đơn sẽ chờ shop xác nhận. Bạn có thể vào phần lịch sử đơn hàng để theo dõi nhé.`
-                : `Bạn sẽ cọc ${formatPrice(depositAmount)} cho đơn ${items.length} sản phẩm. Phần còn lại là ${formatPrice(remainingAmount)}. Sau khi được Zalo xác nhận, đơn sẽ chờ shop xác nhận. Bạn có thể vào phần lịch sử đơn hàng để theo dõi nhé.`}
+                ? `Bạn sẽ thanh toán toàn bộ ${formatPrice(payableAmount)} gồm đơn hàng và phí ship ${formatPrice(shippingFee)}. Sau khi được Zalo xác nhận, đơn sẽ chờ shop xác nhận.`
+                : `Bạn sẽ thanh toán hôm nay ${formatPrice(checkoutAmount)} gồm cọc ${formatPrice(depositAmount)} và phí ship ${formatPrice(shippingFee)}. Phần còn lại là ${formatPrice(remainingAmount)}.`}
             </span>
             <span className="block rounded-2xl bg-[#FFFBEB] px-3 py-2 text-xs font-bold leading-5 text-[#92400E]">
               Bạn nhớ lưu lại bill/chứng từ thanh toán từ ngân hàng để shop có thể hỗ trợ đối soát nhanh nếu cần thiết.

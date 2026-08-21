@@ -8,6 +8,8 @@ interface DepositSuccessModalProps {
   orderId?: string | null;
   itemCount: number;
   finalPrice: number;
+  shippingFee: number;
+  payableAmount: number;
   depositAmount: number;
   remainingAmount: number;
   paymentStatus: "pending" | "paid";
@@ -27,6 +29,8 @@ export const DepositSuccessModal = ({
   orderId,
   itemCount,
   finalPrice,
+  shippingFee,
+  payableAmount,
   depositAmount,
   remainingAmount,
   paymentStatus,
@@ -39,7 +43,7 @@ export const DepositSuccessModal = ({
   const isPaid = paymentStatus === "paid";
   const isFullPayment = paymentType === "full";
   const paidLabel = isFullPayment ? "Thanh toán thành công" : "Đặt cọc thành công";
-  const paidAmountLabel = isFullPayment ? "Đã thanh toán" : "Đã cọc";
+  const paidAmountLabel = isFullPayment ? "Đã thanh toán" : "Đã thanh toán hôm nay";
 
   return (
     <Modal
@@ -90,7 +94,9 @@ export const DepositSuccessModal = ({
 
             <div className="mt-3 grid grid-cols-2 gap-2">
               <SummaryCell label="Số món" value={`${itemCount} món`} />
-              <SummaryCell label="Tổng đơn" value={formatPrice(finalPrice)} />
+              <SummaryCell label="Sản phẩm" value={formatPrice(finalPrice)} />
+              <SummaryCell label="Phí ship" value={formatPrice(shippingFee)} />
+              <SummaryCell label="Tổng thanh toán" value={formatPrice(payableAmount)} />
               <SummaryCell label={isPaid ? paidAmountLabel : "Đang xác nhận"} value={isPaid ? formatPrice(depositAmount) : "Chờ Zalo"} strong />
               <SummaryCell label="Còn lại" value={formatPrice(remainingAmount)} />
             </div>

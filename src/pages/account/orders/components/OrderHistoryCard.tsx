@@ -16,9 +16,10 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
   const totalQuantity = order.items.reduce((total, item) => total + item.quantity, 0);
   const statusTone = getOrderStatusTone(order);
   const hasDeposit = order.deposit_amount > 0;
-  const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã cọc";
-  const pendingLabel = order.payment_type === "full" ? "Đang xác nhận thanh toán" : "Đang xác nhận cọc";
+  const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã thanh toán hôm nay";
+  const pendingLabel = order.payment_type === "full" ? "Đang xác nhận thanh toán" : "Đang xác nhận cọc + ship";
   const depositLabel = order.payment_status === "paid" ? paidLabel : pendingLabel;
+  const payableAmount = order.final_price + order.shipping_fee;
 
   return (
     <button
@@ -35,7 +36,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
               Đơn #{getShortOrderId(order.id)}
             </p>
             <p className="mt-1 font-heading text-xl font-extrabold text-title-text">
-              {formatPrice(order.final_price)}
+              {formatPrice(payableAmount)}
             </p>
           </div>
           <OrderStatusBadge order={order} />
