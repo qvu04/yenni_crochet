@@ -1,5 +1,5 @@
 import { Promotions } from 'types';
-import { formatPrice } from 'utils';
+import { formatPrice } from './common';
 
 export const formatDiscount = (promotion: Promotions) => {
     if (promotion.discount_type === "free_shipping") return "Freeship";
