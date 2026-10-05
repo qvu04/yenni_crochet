@@ -162,9 +162,16 @@ export const AccountPage = () => {
 
   return (
     <main className="min-h-screen bg-background-main pb-6">
-      <header className="px-5 pb-4 pt-5">
-        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-text-muted">Tài khoản</p>
-        <h1 className="mt-1 font-heading text-[32px] font-extrabold leading-9 text-title-text">Thông tin của bạn</h1>
+      <header className="relative mx-5 mb-4 overflow-hidden rounded-[30px] bg-[linear-gradient(135deg,#DBEAFE_0%,#E0E7FF_52%,#F5F3FF_100%)] px-5 pb-5 pt-6 shadow-[0_14px_32px_rgba(37,99,235,0.10)]">
+        <div className="pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full bg-white/55 blur-xl" />
+        <div className="relative">
+        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#3730A3]">Góc của bạn</p>
+        <h1 className="mt-1 font-heading text-[32px] font-extrabold leading-9 text-[#312E81]">Tài khoản</h1>
+        <p className="mt-2 text-sm font-semibold leading-6 text-[#4338CA]">Theo dõi đơn hàng, ưu đãi và những món bạn đã lưu.</p>
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1.5 text-xs font-extrabold text-[#3730A3]">
+          <span className="h-2 w-2 rounded-full bg-[#6366F1]" /> Khu vực cá nhân
+        </div>
+        </div>
         {/* <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
           Theo dõi nhanh đơn hàng đã gửi cho Yenni Crochet.
         </p> */}

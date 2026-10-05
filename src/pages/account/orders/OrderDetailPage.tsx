@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AiOutlineCopy, AiOutlineMessage, AiOutlineReload, AiOutlineUnorderedList } from "react-icons/ai";
 import { ConditionalRender } from "components/common";
@@ -5,6 +6,7 @@ import { EmptyCartIcon } from "components/icons";
 import { Emptier, Spinner } from "components/ui";
 import { useZaloCustomerProfile } from "hooks/useZaloCustomerProfile";
 import { useGetCustomerOrderDetail } from "queries";
+import { createZaloCheckoutSession, isZaloCheckoutCancelledError } from "services/zalo-checkout";
 import { copyToClipboard, formatDate, formatPrice, getFriendlyErrorMessage, showErrorToast, showSuccessToast } from "utils";
 import {
   OrderDeliveryBlock,
@@ -36,6 +38,45 @@ export const OrderDetailPage = () => {
   });
   const isLoadingOrder = isLoading || isLoadingProfile;
   const statusTone = order ? getOrderStatusTone(order) : undefined;
+  const [isPaying, setIsPaying] = useState(false);
+
+  const handlePayPendingOrder = async () => {
+    if (!order || !profile?.zalo_user_id || isPaying) return;
+
+    setIsPaying(true);
+    let session: Awaited<ReturnType<typeof createZaloCheckoutSession>> | null = null;
+
+    try {
+      session = await createZaloCheckoutSession({
+        amount: order.deposit_amount,
+        desc: `Thanh toan don Yenni Crochet ${order.id.slice(0, 8)}`,
+        item: [{
+          id: order.id,
+          name: order.payment_type === "full" ? "Thanh toan don Yenni Crochet" : "Tien coc Yenni Crochet",
+          amount: order.deposit_amount,
+          quantity: 1,
+        }],
+        extradata: {
+          orderId: order.id,
+          paymentType: order.payment_type,
+          amount: order.deposit_amount,
+        },
+      });
+
+      await session.paymentResultPromise;
+      showSuccessToast("Đã nhận thanh toán, đơn đang chờ shop xác nhận.");
+      await refetch();
+    } catch (error) {
+      if (isZaloCheckoutCancelledError(error)) {
+        showErrorToast("Chưa nhận được cọc hoặc tiền thanh toán. Đơn vẫn đang chờ thanh toán.");
+      } else {
+        showErrorToast(error instanceof Error ? error.message : "Chưa thanh toán được đơn hàng.");
+      }
+    } finally {
+      session?.cleanup();
+      setIsPaying(false);
+    }
+  };
 
   const handleCopyOrderId = async () => {
     if (!order?.id) return;
@@ -131,7 +172,8 @@ export const OrderDetailPage = () => {
             <OrderTimeline order={order} />
             <OrderDeliveryBlock order={order} />
             <OrderProductsBlock order={order} />
-            <OrderPaymentBlock order={order} />
+            <OrderPaymentBlock order={order} onPay={handlePayPendingOrder} isPaying={isPaying} />
+
 
             <section className="grid grid-cols-2 gap-3">
               <Link

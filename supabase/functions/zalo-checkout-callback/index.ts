@@ -1,4 +1,5 @@
 const CHECKOUT_PRIVATE_KEY = Deno.env.get("CHECKOUT_PRIVATE_KEY") ?? "";
+const ZALO_APP_ID = Deno.env.get("ZALO_APP_ID") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const CALLBACK_EVENTS_TABLE = Deno.env.get("ZALO_CHECKOUT_CALLBACK_EVENTS_TABLE") ?? "zalo_checkout_callbacks";
@@ -158,13 +159,22 @@ const persistCallback = async (payload: CheckoutCallbackPayload, isVerified: boo
 };
 
 const updateOrderPayment = async (data: CheckoutCallbackData) => {
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !data.orderId) {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !data.orderId || !ZALO_APP_ID) {
     return { updated: false };
   }
 
   const paymentStatus = getPaymentStatus(data.resultCode);
+  const callbackAmount = Number(data.amount);
+  if (!Number.isSafeInteger(callbackAmount) || callbackAmount <= 0) {
+    return { updated: false, reason: "invalid_amount" };
+  }
+
+  if (String(data.appId ?? "") !== ZALO_APP_ID) {
+    return { updated: false, reason: "invalid_app_id" };
+  }
+
   const orderRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/orders?checkout_order_id=eq.${encodeURIComponent(data.orderId)}&select=id,final_price,shipping_fee,payment_type,deposit_amount`,
+    `${SUPABASE_URL}/rest/v1/orders?checkout_order_id=eq.${encodeURIComponent(data.orderId)}&select=id,final_price,shipping_fee,payment_type,deposit_amount,payment_status,checkout_transaction_id,payment_expires_at`,
     {
       headers: serviceRoleHeaders,
     },
@@ -182,10 +192,24 @@ const updateOrderPayment = async (data: CheckoutCallbackData) => {
     return { updated: false };
   }
 
+  if (order.payment_status === "paid" || order.checkout_transaction_id === data.transId) {
+    return { updated: true, reason: "already_processed" };
+  }
+
+  if (order.payment_expires_at && new Date(order.payment_expires_at).getTime() <= Date.now()) {
+    return { updated: false, reason: "order_expired" };
+  }
+
   const finalPrice = Number(order.final_price ?? 0);
   const payableAmount = finalPrice + Number(order.shipping_fee ?? 0);
-  const fallbackPaidAmount = order.payment_type === "full" ? payableAmount : Number(order.deposit_amount ?? 0);
-  const paidAmount = data.amount != null ? Number(data.amount) : fallbackPaidAmount;
+  const expectedAmount = order.payment_type === "full"
+    ? payableAmount
+    : Number(order.deposit_amount ?? 0);
+
+  if (paymentStatus === "paid" && callbackAmount !== expectedAmount) {
+    return { updated: false, reason: "amount_mismatch" };
+  }
+
   const updatePayload = {
     payment_status: paymentStatus,
     checkout_transaction_id: data.transId ?? null,
@@ -193,8 +217,8 @@ const updateOrderPayment = async (data: CheckoutCallbackData) => {
     ...(paymentStatus === "paid"
       ? {
         status: "awaiting_confirmation",
-        deposit_amount: paidAmount,
-        remaining_amount: Math.max(payableAmount - paidAmount, 0),
+        deposit_amount: callbackAmount,
+        remaining_amount: Math.max(payableAmount - callbackAmount, 0),
       }
       : {}),
   };

@@ -13,7 +13,7 @@ export const ORDER_FILTERS: Array<{ key: CustomerOrderFilter; label: string }> =
 ];
 
 export const ORDER_STATUS_LABELS: Record<CustomerOrderStatus, string> = {
-  pending: "Chờ xác nhận",
+  pending: "Chờ thanh toán",
   awaiting_confirmation: "Chờ xác nhận",
   confirmed: "Đã xác nhận",
   making: "Đang làm",
@@ -28,9 +28,8 @@ export const ORDER_STATUS_LABELS: Record<CustomerOrderStatus, string> = {
 export const getOrderStatusLabel = (order: CustomerOrder) => {
   if (order.status === "cancelled" || order.status === "canceled") return ORDER_STATUS_LABELS.cancelled;
   if (order.status === "done" || order.status === "completed") return ORDER_STATUS_LABELS.done;
-  if (order.status === "pending" && order.payment_status === "pending" && order.payment_type === "full") return "Đang xác nhận thanh toán";
-  if (order.status === "pending" && order.payment_status === "pending" && order.deposit_amount > 0) return "Đang xác nhận cọc + ship";
-  if (order.status === "pending" && order.payment_status === "pending") return "Chờ đặt cọc";
+  if (order.status === "pending" && order.payment_status === "failed") return "Thanh toán thất bại";
+  if (order.status === "pending" && order.payment_status === "pending") return "Chờ thanh toán";
   if (order.status === "awaiting_confirmation" || (order.status === "pending" && order.payment_status === "paid")) return "Chờ xác nhận";
   return ORDER_STATUS_LABELS[order.status] ?? "Đang xử lý";
 };
@@ -154,7 +153,7 @@ export const ORDER_STEPS = [
 export const getOrderProgressSteps = (order?: CustomerOrder) => {
   if (order?.status === "pending" && order.payment_status === "pending") {
     return [
-      { title: order.payment_type === "full" ? "Xác nhận thanh toán" : order.deposit_amount > 0 ? "Xác nhận cọc + ship" : "Chờ cọc", icon: <AiOutlineClockCircle /> },
+      { title: "Chờ thanh toán", icon: <AiOutlineClockCircle /> },
       ...ORDER_STEPS.slice(1),
     ];
   }

@@ -17,7 +17,11 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
   const statusTone = getOrderStatusTone(order);
   const hasDeposit = order.deposit_amount > 0;
   const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã thanh toán hôm nay";
-  const pendingLabel = order.payment_type === "full" ? "Đang xác nhận thanh toán" : "Đang xác nhận cọc + ship";
+  const pendingLabel = order.payment_status === "pending"
+    ? "Chưa thanh toán"
+    : order.payment_type === "full"
+      ? "Đang xác nhận thanh toán"
+      : "Đang xác nhận cọc + ship";
   const depositLabel = order.payment_status === "paid" ? paidLabel : pendingLabel;
   const payableAmount = order.final_price + order.shipping_fee;
 

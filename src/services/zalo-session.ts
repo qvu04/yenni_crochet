@@ -1,5 +1,6 @@
 import { getAccessToken, getUserInfo } from "zmp-sdk/apis";
 import { ZaloCustomerProfile } from "types";
+import { authenticateZaloWithSupabase, clearZaloSupabaseAuth } from "./zalo-auth";
 
 interface ZaloUserInfo {
   id?: string;
@@ -34,13 +35,14 @@ export const getZaloSession = async ({ forceRefresh = false } = {}) => {
     getAccessToken(),
     getUserInfo({ autoRequestPermission: true }),
   ])
-    .then(([accessToken, { userInfo }]) => {
+    .then(async ([accessToken, { userInfo }]) => {
       const profile = normalizeZaloUserInfo(userInfo as ZaloUserInfo);
 
       if (!accessToken || !profile) {
         throw new Error("Chưa xác thực được tài khoản Zalo.");
       }
 
+      await authenticateZaloWithSupabase();
       cachedSession = { accessToken, profile };
       return cachedSession;
     })
@@ -59,4 +61,5 @@ export const getZaloSession = async ({ forceRefresh = false } = {}) => {
 export const clearZaloSessionCache = () => {
   cachedSession = null;
   sessionPromise = null;
+  clearZaloSupabaseAuth();
 };

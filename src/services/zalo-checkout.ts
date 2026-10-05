@@ -188,6 +188,28 @@ export const createZaloCheckoutOrder = async ({
   item,
   extradata,
 }: CreateZaloCheckoutOrderInput) => {
+  const session = await createZaloCheckoutSession({ amount, desc, item, extradata });
+
+  try {
+    const transaction = await session.paymentResultPromise;
+
+    return {
+      ...session.checkoutOrder,
+      transId: transaction.transId || session.checkoutOrder.transId,
+      paymentStatus: "paid" as const,
+    };
+  } catch (err) {
+    session.cleanup();
+    throw err;
+  }
+};
+
+export const createZaloCheckoutSession = async ({
+  amount,
+  desc,
+  item,
+  extradata,
+}: CreateZaloCheckoutOrderInput) => {
   if (!getRuntimeMiniAppId()) {
     throw new Error("Bạn cần mở app trong Zalo Mini App để thanh toán.");
   }
@@ -222,12 +244,10 @@ export const createZaloCheckoutOrder = async ({
 
     paymentResult.setCreatedOrder(checkoutOrder);
 
-    const transaction = await paymentResult.paymentResultPromise;
-
     return {
-      ...checkoutOrder,
-      transId: transaction.transId || checkoutOrder.transId,
-      paymentStatus: "paid" as const,
+      checkoutOrder,
+      paymentResultPromise: paymentResult.paymentResultPromise,
+      cleanup: paymentResult.cleanup,
     };
   } catch (err) {
     paymentResult.cleanup();

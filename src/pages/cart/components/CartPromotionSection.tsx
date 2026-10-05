@@ -23,9 +23,9 @@ export const CartPromotionSection = ({
   const hasPromotions = Boolean(promotions?.length);
 
   return (
-    <section className="mb-4 rounded-[28px] bg-white p-4 shadow-sm ring-1 ring-text-main/5">
+    <section className="mb-4 rounded-[28px] border border-[#E8D9D0] bg-[#FFF8F3] p-4 shadow-sm">
       <div className="mb-3 flex items-center gap-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-lg text-title-text">
+        <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#F5D6C8] text-lg text-[#33272A]">
           <AiOutlineGift />
         </span>
         <div>
@@ -39,13 +39,13 @@ export const CartPromotionSection = ({
       {zaloUserId && isLoading && <PromotionPickerSkeleton />}
 
       {!zaloUserId && (
-        <p className="rounded-2xl bg-background-main p-3 text-xs font-semibold leading-5 text-text-muted">
+        <p className="rounded-2xl bg-white/80 p-3 text-xs font-semibold leading-5 text-text-muted ring-1 ring-[#E8D9D0]">
           Chưa lấy được thông tin Zalo nên chưa thể tải voucher của bạn.
         </p>
       )}
 
       {zaloUserId && !isLoading && !hasPromotions && (
-        <p className="rounded-2xl bg-background-main p-3 text-xs font-semibold leading-5 text-text-muted">
+        <p className="rounded-2xl bg-white/80 p-3 text-xs font-semibold leading-5 text-text-muted ring-1 ring-[#E8D9D0]">
           Bạn chưa có voucher để đổi. Hãy nhớ kiểm tra voucher của mình để đổi và sử dụng bạn nhé.
         </p>
       )}
@@ -72,8 +72,8 @@ export const CartPromotionSection = ({
                   isUnavailable
                     ? "border-text-main/5 bg-background-main/70 text-text-muted opacity-70"
                     : isSelected
-                      ? "border-primary bg-primary/60 text-text-main shadow-sm"
-                      : "border-text-main/5 bg-background-main/70 text-text-main"
+                      ? "border-[#C96F4A] bg-[#F5D6C8] text-text-main shadow-sm"
+                      : "border-dashed border-[#E8D9D0] bg-white text-text-main"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -92,7 +92,7 @@ export const CartPromotionSection = ({
                   </span>
                 </div>
                 {unavailableReason && (
-                  <p className="mt-2 text-xs font-semibold text-[#B91C1C]">{unavailableReason}</p>
+                  <p className="mt-2 text-xs font-semibold text-[#C96F4A]">{unavailableReason}</p>
                 )}
               </button>
             );

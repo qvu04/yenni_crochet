@@ -29,42 +29,66 @@ export const orderServices = {
       p_note: input.note ?? null,
       p_zalo_user_id: input.zalo_user_id ?? null,
       p_promotion_id: input.promotion_id ?? null,
+      p_payment_type: input.payment_type ?? "deposit",
+      p_deposit_rate: input.deposit_rate ?? null,
+      p_checkout_order_id: input.checkout_order_id ?? null,
+      p_delivery_latitude: input.delivery_latitude ?? null,
+      p_delivery_longitude: input.delivery_longitude ?? null,
+      p_delivery_location_accuracy: input.delivery_location_accuracy ?? null,
+      p_delivery_location_token: input.delivery_location_token ?? null,
     };
 
-    const { data, error } = input.items?.length
-      ? await supabase.rpc("create_cart_order_with_promotion", {
-        ...rpcPayload,
-        p_items: input.items.map((item) => ({
-          product_id: item.product_id,
-          variant_id: item.variant_id ?? null,
-          quantity: item.quantity,
-          note: item.note ?? null,
-        })),
-        p_payment_type: input.payment_type ?? "deposit",
-        p_payment_status: input.payment_status ?? "paid",
-        p_deposit_rate: input.deposit_rate ?? null,
-        p_deposit_amount: input.deposit_amount ?? 0,
-        p_remaining_amount: input.remaining_amount ?? 0,
-        p_shipping_fee: input.shipping_fee ?? 0,
-        p_checkout_order_id: input.checkout_order_id ?? null,
-        p_checkout_transaction_id: input.checkout_transaction_id ?? null,
-        p_checkout_message_token: input.checkout_message_token ?? null,
-        p_delivery_latitude: input.delivery_latitude ?? null,
-        p_delivery_longitude: input.delivery_longitude ?? null,
-        p_delivery_location_accuracy: input.delivery_location_accuracy ?? null,
-        p_delivery_location_token: input.delivery_location_token ?? null,
-      })
-      : await supabase.rpc("create_order_with_promotion", {
-        ...rpcPayload,
-        p_product_id: input.product_id,
-        p_quantity: input.quantity,
-      });
+    if (!input.items?.length) {
+      throw new Error("Giỏ hàng đang trống");
+    }
+
+    const { data, error } = await supabase.rpc("create_pending_cart_order", {
+      ...rpcPayload,
+      p_items: input.items.map((item) => ({
+        product_id: item.product_id,
+        variant_id: item.variant_id ?? null,
+        quantity: item.quantity,
+        note: item.note ?? null,
+      })),
+    });
 
     if (error) {
       throw new Error(error.message);
     }
 
     return typeof data === "string" ? data : null;
+  },
+
+  attachCheckoutOrder: async (input: {
+    orderId: string;
+    zaloUserId?: string;
+    checkoutOrderId: string;
+  }): Promise<void> => {
+    const { error } = await supabase.rpc("attach_pending_checkout_order", {
+      p_order_id: input.orderId,
+      p_zalo_user_id: input.zaloUserId ?? null,
+      p_checkout_order_id: input.checkoutOrderId,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  },
+
+  submitBankTransfer: async (input: {
+    orderId: string;
+    zaloUserId: string;
+    reference?: string;
+  }): Promise<void> => {
+    const { error } = await supabase.rpc("submit_bank_transfer", {
+      p_order_id: input.orderId,
+      p_zalo_user_id: input.zaloUserId,
+      p_transfer_reference: input.reference?.trim() || null,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
   },
 
   getCustomerOrderHistory: async (zaloUserId: string, status: CustomerOrderFilter = "all"): Promise<CustomerOrder[]> => {

@@ -154,16 +154,22 @@ export const ContactPage = () => {
 
   return (
     <main className="bg-background-main px-5 pb-5 pt-4">
-      <header className="mb-6">
-        <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
+      <header className="relative mb-6 overflow-hidden rounded-[30px] bg-[#163A3A] px-5 py-6 text-white shadow-[0_16px_34px_rgba(22,58,58,0.18)]">
+        <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full border-[18px] border-[#B7E4C7]/20" />
+        <div className="relative">
+        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#B7E4C7]">
           Yenni luôn ở đây
         </p>
-        <h1 className="mt-1 font-heading text-3xl font-bold text-title-text">
+        <h1 className="mt-1 font-heading text-[32px] font-extrabold leading-9">
           Liên hệ với shop
         </h1>
-        <p className="mt-2 text-sm leading-6 text-text-muted">
+        <p className="mt-2 max-w-[320px] text-sm font-medium leading-6 text-white/75">
           Cần hỏi về mẫu có sẵn, đơn đặt riêng hoặc thời gian hoàn thành, bạn nhắn Yenni nhé.
         </p>
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-[#D7F9E5]">
+          <span className="h-2 w-2 rounded-full bg-[#86EFAC]" /> Phản hồi trong ngày
+        </div>
+        </div>
       </header>
 
       <section className="mb-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-text-main/5">

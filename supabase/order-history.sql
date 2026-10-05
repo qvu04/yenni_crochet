@@ -30,6 +30,7 @@ returns table (
   deposit_amount integer,
   remaining_amount integer,
   paid_at timestamptz,
+  payment_expires_at timestamptz,
   items jsonb
 )
 language sql
@@ -54,6 +55,7 @@ as $$
     coalesce(orders.deposit_amount, 0)::integer as deposit_amount,
     coalesce(orders.remaining_amount, 0)::integer as remaining_amount,
     orders.paid_at,
+    orders.payment_expires_at,
     coalesce(
       jsonb_agg(
         jsonb_build_object(
@@ -77,7 +79,8 @@ as $$
   from orders
   left join order_items on order_items.order_id = orders.id
   left join products on products.id = order_items.product_id
-  where orders.zalo_user_id = trim(p_zalo_user_id)
+  where trim(p_zalo_user_id) = auth.jwt() ->> 'zalo_user_id'
+    and orders.zalo_user_id = trim(p_zalo_user_id)
     and (
       p_status is null
       or p_status = 'all'
@@ -85,7 +88,7 @@ as $$
       or (p_status = 'shipping' and orders.status = 'delivering')
       or (p_status = 'done' and orders.status = 'completed')
       or (p_status = 'cancelled' and orders.status = 'canceled')
-      or (p_status = 'waiting_payment' and orders.status = 'pending' and orders.payment_status = 'pending')
+      or (p_status = 'waiting_payment' and orders.status = 'pending' and orders.payment_status in ('pending', 'failed'))
       or (p_status = 'paid_deposit' and (
         orders.status = 'awaiting_confirmation'
         or (orders.status = 'pending' and orders.payment_status = 'paid')
@@ -118,6 +121,7 @@ returns table (
   deposit_amount integer,
   remaining_amount integer,
   paid_at timestamptz,
+  payment_expires_at timestamptz,
   delivery_latitude numeric,
   delivery_longitude numeric,
   delivery_location_accuracy numeric,
@@ -146,6 +150,7 @@ as $$
     coalesce(orders.deposit_amount, 0)::integer as deposit_amount,
     coalesce(orders.remaining_amount, 0)::integer as remaining_amount,
     orders.paid_at,
+    orders.payment_expires_at,
     orders.delivery_latitude,
     orders.delivery_longitude,
     orders.delivery_location_accuracy,
@@ -173,11 +178,16 @@ as $$
   from orders
   left join order_items on order_items.order_id = orders.id
   left join products on products.id = order_items.product_id
-  where orders.zalo_user_id = trim(p_zalo_user_id)
+  where trim(p_zalo_user_id) = auth.jwt() ->> 'zalo_user_id'
+    and orders.zalo_user_id = trim(p_zalo_user_id)
     and orders.id = p_order_id
   group by orders.id
   limit 1;
 $$;
 
-grant execute on function public.get_user_order_history(text, text) to anon, authenticated;
-grant execute on function public.get_user_order_detail(text, uuid) to anon, authenticated;
+-- Do not expose customer order history through the public anon key. The caller
+-- must use a verified Supabase JWT issued after Zalo identity verification.
+revoke execute on function public.get_user_order_history(text, text) from anon;
+revoke execute on function public.get_user_order_detail(text, uuid) from anon;
+grant execute on function public.get_user_order_history(text, text) to authenticated;
+grant execute on function public.get_user_order_detail(text, uuid) to authenticated;

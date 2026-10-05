@@ -10,15 +10,15 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
     const updateQuantity = useCartStore((state) => state.updateQuantity);
     const updateNote = useCartStore((state) => state.updateNote);
     return (
-        <section className="mb-4 overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-text-main/5">
-            <div className="flex items-center justify-between gap-3 border-b border-text-main/5 px-4 py-3">
+        <section className="mb-4 overflow-hidden rounded-[28px] bg-[#FFF8F3] shadow-sm ring-1 ring-[#E8D9D0]">
+            <div className="flex items-center justify-between gap-3 bg-white px-4 py-4">
                 <div className="flex items-center gap-2">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/50 text-lg text-title-text">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#F5D6C8] text-lg text-[#33272A]">
                         <AiOutlineShopping />
                     </span>
                     <div>
                         <h2 className="font-heading text-lg font-extrabold text-title-text">Sản phẩm</h2>
-                        <p className="text-xs font-semibold text-text-muted">{items.length} món trong giỏ</p>
+                        <p className="text-xs font-semibold text-text-muted">{items.length} món đã chọn</p>
                     </div>
                 </div>
             </div>
@@ -31,7 +31,7 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                 });
 
                 return (
-                    <article key={itemId} className="border-b border-text-main/5 p-4 last:border-b-0">
+                    <article key={itemId} className="mx-3 my-3 rounded-[24px] bg-white p-3 shadow-[0_6px_16px_rgba(91,62,44,0.07)] ring-1 ring-[#E8D9D0]">
                         <div className="flex gap-3">
                             <LazyImage
                                 src={item.image}
@@ -48,7 +48,7 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                                         <div className="mt-1 flex flex-wrap items-center gap-2">
                                             <p className="text-sm font-extrabold text-title-text">{formatPrice(item.price)}/cái</p>
                                             {item.stock_quantity <= 0 && (
-                                                <span className="rounded-full bg-[#FEE2E2] px-2 py-0.5 text-[10px] font-extrabold text-[#B91C1C]">
+                                                <span className="rounded-full bg-[#F5D6C8] px-2 py-0.5 text-[10px] font-extrabold text-[#33272A]">
                                                     Hết hàng
                                                 </span>
                                             )}
@@ -70,7 +70,7 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveItem(itemId, item.name)}
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FEF2F2] text-lg text-[#B91C1C]"
+                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF0EA] text-lg text-[#C96F4A]"
                                         aria-label="Xóa sản phẩm"
                                     >
                                         <AiOutlineDelete />
@@ -103,7 +103,7 @@ export const CartSection = ({ items, handleRemoveItem }: CartSectionProps) => {
                             onChange={(event) => updateNote(itemId, event.target.value)}
                             rows={2}
                             placeholder="Ghi chú riêng cho sản phẩm này nếu có..."
-                            className="mt-3 w-full rounded-2xl border border-text-main/5 bg-background-main/70 p-3 text-sm text-text-main outline-none focus:border-primary"
+                            className="mt-3 w-full rounded-2xl border border-[#E8D9D0] bg-[#FFFDF9] p-3 text-sm text-text-main outline-none focus:border-[#C96F4A]"
                         />
                     </article>
                 );

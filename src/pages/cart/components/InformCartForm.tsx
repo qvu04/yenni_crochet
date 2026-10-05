@@ -14,8 +14,8 @@ interface InformCartFormProps {
 }
 
 const fieldClassName =
-  "w-full rounded-2xl border border-text-main/5 bg-background-main/70 p-3 text-sm font-semibold text-text-main outline-none transition focus:border-primary focus:bg-white";
-const errorClassName = "mt-1 text-xs text-[#B91C1C]";
+  "w-full rounded-2xl border border-[#E8D9D0] bg-white p-3 text-sm font-semibold text-text-main outline-none transition focus:border-[#C96F4A] focus:bg-white";
+const errorClassName = "mt-1 text-xs text-[#C96F4A]";
 
 export const InformCartForm = ({
   register,
@@ -28,9 +28,9 @@ export const InformCartForm = ({
   phoneError,
 }: InformCartFormProps) => {
   return (
-    <section className="mb-4 rounded-[28px] bg-white p-4 shadow-sm ring-1 ring-text-main/5">
+    <section className="mb-4 rounded-[28px] border border-[#E8D9D0] bg-[#FFF8F3] p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EFF6FF] text-lg text-[#075985]">
+        <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#F5D6C8] text-lg text-[#33272A]">
           <AiOutlineEnvironment />
         </span>
         <div>
@@ -42,7 +42,7 @@ export const InformCartForm = ({
       <div className="space-y-3">
         <div>
           <label className="mb-1 block text-sm font-semibold text-text-main">
-            Tên người nhận <span className="text-[#B91C1C]">*</span>
+            Tên người nhận <span className="text-[#C96F4A]">*</span>
           </label>
           <div className="relative">
             <AiOutlineUser className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-text-muted" />
@@ -60,13 +60,13 @@ export const InformCartForm = ({
         <div>
           <div className="mb-1 flex items-center justify-between gap-3">
             <label className="text-sm font-semibold text-text-main">
-              Số điện thoại <span className="text-[#B91C1C]">*</span>
+              Số điện thoại <span className="text-[#C96F4A]">*</span>
             </label>
             <button
               type="button"
               onClick={handleGetPhone}
               disabled={isGettingPhone}
-              className="text-xs font-bold text-title-text disabled:text-text-muted"
+              className="text-xs font-bold text-[#C96F4A] disabled:text-text-muted"
             >
               {isGettingPhone ? "Đang lấy..." : "Lấy từ Zalo"}
             </button>
@@ -92,7 +92,7 @@ export const InformCartForm = ({
 
         <div>
           <label className="mb-1 block text-sm font-semibold text-text-main">
-            Địa chỉ giao hàng <span className="text-[#B91C1C]">*</span>
+            Địa chỉ giao hàng <span className="text-[#C96F4A]">*</span>
           </label>
           <textarea
             {...register("address")}
@@ -105,7 +105,7 @@ export const InformCartForm = ({
           )}
         </div>
 
-        <div className="rounded-3xl border border-[#BAE6FD] bg-[#EFF6FF] p-3">
+        <div className="rounded-3xl border border-[#E8D9D0] bg-[#F5D6C8] p-3">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-bold text-text-main">Vị trí hỗ trợ giao hàng</p>
@@ -113,7 +113,7 @@ export const InformCartForm = ({
             </div>
           </div>
           {hasDeliveryLocation ? (
-            <p className="mt-2 rounded-2xl bg-white px-3 py-2 text-center text-xs font-bold text-[#075985] shadow-sm">
+            <p className="mt-2 rounded-2xl bg-white px-3 py-2 text-center text-xs font-bold text-[#33272A] shadow-sm">
               Đã lưu vị trí để shop hỗ trợ giao hàng.
             </p>
           ) : (
@@ -121,7 +121,7 @@ export const InformCartForm = ({
               type="button"
               onClick={handleGetLocation}
               disabled={isGettingLocation}
-              className="w-full shrink-0 rounded-2xl bg-white px-3 py-2 text-xs font-bold text-[#075985] shadow-sm disabled:text-text-muted"
+              className="w-full shrink-0 rounded-2xl bg-white px-3 py-2 text-xs font-bold text-[#33272A] shadow-sm disabled:text-text-muted"
             >
               {isGettingLocation ? "Đang lấy vị trí..." : "Dùng vị trí"}
             </button>

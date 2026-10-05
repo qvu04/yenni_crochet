@@ -1,14 +1,18 @@
 import { CustomerOrder } from "types";
-import { formatPrice } from "utils";
+import { formatDate, formatPrice } from "utils";
+import { Spinner } from "components/ui";
 
 interface OrderPaymentBlockProps {
   order: CustomerOrder;
+  onPay?: () => void;
+  isPaying?: boolean;
 }
 
-export const OrderPaymentBlock = ({ order }: OrderPaymentBlockProps) => {
+export const OrderPaymentBlock = ({ order, onPay, isPaying = false }: OrderPaymentBlockProps) => {
   const paidLabel = order.payment_type === "full" ? "Đã thanh toán" : "Đã thanh toán hôm nay";
   const pendingLabel = order.payment_type === "full" ? "Thanh toán đang xác nhận" : "Cọc + ship đang xác nhận";
-  const paymentLabel = order.payment_status === "paid" ? paidLabel : pendingLabel;
+  const isWaitingForPayment = order.status === "pending" && order.payment_status !== "paid";
+  const paymentLabel = order.payment_status === "paid" ? paidLabel : isWaitingForPayment ? "Chưa thanh toán" : pendingLabel;
   const payableAmount = order.final_price + order.shipping_fee;
 
   return (
@@ -45,11 +49,26 @@ export const OrderPaymentBlock = ({ order }: OrderPaymentBlockProps) => {
             <p className="mt-1 font-extrabold text-text-main">{formatPrice(order.remaining_amount)}</p>
           </div>
         </div>
-        {/* {order.payment_status === "pending" && order.deposit_amount > 0 && (
-          <p className="rounded-2xl bg-[#FFFBEB] p-3 text-xs font-bold leading-5 text-[#92400E]">
-            Zalo đang xác nhận giao dịch cọc. Khi hoàn tất, đơn sẽ chuyển sang trạng thái chờ shop xác nhận.
-          </p>
-        )} */}
+        {isWaitingForPayment && onPay && (
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={onPay}
+              disabled={isPaying || order.deposit_amount <= 0}
+              className="flex min-h-12 w-full items-center justify-center rounded-2xl bg-title-text px-4 text-sm font-extrabold text-white disabled:bg-text-muted"
+            >
+              {isPaying ? <Spinner label="Đang mở thanh toán..." variant="inline" /> : `Thanh toán ${formatPrice(order.deposit_amount)}`}
+            </button>
+            <p className="mt-2 text-center text-xs font-semibold leading-5 text-text-muted">
+              Đơn vẫn được giữ lại. Bạn có thể thanh toán lại khi sẵn sàng.
+            </p>
+            {order.payment_expires_at && (
+              <p className="mt-1 text-center text-xs font-bold text-[#92400E]">
+                Giữ tồn kho đến {formatDate(order.payment_expires_at)}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

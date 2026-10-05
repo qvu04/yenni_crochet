@@ -24,6 +24,8 @@ export interface CreateOrderInput {
   checkout_order_id?: string;
   checkout_transaction_id?: string;
   checkout_message_token?: string;
+  bank_transfer_reference?: string;
+  payment_submitted_at?: string;
   delivery_latitude?: number;
   delivery_longitude?: number;
   delivery_location_accuracy?: number;
@@ -82,6 +84,9 @@ export interface CustomerOrder {
   deposit_amount: number;
   remaining_amount: number;
   paid_at?: string | null;
+  bank_transfer_reference?: string | null;
+  payment_submitted_at?: string | null;
+  payment_expires_at?: string | null;
   delivery_latitude?: number | null;
   delivery_longitude?: number | null;
   delivery_location_accuracy?: number | null;

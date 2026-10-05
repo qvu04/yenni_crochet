@@ -107,14 +107,27 @@ export const VouchersPage = () => {
 
   return (
     <main className="h-full bg-background-main px-5 pt-4">
-      <header className="mb-5">
-        <div className="flex items-start justify-between gap-3">
+      <header className="relative mb-5 overflow-hidden rounded-[30px] bg-[linear-gradient(135deg,#FFF7D6_0%,#FFE1C7_52%,#FCE7F3_100%)] p-5 shadow-[0_14px_30px_rgba(146,64,14,0.10)]">
+        <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/45 blur-2xl" />
+        <div className="relative flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-text-muted">
+            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#9A3412]">
               Ví ưu đãi
             </p>
-            <h1 className="mt-1 font-heading text-3xl font-bold text-title-text">Ưu đãi</h1>
+            <h1 className="mt-1 font-heading text-[32px] font-extrabold leading-9 text-[#7C2D12]">Ưu đãi</h1>
+            <p className="mt-2 max-w-[260px] text-sm font-semibold leading-5 text-[#9A3412]">
+              Gom chút niềm vui cho đơn len tiếp theo của bạn.
+            </p>
           </div>
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-white/70 text-3xl text-[#C2410C] shadow-sm">
+            <AiOutlineGift />
+          </span>
+        </div>
+        <div className="relative mt-4 flex items-center gap-2 text-xs font-extrabold text-[#9A3412]">
+          <span className="rounded-full bg-white/70 px-3 py-1.5">Đổi voucher</span>
+          <span className="rounded-full bg-white/50 px-3 py-1.5">Tiết kiệm hơn</span>
+        </div>
+        <div className="relative mt-4 flex justify-end">
           <button
             type="button"
             onClick={async () => {
@@ -124,15 +137,12 @@ export const VouchersPage = () => {
               }
             }}
             disabled={isRefreshing}
-            className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-extrabold text-title-text shadow-sm ring-1 ring-text-main/5 disabled:text-text-muted"
+            className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full bg-[#7C2D12] px-3 text-xs font-extrabold text-white shadow-sm disabled:opacity-60"
           >
             <AiOutlineReload className={isRefreshing ? "animate-spin" : ""} />
             {isRefreshing ? "Đang cập nhật" : "Cập nhật"}
           </button>
         </div>
-        <p className="mt-1 text-sm leading-6 text-text-muted">
-          Nhận voucher và dùng cho những đơn hàng handmade sắp tới.
-        </p>
       </header>
 
       <div className="mb-4 grid grid-cols-3 rounded-2xl bg-white p-1 shadow-sm ring-1 ring-text-main/5">
