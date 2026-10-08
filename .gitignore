@@ -23,3 +23,5 @@ www
 *.njsproj
 *.sln
 *.sw?
+# Supabase files
+/supabase/
